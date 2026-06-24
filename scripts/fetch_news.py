@@ -1,5 +1,5 @@
 from __future__ import annotations
-import os, re, json, sys, time
+import os, re, json, sys, time, random
 from datetime import datetime, timezone
 from collections import Counter
 
@@ -310,6 +310,57 @@ def _validate_llm_output(data: dict) -> dict | None:
     return data
 
 
+def _generate_raw_quiz(title: str, content: str) -> list:
+    """Generate 5 comprehension questions algorithmically (no AI).
+
+    Picks 5 sentences, blanks a content word, provides 4 options (1 correct
+    + 3 distractors from other article words).  Seeded on title for stability.
+    """
+    random.seed(hash(title))
+    sentences = []
+    for s in content.replace("!", ".").replace("?", ".").split("."):
+        s = s.strip()
+        words = s.split()
+        if 8 <= len(words) <= 30:
+            sentences.append(s)
+    sentences.sort(key=lambda s: len(s), reverse=True)
+    sentences = sentences[:15]
+    all_words = content.split()
+    word_set = {
+        w.lower().strip(".,!?\"'()[]") for w in all_words
+        if len(w) > 3 and w.strip(".,!?\"'()[]")[0].isalpha()
+    }
+
+    questions: list[dict] = []
+    for sentence in sentences:
+        if len(questions) >= 5:
+            break
+        words = sentence.split()
+        candidates = []
+        for i, w in enumerate(words):
+            clean = w.strip(".,!?\"'()[]")
+            if len(clean) > 3 and i > 0 and i < len(words) - 1 and clean[0].isalpha():
+                candidates.append((i, clean))
+        if not candidates:
+            continue
+        idx, answer = random.choice(candidates)
+        dl = [w for w in word_set if w != answer.lower()]
+        if len(dl) < 3:
+            continue
+        distractors = random.sample(dl, 3)
+        options = [answer] + distractors
+        random.shuffle(options)
+        correct_idx = options.index(answer)
+        words[idx] = "______"
+        question = " ".join(words)
+        questions.append({
+            "question": f"Complete the sentence: {question}",
+            "options": options,
+            "correctIndex": correct_idx,
+        })
+    return questions
+
+
 def process_article(r: dict, idx: int, total: int) -> dict | None:
     title = r["title"]
     full_text = r.get("text") or ""
@@ -372,8 +423,12 @@ def process_article(r: dict, idx: int, total: int) -> dict | None:
 
     base_level = estimate_level(content_c1)
     vocab = extract_vocabulary(content_c1)
+    quiz_questions = _generate_raw_quiz(title, content_c1)
+    if quiz_questions:
+        vocab.insert(0, {"_type": "quiz", "questions": quiz_questions})
 
-    print(f"  [{idx}/{total}] RAW — B1:{len(content_by_level['B1'].split())}w")
+    qc = len(quiz_questions)
+    print(f"  [{idx}/{total}] RAW — B1:{len(content_by_level['B1'].split())}w  quiz:{qc}")
     return {
         "_source": "raw",
         "title": title,

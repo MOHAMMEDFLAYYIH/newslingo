@@ -877,7 +877,15 @@ class _BottomActions extends StatelessWidget {
         children: [
           Expanded(
             child: FilledButton.icon(
-              onPressed: () => context.push('/quiz/$articleId', extra: quiz),
+              onPressed: () {
+                if (quiz == null || quiz!.questions.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(t.articleNoQuiz)),
+                  );
+                  return;
+                }
+                context.push('/quiz/$articleId', extra: quiz);
+              },
               icon: const Text('📝', style: TextStyle(fontSize: 18)),
               label: Text(
                 t.articleQuizButton,

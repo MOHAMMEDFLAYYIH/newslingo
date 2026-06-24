@@ -1,12 +1,15 @@
+import 'dart:ui' show Locale;
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:newslingo/core/utils/extensions.dart';
 import 'package:newslingo/data/models/article_model.dart';
 import 'package:newslingo/domain/entities/article.dart';
 
-// =============================================================================
-// Models — JSON serialization round-trips
-// =============================================================================
-
 void main() {
+  // ===========================================================================
+  // Models — JSON serialization round-trips
+  // ===========================================================================
+
   group('ArticleModel', () {
     final json = {
       'id': 'test_1',
@@ -236,13 +239,13 @@ void main() {
       expect(quiz2.questions.length, 1);
     });
   });
-}
 
-// =============================================================================
-// Entities — copyWith + equality
-// =============================================================================
+  // ===========================================================================
+  // Entities — copyWith + equality
+  // ===========================================================================
 
-baseArticle() => Article(
+  group('Article — copyWith', () {
+    final base = Article(
       id: 'a1',
       title: 'Title',
       description: 'Desc',
@@ -256,7 +259,54 @@ baseArticle() => Article(
       tags: ['tag1'],
     );
 
-baseWord() => WordDefinition(
+    test('updates single field', () {
+      final u = base.copyWith(title: 'New');
+      expect(u.title, 'New');
+      expect(u.id, 'a1');
+    });
+
+    test('updates all 17 fields', () {
+      final u = base.copyWith(
+        id: 'a2',
+        title: 'T2',
+        description: 'D2',
+        content: 'C2',
+        category: 'sports',
+        source: 'S2',
+        imageUrl: 'i2.jpg',
+        audioUrl: 'a2.mp3',
+        level: 'C1',
+        publishedAt: DateTime(2025),
+        tags: ['t2'],
+        translatedTitle: 'مترجم',
+        translatedDescription: 'وصف',
+        translatedContent: 'محتوى',
+        vocabulary: [
+          WordDefinition(
+            word: 'w', definition: 'd', translation: 'ت',
+            synonyms: [], examples: [], partOfSpeech: 'n',
+          ),
+        ],
+        quiz: Quiz(id: 'q1', articleId: 'a2', questions: []),
+      );
+      expect(u.id, 'a2');
+      expect(u.translatedTitle, 'مترجم');
+      expect(u.vocabulary.length, 1);
+      expect(u.quiz!.id, 'q1');
+    });
+
+    test('null passes keep originals', () {
+      expect(base.copyWith(), base);
+    });
+
+    test('equality', () {
+      expect(base, base);
+      expect(base, isNot(base.copyWith(id: 'x')));
+    });
+  });
+
+  group('WordDefinition — copyWith', () {
+    final base = WordDefinition(
       word: 'test',
       definition: 'a test',
       translation: 'اختبار',
@@ -265,25 +315,51 @@ baseWord() => WordDefinition(
       partOfSpeech: 'noun',
     );
 
-baseQuiz() => Quiz(
+    test('updates definition', () {
+      expect(base.copyWith(definition: 'new').definition, 'new');
+    });
+    test('null keeps original', () {
+      expect(base.copyWith(), base);
+    });
+    test('equality', () {
+      expect(base, isNot(base.copyWith(word: 'x')));
+    });
+  });
+
+  group('Quiz — copyWith', () {
+    final base = Quiz(
       id: 'q1',
       articleId: 'a1',
       questions: [
         QuizQuestion(
-          question: 'Q?',
-          options: ['A', 'B', 'C', 'D'],
-          correctIndex: 0,
+          question: 'Q?', options: ['A', 'B', 'C', 'D'], correctIndex: 0,
         ),
       ],
     );
 
-baseQuestion() => QuizQuestion(
-      question: 'Q?',
-      options: ['A', 'B', 'C', 'D'],
-      correctIndex: 2,
+    test('updates questions', () {
+      expect(base.copyWith(questions: []).questions, isEmpty);
+    });
+    test('equality', () {
+      expect(base, base);
+    });
+  });
+
+  group('QuizQuestion — copyWith', () {
+    final base = QuizQuestion(
+      question: 'Q?', options: ['A', 'B', 'C', 'D'], correctIndex: 2,
     );
 
-progress() => UserProgress(
+    test('updates correctIndex', () {
+      expect(base.copyWith(correctIndex: 0).correctIndex, 0);
+    });
+    test('equality', () {
+      expect(base, base);
+    });
+  });
+
+  group('UserProgress — copyWith', () {
+    final base = UserProgress(
       streak: 5,
       articlesRead: 10,
       wordsLearned: 20,
@@ -291,7 +367,19 @@ progress() => UserProgress(
       lastActiveDate: DateTime(2026, 6, 24),
     );
 
-baseSaved() => SavedWord(
+    test('updates streak', () {
+      expect(base.copyWith(streak: 10).streak, 10);
+    });
+    test('null keeps original', () {
+      expect(base.copyWith(), base);
+    });
+    test('equality', () {
+      expect(base, base);
+    });
+  });
+
+  group('SavedWord — copyWith', () {
+    final base = SavedWord(
       word: 'test',
       definition: 'def',
       translation: 'ترجمة',
@@ -301,134 +389,47 @@ baseSaved() => SavedWord(
       nextReviewDate: DateTime(2026, 7, 1),
     );
 
-group('Article — copyWith', () {
-  test('updates single field', () {
-    final u = baseArticle().copyWith(title: 'New');
-    expect(u.title, 'New');
-    expect(u.id, 'a1');
+    test('updates reviewCount', () {
+      expect(base.copyWith(reviewCount: 5).reviewCount, 5);
+    });
+    test('null nextReviewDate preserves original', () {
+      expect(base.copyWith(nextReviewDate: null).nextReviewDate, DateTime(2026, 7, 1));
+    });
+    test('equality', () {
+      expect(base, base);
+    });
   });
 
-  test('updates all 17 fields', () {
-    final u = baseArticle().copyWith(
-      id: 'a2',
-      title: 'T2',
-      description: 'D2',
-      content: 'C2',
-      category: 'sports',
-      source: 'S2',
-      imageUrl: 'i2.jpg',
-      audioUrl: 'a2.mp3',
-      level: 'C1',
-      publishedAt: DateTime(2025),
-      tags: ['t2'],
-      translatedTitle: 'مترجم',
-      translatedDescription: 'وصف',
-      translatedContent: 'محتوى',
-      vocabulary: [baseWord()],
-      quiz: baseQuiz(),
-    );
-    expect(u.id, 'a2');
-    expect(u.translatedTitle, 'مترجم');
-    expect(u.vocabulary.length, 1);
-    expect(u.quiz!.id, 'q1');
+  // ===========================================================================
+  // Extensions
+  // ===========================================================================
+
+  group('DateTime.relativeTime', () {
+    test('now', () => expect(DateTime.now().relativeTime(), 'now'));
+    test('minutes', () {
+      expect(DateTime.now().subtract(const Duration(minutes: 5)).relativeTime(), '5m ago');
+    });
+    test('hours', () {
+      expect(DateTime.now().subtract(const Duration(hours: 3)).relativeTime(), '3h ago');
+    });
+    test('days', () {
+      expect(DateTime.now().subtract(const Duration(days: 2)).relativeTime(), '2d ago');
+    });
+    test('old returns date string', () {
+      expect(DateTime(2026, 1, 1).relativeTime(), contains('2026'));
+    });
+    test('Arabic minutes', () {
+      final dt = DateTime.now().subtract(const Duration(minutes: 5));
+      expect(dt.relativeTime(const Locale('ar')), contains('دقيقة'));
+    });
+    test('Arabic now', () {
+      expect(DateTime.now().relativeTime(const Locale('ar')), 'الآن');
+    });
   });
 
-  test('null passes keep originals', () {
-    expect(baseArticle().copyWith(), baseArticle());
+  group('String.capitalize', () {
+    test('capitalizes', () => expect('hello'.capitalize, 'Hello'));
+    test('empty', () => expect(''.capitalize, ''));
+    test('single char', () => expect('a'.capitalize, 'A'));
   });
-
-  test('equality', () {
-    expect(baseArticle(), baseArticle());
-    expect(baseArticle(), isNot(baseArticle().copyWith(id: 'x')));
-  });
-});
-
-group('WordDefinition — copyWith', () {
-  test('updates definition', () {
-    expect(baseWord().copyWith(definition: 'new').definition, 'new');
-  });
-  test('null keeps original', () {
-    expect(baseWord().copyWith(), baseWord());
-  });
-  test('equality', () {
-    expect(baseWord(), isNot(baseWord().copyWith(word: 'x')));
-  });
-});
-
-group('Quiz — copyWith', () {
-  test('updates questions', () {
-    expect(baseQuiz().copyWith(questions: []).questions, isEmpty);
-  });
-  test('equality', () {
-    expect(baseQuiz(), baseQuiz());
-  });
-});
-
-group('QuizQuestion — copyWith', () {
-  test('updates correctIndex', () {
-    expect(baseQuestion().copyWith(correctIndex: 0).correctIndex, 0);
-  });
-  test('equality', () {
-    expect(baseQuestion(), baseQuestion());
-  });
-});
-
-group('UserProgress — copyWith', () {
-  test('updates streak', () {
-    expect(progress().copyWith(streak: 10).streak, 10);
-  });
-  test('null keeps original', () {
-    expect(progress().copyWith(), progress());
-  });
-  test('equality', () {
-    expect(progress(), progress());
-  });
-});
-
-group('SavedWord — copyWith', () {
-  test('updates reviewCount', () {
-    expect(baseSaved().copyWith(reviewCount: 5).reviewCount, 5);
-  });
-  test('null nextReviewDate preserves original', () {
-    expect(baseSaved().copyWith(nextReviewDate: null).nextReviewDate, DateTime(2026, 7, 1));
-  });
-  test('equality', () {
-    expect(baseSaved(), baseSaved());
-  });
-});
-
-// =============================================================================
-// Extensions
-// =============================================================================
-
-import 'dart:ui' show Locale;
-import 'package:newslingo/core/utils/extensions.dart';
-
-group('DateTime.relativeTime', () {
-  test('now', () => expect(DateTime.now().relativeTime(), 'now'));
-  test('minutes', () {
-    expect(DateTime.now().subtract(const Duration(minutes: 5)).relativeTime(), '5m ago');
-  });
-  test('hours', () {
-    expect(DateTime.now().subtract(const Duration(hours: 3)).relativeTime(), '3h ago');
-  });
-  test('days', () {
-    expect(DateTime.now().subtract(const Duration(days: 2)).relativeTime(), '2d ago');
-  });
-  test('old returns date string', () {
-    expect(DateTime(2026, 1, 1).relativeTime(), contains('2026'));
-  });
-  test('Arabic minutes', () {
-    final dt = DateTime.now().subtract(const Duration(minutes: 5));
-    expect(dt.relativeTime(const Locale('ar')), contains('دقيقة'));
-  });
-  test('Arabic now', () {
-    expect(DateTime.now().relativeTime(const Locale('ar')), 'الآن');
-  });
-});
-
-group('String.capitalize', () {
-  test('capitalizes', () => expect('hello'.capitalize, 'Hello'));
-  test('empty', () => expect(''.capitalize, ''));
-  test('single char', () => expect('a'.capitalize, 'A'));
-});
+}
