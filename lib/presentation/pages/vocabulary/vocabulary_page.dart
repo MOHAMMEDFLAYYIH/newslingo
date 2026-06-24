@@ -370,7 +370,10 @@ class _VocabularyBodyState extends State<_VocabularyBody>
                   color: AppColors.primary,
                   reviewCount: w.reviewCount,
                   isBookmarked: true,
-                  onTap: () => context.push('/vocabulary/${w.word}'),
+                  onTap: () => context.push(
+                    '/vocabulary/${w.word}',
+                    extra: w,
+                  ),
                   onBookmark: () =>
                       context.read<WordCubit>().deleteWord(w.word),
                   onReview: () =>
@@ -796,14 +799,17 @@ class _InteractiveWordCardState extends State<_InteractiveWordCard>
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Row(
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            alignment: WrapAlignment.start,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               _ActionChip(
                 icon: Icons.menu_book_rounded,
                 label: t.vocabDetail,
                 onTap: widget.onTap,
               ),
-              const SizedBox(width: AppSpacing.sm),
               if (widget.onReview != null)
                 _ActionChip(
                   icon: Icons.check_circle_outline_rounded,
@@ -813,7 +819,6 @@ class _InteractiveWordCardState extends State<_InteractiveWordCard>
                     _toggleExpand();
                   },
                 ),
-              const Spacer(),
               if (widget.reviewCount > 0)
                 Container(
                   padding: const EdgeInsets.symmetric(

@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:newslingo/core/di/injection.dart';
 import 'package:newslingo/core/localization/app_localizations.dart';
 import 'package:newslingo/core/services/deepl_service.dart';
+import 'package:newslingo/core/services/dictionary_service.dart';
 import 'package:newslingo/core/services/tts_service.dart';
 import 'package:newslingo/core/theme/app_colors.dart';
 import 'package:newslingo/core/theme/app_spacing.dart';
 import 'package:newslingo/core/theme/app_typography.dart';
 import 'package:newslingo/domain/entities/article.dart';
-import 'package:newslingo/presentation/cubit/word/word_cubit.dart';
+import 'package:newslingo/domain/usecases/manage_vocabulary.dart';
 import 'package:newslingo/presentation/widgets/app_back_button.dart';
 
 class VocabularyDetailPage extends StatefulWidget {
   final String word;
+  final String? savedTranslation;
+  final String? savedDefinition;
 
-  const VocabularyDetailPage({super.key, required this.word});
+  const VocabularyDetailPage({
+    super.key,
+    required this.word,
+    this.savedTranslation,
+    this.savedDefinition,
+  });
 
   @override
   State<VocabularyDetailPage> createState() => _VocabularyDetailPageState();
@@ -27,29 +34,31 @@ class _VocabularyDetailPageState extends State<VocabularyDetailPage> {
   String _targetLang = 'AR';
   bool _initialized = false;
 
+  static const Map<String, String> _localeToDeepL = {
+    'ar': 'AR',
+    'es': 'ES',
+    'fr': 'FR',
+    'pt': 'PT-PT',
+    'ru': 'RU',
+    'hi': 'HI',
+    'zh': 'ZH',
+  };
+
   String get _targetLocaleLabel {
     switch (_targetLang) {
-      case 'ES':
-        return '🇪🇸 Español';
-      case 'FR':
-        return '🇫🇷 Français';
-      case 'PT-PT':
-        return '🇵🇹 Português';
-      case 'RU':
-        return '🇷🇺 Русский';
-      case 'HI':
-        return '🇮🇳 हिन्दी';
-      case 'ZH':
-        return '🇨🇳 中文';
-      default:
-        return '🇸🇦 العربية';
+      case 'ES': return '🇪🇸 Español';
+      case 'FR': return '🇫🇷 Français';
+      case 'PT-PT': return '🇵🇹 Português';
+      case 'RU': return '🇷🇺 Русский';
+      case 'HI': return '🇮🇳 हिन्दी';
+      case 'ZH': return '🇨🇳 中文';
+      default: return '🇦🇪 العربية';
     }
   }
 
   @override
   void initState() {
     super.initState();
-    _targetLang = 'AR';
   }
 
   final _tts = sl<TtsService>();
@@ -60,9 +69,8 @@ class _VocabularyDetailPageState extends State<VocabularyDetailPage> {
     super.didChangeDependencies();
     if (!_initialized) {
       _initialized = true;
-      _targetLang = DeepLService.targetCode(
-        Localizations.localeOf(context).languageCode,
-      );
+      final locale = Localizations.localeOf(context).languageCode;
+      _targetLang = _localeToDeepL[locale] ?? 'AR';
       _loadWordData();
     }
   }
@@ -74,45 +82,72 @@ class _VocabularyDetailPageState extends State<VocabularyDetailPage> {
   }
 
   Future<void> _loadWordData() async {
-    final generated = _generateWordData(widget.word);
+    final savedTranslation = widget.savedTranslation ?? '';
+    final savedDefinition = widget.savedDefinition ?? '';
 
-    if (_targetLang == 'AR' || !sl<DeepLService>().isAvailable) {
-      setState(() {
-        _data = generated;
-        _loading = false;
-      });
-      return;
+    final dict = await DictionaryService.fetchDefinition(widget.word);
+
+    if (!mounted) return;
+
+    String partOfSpeech = '';
+    String definitionEn = savedDefinition;
+    final List<String> examples = [];
+    final List<String> synonyms = [];
+
+    if (dict != null) {
+      if (dict.meanings.isNotEmpty) {
+        partOfSpeech = dict.meanings.first.partOfSpeech;
+        if (definitionEn.isEmpty) {
+          definitionEn = dict.meanings
+              .expand((m) => m.definitions)
+              .map((d) => d.definition)
+              .where((d) => d.isNotEmpty)
+              .firstOrNull ?? '';
+        }
+        for (final meaning in dict.meanings) {
+          for (final def in meaning.definitions) {
+            if (def.example.isNotEmpty && examples.length < 3) {
+              examples.add(def.example);
+            }
+          }
+        }
+      }
     }
 
-    try {
-      final service = sl<DeepLService>();
-      final translation = await service.translate(
-        widget.word,
-        targetLang: _targetLang,
-      );
-      if (mounted) {
-        setState(() {
-          _data = _WordData(
-            translation: translation,
-            level: generated.level,
-            partOfSpeech: generated.partOfSpeech,
-            definitionEn: generated.definitionEn,
-            definitionAr: generated.definitionAr,
-            examples: generated.examples,
-            synonyms: generated.synonyms,
-            similar: generated.similar,
+    String translation;
+    if (_targetLang == 'AR' && savedTranslation.isNotEmpty) {
+      translation = savedTranslation;
+    } else {
+      try {
+        final service = sl<DeepLService>();
+        if (service.isAvailable && definitionEn.isNotEmpty) {
+          translation = await service.translate(
+            definitionEn,
+            targetLang: _targetLang,
           );
-          _loading = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _data = generated;
-          _loading = false;
-        });
+        } else {
+          translation = widget.word;
+        }
+      } catch (_) {
+        translation = widget.word;
       }
     }
+
+    if (!mounted) return;
+    final isAr = _targetLang == 'AR';
+    setState(() {
+      _data = _WordData(
+        translation: translation,
+        level: 'B1',
+        partOfSpeech: partOfSpeech,
+        definitionEn: definitionEn,
+        definitionAr: isAr ? translation : (savedTranslation.isNotEmpty ? savedTranslation : translation),
+        examples: examples,
+        synonyms: synonyms,
+        similar: [],
+      );
+      _loading = false;
+    });
   }
 
   Color _levelColor(String level) {
@@ -326,9 +361,10 @@ class _VocabularyDetailPageState extends State<VocabularyDetailPage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      _isSpeaking ? '🔊' : '🔇',
-                                      style: TextStyle(fontSize: 20),
+                                    Icon(
+                                      _isSpeaking ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                                      color: AppColors.primary,
+                                      size: 20,
                                     ),
                                     const SizedBox(width: AppSpacing.sm),
                                     Text(
@@ -362,9 +398,7 @@ class _VocabularyDetailPageState extends State<VocabularyDetailPage> {
                         const SizedBox(width: AppSpacing.md),
                         Expanded(
                           child: _InfoCard(
-                            title: _targetLang == 'AR'
-                                ? '🇸🇦 العربية'
-                                : _targetLocaleLabel,
+                            title: _targetLocaleLabel,
                             content: _targetLang == 'AR'
                                 ? wordData.definitionAr
                                 : wordData.translation,
@@ -540,9 +574,9 @@ class _VocabularyDetailPageState extends State<VocabularyDetailPage> {
                         Expanded(
                           child: FilledButton.icon(
                             onPressed: () => _speakWord(),
-                            icon: const Text(
-                              '🔊',
-                              style: TextStyle(fontSize: 18),
+                            icon: const Icon(
+                              Icons.volume_up_rounded,
+                              size: 18,
                             ),
                             label: Text(
                               t.vocabListen,
@@ -568,8 +602,7 @@ class _VocabularyDetailPageState extends State<VocabularyDetailPage> {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () {
-                              final cubit = context.read<WordCubit>();
-                              cubit.addWord(
+                              sl<ManageVocabulary>().saveWord(
                                 SavedWord(
                                   word: widget.word,
                                   definition: wordData.definitionEn,
@@ -688,15 +721,4 @@ class _SimilarWord {
   const _SimilarWord(this.word, this.translation, this.level);
 }
 
-_WordData _generateWordData(String word) {
-  return _WordData(
-    translation: word,
-    level: 'B1',
-    partOfSpeech: 'word',
-    definitionEn: '',
-    definitionAr: '',
-    examples: <String>[],
-    synonyms: <String>[],
-    similar: <_SimilarWord>[],
-  );
-}
+

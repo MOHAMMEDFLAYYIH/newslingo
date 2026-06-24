@@ -413,7 +413,7 @@ class _BackCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             ),
             child: const Center(
-              child: Text('🇸🇦', style: TextStyle(fontSize: 24)),
+              child: Text('🇦🇪', style: TextStyle(fontSize: 24)),
             ),
           ),
           const SizedBox(height: AppSpacing.xl),

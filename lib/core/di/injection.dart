@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:newslingo/core/localization/locale_cubit.dart';
+import 'package:newslingo/core/services/article_batch_processor.dart';
 import 'package:newslingo/core/services/deepl_service.dart';
+import 'package:newslingo/core/services/rate_limiter.dart';
 import 'package:newslingo/core/services/tts_service.dart';
 import 'package:newslingo/data/datasources/local/article_translation_cache.dart';
 import 'package:newslingo/data/datasources/local/news_local_datasource.dart';
@@ -40,6 +42,10 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<DeepLService>(() => DeepLService());
 
   sl.registerLazySingleton<TtsService>(() => TtsService());
+  sl.registerLazySingleton<RateLimiter>(() => RateLimiter());
+  sl.registerLazySingleton<ArticleBatchProcessor>(
+    () => ArticleBatchProcessor(sl()),
+  );
 
   sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl()));
 

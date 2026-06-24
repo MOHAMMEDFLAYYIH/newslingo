@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:newslingo/core/di/injection.dart';
@@ -5,6 +7,7 @@ import 'package:newslingo/core/localization/app_localizations.dart';
 import 'package:newslingo/core/theme/app_colors.dart';
 import 'package:newslingo/core/theme/app_spacing.dart';
 import 'package:newslingo/core/theme/app_typography.dart';
+import 'package:newslingo/data/datasources/local/user_local_datasource.dart';
 import 'package:newslingo/data/datasources/remote/auth_remote_datasource.dart';
 import 'package:newslingo/presentation/widgets/app_text_field.dart';
 import 'package:newslingo/presentation/widgets/app_back_button.dart';
@@ -21,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  static DateTime? _lastRateLimitHit;
 
   @override
   void dispose() {
@@ -215,6 +219,24 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _onLogin() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_lastRateLimitHit != null) {
+      final elapsed = DateTime.now().difference(_lastRateLimitHit!).inSeconds;
+      if (elapsed < 120) {
+        final remaining = 120 - elapsed;
+        final t = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${t.errorRateLimit} ($remaining ${t.seconds(remaining)})'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        return;
+      }
+      _lastRateLimitHit = null;
+    }
+
     setState(() => _isLoading = true);
     try {
       await sl<AuthRemoteDataSource>().signIn(
@@ -222,9 +244,16 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text,
       );
       if (!mounted) return;
+      await _syncPendingOnboardingData();
+      if (!mounted) return;
       context.go('/home');
     } catch (e) {
       if (!mounted) return;
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('429') || msg.contains('too many requests') ||
+          msg.contains('over_request_rate_limit') || msg.contains('rate_limit')) {
+        _lastRateLimitHit = DateTime.now();
+      }
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -236,10 +265,33 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<void> _syncPendingOnboardingData() async {
+    try {
+      final level = await sl<UserLocalDataSource>().getOnboardingLevel();
+      final interests = await sl<UserLocalDataSource>()
+          .getOnboardingInterests();
+      if (level == null && (interests == null || interests.isEmpty)) return;
+      final profile = <String, dynamic>{};
+      if (level != null) profile['level'] = level;
+      if (interests != null && interests.isNotEmpty) {
+        profile['interests'] = interests;
+      }
+      await sl<AuthRemoteDataSource>().updateProfile(profile);
+      await sl<UserLocalDataSource>().markOnboardingComplete();
+      await sl<UserLocalDataSource>().clearOnboardingSelections();
+    } catch (_) {}
+  }
+
   String _formatAuthError(Object e) {
     final t = AppLocalizations.of(context);
     final msg = e.toString().toLowerCase();
-    if (msg.contains('429') || msg.contains('too many requests')) {
+
+    if (e is SocketException || e is TimeoutException || e is HandshakeException) {
+      return t.errorNetwork;
+    }
+
+    if (msg.contains('429') || msg.contains('too many requests') ||
+        msg.contains('over_request_rate_limit') || msg.contains('rate_limit')) {
       return t.errorRateLimit;
     }
     if (msg.contains('email not confirmed') ||

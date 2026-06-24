@@ -436,15 +436,15 @@ class _LevelBadge extends StatelessWidget {
         vertical: compact ? 2 : AppSpacing.xxs + 1,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: compact ? 0.9 : 0.9),
+        color: Colors.grey.shade300,
         borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
       ),
       child: Text(
         level,
         style: TextStyle(
           fontSize: compact ? 9 : 11,
-          fontWeight: FontWeight.w800,
-          color: Colors.white,
+          fontWeight: FontWeight.w700,
+          color: Colors.black87,
           letterSpacing: 0.5,
         ),
       ),
@@ -462,12 +462,12 @@ class _CategoryChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.25),
+        color: Colors.grey.shade300,
         borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
       ),
       child: Text(
         AppLocalizations.of(context).categoryLabel(category),
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white),
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
       ),
     );
   }

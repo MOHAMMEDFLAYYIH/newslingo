@@ -5,8 +5,6 @@ from collections import Counter
 
 import requests
 
-# ── Config ────────────────────────────────────────────────────
-
 _env_path = os.path.join(os.path.dirname(__file__), '.env')
 if os.path.exists(_env_path):
     with open(_env_path) as f:
@@ -19,14 +17,6 @@ if os.path.exists(_env_path):
 SUPABASE_URL = os.getenv("SUPABASE_URL", "https://qwxsntvobtfjldurswfq.supabase.co")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 WORLDNEWS_KEY = os.getenv("WORLDNEWS_API_KEY", "0b81722a904348f795a0a8f2bc093a5d")
-
-LLM_API_KEY = os.getenv("OPENAI_API_KEY", "")
-LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1").rstrip("/")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
-SHOULD_USE_LLM = bool(LLM_API_KEY)
-
-GROQ_CALL_DELAY = 6  # seconds between LLM calls (~6000 TPM for llama-3.3-70b)
-_llm_last_call = 0.0  # tracks last LLM call timestamp
 
 CATEGORY_MAP = {
     "general": "general", "politics": "general", "world": "general",
@@ -50,127 +40,6 @@ CEFR_WORD_TARGETS = {
     "A1": (50, 80), "A2": (80, 130), "B1": (130, 200), "B2": (200, 300), "C1": (300, 450),
 }
 
-
-# ── Rate limiter ──────────────────────────────────────────────
-
-def _rate_limit():
-    global _llm_last_call
-    elapsed = time.time() - _llm_last_call
-    if elapsed < GROQ_CALL_DELAY:
-        wait = GROQ_CALL_DELAY - elapsed
-        time.sleep(wait)
-    _llm_last_call = time.time()
-
-
-# ── LLM (analysis only — ~500 tokens/article) ─────────────────
-
-LLM_SYSTEM_PROMPT = """You are an English learning analyst. Given a full news article, extract analysis for intermediate-to-advanced learners.
-
-Return ONLY valid JSON with these exact keys:
-- vocabulary: array of {"word", "part_of_speech", "definition", "translation", "examples": [string], "synonyms": [string]}
-- quiz: {"questions": [{"question", "options": [string], "correctIndex"}]}
-- base_level: "A1"-"C1"
-- highlight_tags: [{"word", "sentence_with_tag"}]
-
-Rules:
-- vocabulary: 10-15 complex/notable words only
-- quiz: exactly 5 multiple-choice comprehension questions, 4 options each
-- base_level: CEFR level of the original article text
-- highlight_tags: for each vocab word, copy the exact sentence it appears in, wrapping that single word in <highlight>word</highlight>. If the word appears multiple times pick the first occurrence."""  # noqa: E501
-
-
-def _call_llm(prompt: str) -> dict | None:
-    global _llm_last_call
-    if not LLM_API_KEY:
-        return None
-    _rate_limit()
-    try:
-        resp = requests.post(
-            f"{LLM_BASE_URL}/chat/completions",
-            headers={
-                "Authorization": f"Bearer {LLM_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": LLM_MODEL,
-                "messages": [
-                    {"role": "system", "content": LLM_SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                "temperature": 0.3,
-                "max_tokens": 2048,
-            },
-            timeout=120,
-        )
-        if resp.status_code == 429:
-            print(f"  LLM rate limited (429). Waiting {GROQ_CALL_DELAY*2}s...")
-            time.sleep(GROQ_CALL_DELAY * 2)
-            return None
-        if resp.status_code != 200:
-            print(f"  LLM error {resp.status_code}: {resp.text[:200]}")
-            return None
-        body = resp.json()
-        raw = body["choices"][0]["message"]["content"].strip()
-        if raw.startswith("```"):
-            raw = re.sub(r"^```(?:json)?\s*", "", raw)
-            raw = re.sub(r"\s*```$", "", raw)
-        return json.loads(raw)
-    except requests.exceptions.Timeout:
-        print(f"  LLM timed out, skipping")
-        return None
-    except json.JSONDecodeError as e:
-        print(f"  LLM JSON parse error: {e}")
-        return None
-    except Exception as e:
-        print(f"  LLM error: {e}")
-        return None
-
-
-def analyze_with_llm(title: str, full_text: str) -> dict | None:
-    # Keep prompt under 600 tokens — send condensed article text
-    body = full_text[:3000]
-    user_prompt = f"TITLE: {title}\n\n{body}\n\nExtract vocabulary(10-15), quiz(5 questions), base_level, highlight_tags."
-    return _call_llm(user_prompt)
-
-
-# ── Worldnewsapi ──────────────────────────────────────────────
-
-def fetch_worldnewsapi(limit: int = 20) -> list[dict]:
-    if not WORLDNEWS_KEY:
-        return []
-    categories = ["general", "sports", "technology", "business", "science", "entertainment"]
-    all_articles = []
-    per_cat = max(1, (limit + len(categories) - 1) // len(categories))
-    for cat in categories:
-        if len(all_articles) >= limit:
-            break
-        try:
-            url = (
-                f"https://api.worldnewsapi.com/search-news"
-                f"?api-key={WORLDNEWS_KEY}"
-                f"&text={cat}"
-                f"&language=en"
-                f"&source-countries=us,gb"
-                f"&number={per_cat}"
-                f"&sort=publish-time"
-            )
-            resp = requests.get(url, timeout=30)
-            if resp.status_code != 200:
-                continue
-            data = resp.json()
-            for r in data.get("news", []):
-                r["_apiCategory"] = cat
-                r["_apiSource"] = "worldnews"
-                all_articles.append(r)
-                if len(all_articles) >= limit:
-                    return all_articles
-        except Exception as e:
-            print(f"  Worldnews error ({cat}): {e}")
-            continue
-    return all_articles
-
-
-# ── Content processing (algorithmic only — no LLM writes text) ─
 
 def split_sentences(text: str) -> list[str]:
     raw = re.split(r"(?<=[.!?])\s+", text.strip())
@@ -251,16 +120,8 @@ def extract_vocabulary(text: str) -> list[dict]:
     return vocab
 
 
-def apply_highlights(text: str, tags: list[dict]) -> str:
-    """Replace vocabulary words with <highlight>word</highlight>."""
-    words_to_tag = {}
-    for t in tags:
-        w = t.get("word", "").strip()
-        if w:
-            words_to_tag[w] = True
-    if not words_to_tag:
-        return text
-    sorted_words = sorted(words_to_tag.keys(), key=lambda w: -len(w))
+def apply_highlights(text: str, vocab_words: list[str]) -> str:
+    sorted_words = sorted(vocab_words, key=lambda w: -len(w))
     result = text
     for w in sorted_words:
         result = re.sub(
@@ -275,8 +136,6 @@ def apply_highlights(text: str, tags: list[dict]) -> str:
 def map_category(cat: str) -> str:
     return CATEGORY_MAP.get(cat.lower().strip(), "general")
 
-
-# ── Supabase ──────────────────────────────────────────────────
 
 def supabase_insert_article(article: dict) -> str | None:
     headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}",
@@ -296,26 +155,7 @@ def supabase_insert_article(article: dict) -> str | None:
         return None
 
 
-# ── Article Processing ────────────────────────────────────────
-
-def _validate_llm_output(data: dict) -> dict | None:
-    if not data.get("vocabulary") or not isinstance(data["vocabulary"], list):
-        return None
-    if not isinstance(data.get("quiz"), dict):
-        data["quiz"] = {"questions": []}
-    if data.get("base_level") not in ("A1", "A2", "B1", "B2", "C1"):
-        data["base_level"] = "B1"
-    if not isinstance(data.get("highlight_tags"), list):
-        data["highlight_tags"] = []
-    return data
-
-
-def _generate_raw_quiz(title: str, content: str) -> list:
-    """Generate 5 comprehension questions algorithmically (no AI).
-
-    Picks 5 sentences, blanks a content word, provides 4 options (1 correct
-    + 3 distractors from other article words).  Seeded on title for stability.
-    """
+def generate_quiz(title: str, content: str) -> list:
     random.seed(hash(title))
     sentences = []
     for s in content.replace("!", ".").replace("?", ".").split("."):
@@ -331,7 +171,7 @@ def _generate_raw_quiz(title: str, content: str) -> list:
         if len(w) > 3 and w.strip(".,!?\"'()[]")[0].isalpha()
     }
 
-    questions: list[dict] = []
+    questions = []
     for sentence in sentences:
         if len(questions) >= 5:
             break
@@ -361,6 +201,41 @@ def _generate_raw_quiz(title: str, content: str) -> list:
     return questions
 
 
+def fetch_worldnewsapi(limit: int = 20) -> list[dict]:
+    if not WORLDNEWS_KEY:
+        return []
+    categories = ["general", "sports", "technology", "business", "science", "entertainment"]
+    all_articles = []
+    per_cat = max(1, (limit + len(categories) - 1) // len(categories))
+    for cat in categories:
+        if len(all_articles) >= limit:
+            break
+        try:
+            url = (
+                f"https://api.worldnewsapi.com/search-news"
+                f"?api-key={WORLDNEWS_KEY}"
+                f"&text={cat}"
+                f"&language=en"
+                f"&source-countries=us,gb"
+                f"&number={per_cat}"
+                f"&sort=publish-time"
+            )
+            resp = requests.get(url, timeout=30)
+            if resp.status_code != 200:
+                continue
+            data = resp.json()
+            for r in data.get("news", []):
+                r["_apiCategory"] = cat
+                r["_apiSource"] = "worldnews"
+                all_articles.append(r)
+                if len(all_articles) >= limit:
+                    return all_articles
+        except Exception as e:
+            print(f"  Worldnews error ({cat}): {e}")
+            continue
+    return all_articles
+
+
 def process_article(r: dict, idx: int, total: int) -> dict | None:
     title = r["title"]
     full_text = r.get("text") or ""
@@ -377,60 +252,20 @@ def process_article(r: dict, idx: int, total: int) -> dict | None:
     content_by_level = {lvl: generate_level_text(content_c1, lvl) for lvl in levels}
     desc_by_level = {lvl: generate_level_description(summary, lvl) for lvl in levels}
 
-    # Try LLM analysis (with rate-limit and 429 skip)
-    llm_out = None
-    if SHOULD_USE_LLM:
-        print(f"  [{idx}/{total}] LLM analyzing...")
-        llm_out = analyze_with_llm(title, content_c1)
-        llm_out = _validate_llm_output(llm_out) if llm_out else None
-
-    if llm_out:
-        vocab = llm_out.get("vocabulary", [])
-        quiz = llm_out.get("quiz", {"questions": []})
-        quiz_count = len(quiz.get("questions", []))
-        base_level = llm_out["base_level"]
-        tags = llm_out.get("highlight_tags", [])
-
-        if quiz_count > 0:
-            vocab.insert(0, {"_type": "quiz", "questions": quiz["questions"]})
-
-        for lvl in levels:
-            content_by_level[lvl] = apply_highlights(content_by_level[lvl], tags)
-
-        print(f"  [{idx}/{total}] LLM OK — vocab:{len(vocab)} quiz:{quiz_count} base:{base_level}")
-        return {
-            "_source": "llm",
-            "title": title,
-            "description": summary,
-            "category": category,
-            "source": str(source),
-            "image_url": r.get("image") or "",
-            "audio_url": "",
-            "base_level": base_level,
-            "published_at": published_at,
-            "content_a1": content_by_level["A1"],
-            "content_a2": content_by_level["A2"],
-            "content_b1": content_by_level["B1"],
-            "content_b2": content_by_level["B2"],
-            "content_c1": content_by_level["C1"],
-            "description_a1": desc_by_level["A1"],
-            "description_a2": desc_by_level["A2"],
-            "description_b1": desc_by_level["B1"],
-            "description_b2": desc_by_level["B2"],
-            "description_c1": desc_by_level["C1"],
-            "vocabulary": vocab,
-        }
-
     base_level = estimate_level(content_c1)
     vocab = extract_vocabulary(content_c1)
-    quiz_questions = _generate_raw_quiz(title, content_c1)
+    quiz_questions = generate_quiz(title, content_c1)
     if quiz_questions:
         vocab.insert(0, {"_type": "quiz", "questions": quiz_questions})
 
+    vocab_words = [v["word"] for v in vocab if v.get("word") and v.get("_type") != "quiz"]
+    for lvl in levels:
+        content_by_level[lvl] = apply_highlights(content_by_level[lvl], vocab_words)
+
     qc = len(quiz_questions)
-    print(f"  [{idx}/{total}] RAW — B1:{len(content_by_level['B1'].split())}w  quiz:{qc}")
+    print(f"  [{idx}/{total}] B1:{len(content_by_level['B1'].split())}w  quiz:{qc}")
+
     return {
-        "_source": "raw",
         "title": title,
         "description": summary,
         "category": category,
@@ -450,10 +285,9 @@ def process_article(r: dict, idx: int, total: int) -> dict | None:
         "description_b2": desc_by_level["B2"],
         "description_c1": desc_by_level["C1"],
         "vocabulary": vocab,
+        "quiz": {"questions": quiz_questions},
     }
 
-
-# ── Main ──────────────────────────────────────────────────────
 
 def main():
     print("=" * 60)
@@ -461,28 +295,17 @@ def main():
     print("=" * 60)
 
     limit = 10
-    mode = "auto"
     i = 1
     while i < len(sys.argv):
         arg = sys.argv[i]
         if arg == "--limit" and i + 1 < len(sys.argv):
             i += 1
             limit = int(sys.argv[i])
-        elif arg == "--mode" and i + 1 < len(sys.argv):
-            i += 1
-            mode = sys.argv[i]
         elif arg.isdigit():
             limit = int(arg)
         i += 1
 
-    global SHOULD_USE_LLM
-    if mode == "raw":
-        SHOULD_USE_LLM = False
-
-    if SHOULD_USE_LLM:
-        print(f"LLM: ON ({LLM_MODEL})")
-    else:
-        print("LLM: OFF (raw mode)")
+    print("Mode: RAW (algorithmic only, no AI)")
     print(f"Limit: {limit} articles")
 
     print(f"\nFetching from Worldnewsapi...")
@@ -512,14 +335,10 @@ def main():
         if art:
             articles.append(art)
 
-    llm_count = sum(1 for a in articles if a.get("_source") == "llm")
-    raw_count = sum(1 for a in articles if a.get("_source") == "raw")
-
     inserted_count = 0
     for idx, art in enumerate(articles):
         wc = len(art["content_b1"].split())
-        src = art.get("_source", "?").upper()
-        print(f"  [{idx+1}/{len(articles)}] [{src}] {art['title'][:50]} ({wc}w B1)")
+        print(f"  [{idx+1}/{len(articles)}] {art['title'][:50]} ({wc}w B1)")
         art_id = supabase_insert_article(art)
         if not art_id:
             print(f"    SKIP (insert failed)")
@@ -528,9 +347,9 @@ def main():
 
     print()
     print(f"{'='*60}")
-    print(f"LLM: {llm_count} | Raw: {raw_count}")
+    print(f"Processed: {len(articles)} articles")
     print(f"Inserted: {inserted_count}/{len(articles)}")
-    print(f"Daily limit used: ~{limit} points / 50 available")
+    print(f"Daily limit used: ~{limit} / 50 available")
     print(f"{'='*60}")
 
 

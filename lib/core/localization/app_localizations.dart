@@ -20,20 +20,7 @@ class AppLocalizations {
   bool get isZh => locale.languageCode == 'zh';
 
   // Splash
-  String get splashTitle =>
-      isAr ? 'نيوز لينجو' : isEs ? 'NewsLingo'
-          : isFr
-          ? 'Le jargon de l\'actualité'
-          : isPt
-          ? 'Jargão jornalístico'
-          : isRu
-          ? 'Жаргон новостей'
-          : isHi
-          ? 'समाचार की शब्दावली'
-
-          : isZh
-          ? '新闻术语'
-: 'NewsLingo';
+  String get splashTitle => 'News & Languages';
   String get splashSubtitle =>
       isAr ? 'تعلم الإنجليزية من الأخبار' : isEs ? 'Aprende inglés con las noticias'
           : isFr
@@ -50,20 +37,7 @@ class AppLocalizations {
 : 'Learn English from the News';
 
   // App
-  String get appName =>
-      isAr ? 'نيوز لينجو' : isEs ? 'NewsLingo'
-          : isFr
-          ? 'Le jargon de l\'actualité'
-          : isPt
-          ? 'Jargão jornalístico'
-          : isRu
-          ? 'Жаргон новостей'
-          : isHi
-          ? 'समाचार की शब्दावली'
-
-          : isZh
-          ? '新闻术语'
-: 'NewsLingo';
+  String get appName => 'News & Languages';
 
   // Bottom Nav
   String get navHome =>
@@ -459,21 +433,21 @@ class AppLocalizations {
       ? '电子邮件地址或密码无效'
 : 'Invalid email or password';
   String get errorGeneric => isAr
-      ? 'خطأ: تأكد من اتصال الإنترنت وحاول مرة أخرى'
-      : isEs ? 'Error: Verifica tu conexión a internet e inténtalo de nuevo'
+      ? 'حدث خطأ غير متوقع، حاول مرة أخرى'
+      : isEs ? 'Ocurrió un error inesperado, inténtalo de nuevo'
 
       : isFr
-      ? 'Erreur : vérifiez votre connexion Internet et réessayez'
+      ? 'Une erreur inattendue s\'est produite, veuillez réessayer'
       : isPt
-      ? 'Erro: Verifique a sua ligação à Internet e tente novamente'
+      ? 'Ocorreu um erro inesperado, tente novamente'
       : isRu
-      ? 'Ошибка: Проверьте подключение к Интернету и попробуйте ещё раз'
+      ? 'Произошла неожиданная ошибка, попробуйте ещё раз'
       : isHi
-      ? 'त्रुटि: अपना इंटरनेट जांचें और फिर से प्रयास करें'
+      ? 'एक अनपेक्षित त्रुटि हुई, कृपया पुनः प्रयास करें'
 
       : isZh
-      ? '错误：请检查网络连接，然后重试'
-: 'Error: Check your internet and try again';
+      ? '发生意外错误，请重试'
+: 'An unexpected error occurred, please try again';
 
   String get signUpTitle =>
       isAr ? 'إنشاء حساب' : isEs ? 'Crear cuenta'
@@ -775,6 +749,20 @@ class AppLocalizations {
       : isZh
       ? '密码强度不足'
 : 'Password is too weak';
+  String get errorNetwork => isAr
+      ? 'مشكلة في الاتصال. تأكد من اتصالك بالإنترنت وحاول مرة أخرى'
+      : isEs ? 'Problema de conexión. Verifica tu conexión a Internet e inténtalo de nuevo'
+      : isFr
+      ? 'Problème de connexion. Vérifiez votre connexion Internet et réessayez'
+      : isPt
+      ? 'Problema de conexão. Verifique a sua ligação à Internet e tente novamente'
+      : isRu
+      ? 'Проблема с подключением. Проверьте подключение к Интернету и повторите попытку'
+      : isHi
+      ? 'कनेक्शन की समस्या। अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें'
+      : isZh
+      ? '连接问题。请检查您的互联网连接，然后重试'
+: 'Network issue. Check your internet connection and try again';
 
   // Forgot Password
   String get forgotTitle => isAr
@@ -1459,19 +1447,19 @@ class AppLocalizations {
 
   // Article
   String get articleListen =>
-      isAr ? '🔊 استمع' : isEs ? '🔊 Escuchar'
+      isAr ? 'استمع' : isEs ? 'Escuchar'
           : isFr
-          ? '🔊 Écouter'
+          ? 'Écouter'
           : isPt
-          ? '🔊 Ouvir'
+          ? 'Ouvir'
           : isRu
-          ? '🔊 Прослушать'
+          ? 'Прослушать'
           : isHi
-          ? '🔊 सुनें'
+          ? 'सुनें'
 
           : isZh
-          ? '🔊 收听'
-: '🔊 Listen';
+          ? '收听'
+: 'Listen';
   String get articleLoading =>
       isAr ? 'جاري التحميل...' : isEs ? 'Cargando...'
           : isFr

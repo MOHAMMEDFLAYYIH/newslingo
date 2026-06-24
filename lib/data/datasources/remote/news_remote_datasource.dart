@@ -23,8 +23,8 @@ class NewsRemoteDataSource {
         query = query.eq('category', category);
       }
       if (level != null) {
-        log('[Supabase] Adding filter: level = $level');
-        query = query.eq('level', level);
+        log('[Supabase] Adding filter: base_level = $level');
+        query = query.eq('base_level', level);
       }
       log('[Supabase] Executing query...');
       final data = await query

@@ -1,4 +1,6 @@
+import 'package:newslingo/core/services/article_processor.dart';
 import 'package:newslingo/domain/entities/article.dart';
+import 'package:newslingo/domain/entities/text_segment.dart';
 
 class ArticleModel {
   final String id;
@@ -17,6 +19,7 @@ class ArticleModel {
   final String? translatedContent;
   final List<WordDefinitionModel> vocabulary;
   final QuizModel? quiz;
+  final List<TextSegment> segments;
 
   const ArticleModel({
     required this.id,
@@ -35,6 +38,7 @@ class ArticleModel {
     this.translatedContent,
     this.vocabulary = const [],
     this.quiz,
+    this.segments = const [],
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
@@ -71,11 +75,23 @@ class ArticleModel {
       }
     }
 
+    final content = extractContent();
+    final processContent = json['processed_segments'] as String?;
+    List<TextSegment> segments;
+    if (processContent != null && processContent.isNotEmpty) {
+      segments = ArticleProcessor.segmentsFromJson(processContent);
+    } else {
+      segments = ArticleProcessor.process(
+        content,
+        vocabList.map((v) => v.toEntity()).toList(),
+      );
+    }
+
     return ArticleModel(
       id: json['id'] as String,
       title: json['title'] as String,
       description: json['description'] as String? ?? json['description_$levelKey'] as String? ?? '',
-      content: extractContent(),
+      content: content,
       category: json['category'] as String,
       source: json['source'] as String,
       imageUrl: json['image_url'] as String? ?? '',
@@ -90,6 +106,7 @@ class ArticleModel {
       translatedContent: json['translated_content'] as String?,
       vocabulary: vocabList,
       quiz: quiz,
+      segments: segments,
     );
   }
 
@@ -111,6 +128,7 @@ class ArticleModel {
       if (translatedContent != null) 'translated_content': translatedContent,
       'vocabulary': vocabulary.map((v) => v.toJson()).toList(),
       if (quiz != null) 'quiz': quiz!.toJson(),
+      'processed_segments': ArticleProcessor.segmentsToJson(segments),
     };
   }
 
@@ -132,6 +150,7 @@ class ArticleModel {
       translatedContent: translatedContent,
       vocabulary: vocabulary.map((v) => v.toEntity()).toList(),
       quiz: quiz?.toEntity(),
+      segments: segments,
     );
   }
 
@@ -154,6 +173,7 @@ class ArticleModel {
       vocabulary: article.vocabulary
           .map((v) => WordDefinitionModel.fromEntity(v))
           .toList(),
+      segments: article.segments,
       quiz: article.quiz != null
           ? QuizModel(
               id: article.quiz!.id,

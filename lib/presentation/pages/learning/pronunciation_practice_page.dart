@@ -280,7 +280,7 @@ class _PronunciationPracticePageState extends State<PronunciationPracticePage>
                         onPressed: () => _tts.speak(widget.word),
                         icon: const Icon(Icons.volume_up_rounded, size: 20),
                         label: Text(
-                          '${t.vocabListen} 🔊',
+                          t.vocabListen,
                           style: AppTypography.labelLarge.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,

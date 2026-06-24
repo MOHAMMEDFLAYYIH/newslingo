@@ -2,7 +2,6 @@ name: Daily News Fetch
 
 on:
   schedule:
-    # Run daily at 01:00 UTC
     - cron: '0 1 * * *'
   workflow_dispatch:
     inputs:
@@ -10,10 +9,6 @@ on:
         description: Number of articles to fetch
         required: false
         default: '10'
-      mode:
-        description: 'raw = no AI | auto = AI if available'
-        required: false
-        default: 'raw'
 
 env:
   SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://qwxsntvobtfjldurswfq.supabase.co' }}
@@ -41,11 +36,8 @@ jobs:
       - name: Fetch news
         id: fetch
         working-directory: scripts
-        env:
-          # Only set AI key if mode is not raw (for auto mode)
-          OPENAI_API_KEY: ${{ inputs.mode != 'raw' && secrets.OPENAI_API_KEY || '' }}
         run: |
-          python3 fetch_news.py --limit ${{ inputs.limit || '10' }} --mode ${{ inputs.mode || 'raw' }} 2>&1 | tee output.txt
+          python3 fetch_news.py --limit ${{ inputs.limit || '10' }} 2>&1 | tee output.txt
           echo "status=done" >> $GITHUB_OUTPUT
 
       - name: Publish summary
@@ -53,12 +45,12 @@ jobs:
           {
             echo "### 📰 Daily News Fetch Results"
             echo "\`\`\`"
-            tail -7 scripts/output.txt
+            tail -5 scripts/output.txt
             echo "\`\`\`"
             echo ""
             echo "- ⏱ $(date -u '+%Y-%m-%d %H:%M UTC')"
             echo "- 📄 Requested: ${{ inputs.limit || '10' }} articles"
-            echo "- ⚙️ Mode: ${{ inputs.mode || 'raw' }}"
+            echo "- ⚙️ Mode: raw (algorithmic only)"
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Notify failure

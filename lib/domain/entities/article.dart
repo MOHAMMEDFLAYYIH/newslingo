@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:newslingo/domain/entities/text_segment.dart';
 
 class Article extends Equatable {
   final String id;
@@ -17,6 +18,7 @@ class Article extends Equatable {
   final String? translatedContent;
   final List<WordDefinition> vocabulary;
   final Quiz? quiz;
+  final List<TextSegment> segments;
 
   const Article({
     required this.id,
@@ -35,6 +37,7 @@ class Article extends Equatable {
     this.translatedContent,
     this.vocabulary = const [],
     this.quiz,
+    this.segments = const [],
   });
 
   Article copyWith({
@@ -54,6 +57,7 @@ class Article extends Equatable {
     String? translatedContent,
     List<WordDefinition>? vocabulary,
     Quiz? quiz,
+    List<TextSegment>? segments,
   }) {
     return Article(
       id: id ?? this.id,
@@ -73,6 +77,7 @@ class Article extends Equatable {
       translatedContent: translatedContent ?? this.translatedContent,
       vocabulary: vocabulary ?? this.vocabulary,
       quiz: quiz ?? this.quiz,
+      segments: segments ?? this.segments,
     );
   }
 
@@ -94,6 +99,7 @@ class Article extends Equatable {
     translatedContent,
     vocabulary,
     quiz,
+    segments,
   ];
 }
 

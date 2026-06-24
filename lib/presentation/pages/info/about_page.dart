@@ -52,7 +52,7 @@ class AboutPage extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  'NewsLingo',
+                  'News & Languages',
                   style: AppTypography.displayMedium.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w900,

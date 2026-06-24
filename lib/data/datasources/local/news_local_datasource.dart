@@ -9,11 +9,29 @@ class NewsLocalDataSource {
   static const String _progressBox = 'user_progress';
   static const String _bookmarksBox = 'bookmarked_articles';
 
+  Future<Box> _openBox(String name) {
+    if (Hive.isBoxOpen(name)) return Future.value(Hive.box<String>(name));
+    try {
+      return Hive.openBox<String>(name);
+    } on HiveError {
+      return Future.value(Hive.box<String>(name));
+    }
+  }
+
+  Future<Box> _openBoolBox(String name) {
+    if (Hive.isBoxOpen(name)) return Future.value(Hive.box<bool>(name));
+    try {
+      return Hive.openBox<bool>(name);
+    } on HiveError {
+      return Future.value(Hive.box<bool>(name));
+    }
+  }
+
   Future<List<ArticleModel>> getCachedArticles({
     String? category,
     int page = 1,
   }) async {
-    final box = await Hive.openBox<String>(_articlesBox);
+    final box = await _openBox(_articlesBox) as Box<String>;
     final keys = box.keys.toList();
 
     List<ArticleModel> articles = [];
@@ -34,26 +52,31 @@ class NewsLocalDataSource {
   }
 
   Future<void> cacheArticles(List<ArticleModel> articles) async {
-    final box = await Hive.openBox<String>(_articlesBox);
+    final box = await _openBox(_articlesBox) as Box<String>;
     for (final article in articles) {
       await box.put(article.id, jsonEncode(article.toJson()));
     }
   }
 
   Future<ArticleModel?> getCachedArticle(String id) async {
-    final box = await Hive.openBox<String>(_articlesBox);
+    final box = await _openBox(_articlesBox) as Box<String>;
     final data = box.get(id);
     if (data == null) return null;
     return ArticleModel.fromJson(jsonDecode(data) as Map<String, dynamic>);
   }
 
+  Future<void> updateArticle(ArticleModel article) async {
+    final box = await _openBox(_articlesBox) as Box<String>;
+    await box.put(article.id, jsonEncode(article.toJson()));
+  }
+
   Future<void> deleteWord(String word) async {
-    final box = await Hive.openBox<String>(_wordsBox);
+    final box = await _openBox(_wordsBox) as Box<String>;
     await box.delete(word);
   }
 
   Future<void> saveWord(SavedWord word) async {
-    final box = await Hive.openBox<String>(_wordsBox);
+    final box = await _openBox(_wordsBox) as Box<String>;
     await box.put(
       word.word,
       jsonEncode({
@@ -69,7 +92,7 @@ class NewsLocalDataSource {
   }
 
   Future<List<SavedWord>> getSavedWords() async {
-    final box = await Hive.openBox<String>(_wordsBox);
+    final box = await _openBox(_wordsBox) as Box<String>;
     final words = <SavedWord>[];
     for (final key in box.keys) {
       final data = box.get(key);
@@ -100,7 +123,7 @@ class NewsLocalDataSource {
   }
 
   Future<void> updateWordReview(SavedWord word) async {
-    final box = await Hive.openBox<String>(_wordsBox);
+    final box = await _openBox(_wordsBox) as Box<String>;
     final existingData = box.get(word.word);
     if (existingData != null) {
       final json = jsonDecode(existingData) as Map<String, dynamic>;
@@ -111,34 +134,34 @@ class NewsLocalDataSource {
   }
 
   Future<void> saveProgress(Map<String, dynamic> progress) async {
-    final box = await Hive.openBox<String>(_progressBox);
+    final box = await _openBox(_progressBox) as Box<String>;
     await box.put('progress', jsonEncode(progress));
   }
 
   Future<Map<String, dynamic>?> getProgress() async {
-    final box = await Hive.openBox<String>(_progressBox);
+    final box = await _openBox(_progressBox) as Box<String>;
     final data = box.get('progress');
     if (data == null) return null;
     return jsonDecode(data) as Map<String, dynamic>;
   }
 
   Future<void> bookmarkArticle(String articleId) async {
-    final box = await Hive.openBox<bool>(_bookmarksBox);
+    final box = await _openBoolBox(_bookmarksBox) as Box<bool>;
     await box.put(articleId, true);
   }
 
   Future<void> unbookmarkArticle(String articleId) async {
-    final box = await Hive.openBox<bool>(_bookmarksBox);
+    final box = await _openBoolBox(_bookmarksBox) as Box<bool>;
     await box.delete(articleId);
   }
 
   Future<bool> isArticleBookmarked(String articleId) async {
-    final box = await Hive.openBox<bool>(_bookmarksBox);
+    final box = await _openBoolBox(_bookmarksBox) as Box<bool>;
     return box.get(articleId, defaultValue: false) ?? false;
   }
 
   Future<List<String>> getBookmarkedArticleIds() async {
-    final box = await Hive.openBox<bool>(_bookmarksBox);
+    final box = await _openBoolBox(_bookmarksBox) as Box<bool>;
     return box.keys.where((k) => box.get(k) == true).cast<String>().toList();
   }
 

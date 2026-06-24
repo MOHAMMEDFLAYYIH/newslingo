@@ -1,17 +1,23 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:newslingo/core/di/injection.dart';
+import 'package:newslingo/core/services/tts_service.dart';
 import 'package:newslingo/core/localization/app_localizations.dart';
 import 'package:newslingo/core/responsive/responsive_config.dart';
 import 'package:newslingo/core/theme/app_colors.dart';
 import 'package:newslingo/core/theme/app_spacing.dart';
 import 'package:newslingo/core/theme/app_typography.dart';
+import 'package:newslingo/core/services/dictionary_service.dart';
+import 'package:newslingo/data/models/highlighted_word_model.dart';
 import 'package:newslingo/domain/entities/article.dart';
+import 'package:newslingo/domain/entities/text_segment.dart';
 import 'package:newslingo/domain/repositories/news_repository.dart';
 import 'package:newslingo/domain/usecases/get_article_details.dart';
+import 'package:newslingo/presentation/pages/article/article_tts_reader.dart';
 import 'package:newslingo/presentation/pages/article/audio_player_widget.dart';
 import 'package:newslingo/presentation/pages/article/word_definition_sheet.dart';
 import 'package:newslingo/presentation/widgets/bento/adaptive_scaffold.dart';
@@ -30,6 +36,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   bool _isLoading = true;
   String? _error;
   bool _isBookmarked = false;
+  bool _ttsReaderOpen = false;
 
   @override
   void initState() {
@@ -76,23 +83,6 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
     );
   }
 
-  Color _levelColor(String level) {
-    switch (level) {
-      case 'A1':
-        return AppColors.levelA1;
-      case 'A2':
-        return AppColors.levelA2;
-      case 'B1':
-        return AppColors.levelB1;
-      case 'B2':
-        return AppColors.levelB2;
-      case 'C1':
-        return AppColors.levelC1;
-      default:
-        return AppColors.levelB1;
-    }
-  }
-
   String _categoryEmoji(String category) {
     switch (category) {
       case 'general':
@@ -129,6 +119,37 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         return t.categoryEntertainment;
       default:
         return category;
+    }
+  }
+
+  void _toggleTtsReader(Article article) {
+    if (_ttsReaderOpen) {
+      sl<TtsService>().stop();
+      Navigator.of(context).pop();
+      setState(() => _ttsReaderOpen = false);
+    } else {
+      _ttsReaderOpen = true;
+      final content = article.translatedContent ?? article.content;
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.92,
+          child: ArticleTtsReader(
+            title: article.translatedTitle ?? article.title,
+            content: content,
+            accentColor: AppColors.accentBlue,
+            level: article.level,
+            segments: article.segments.isNotEmpty ? article.segments : null,
+          ),
+        ),
+      ).then((_) {
+        if (mounted) {
+          sl<TtsService>().stop();
+          setState(() => _ttsReaderOpen = false);
+        }
+      });
     }
   }
 
@@ -180,7 +201,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
               article: article,
               accentColor: accentColor,
               isBookmarked: _isBookmarked,
+              isTtsOpen: _ttsReaderOpen,
               onToggleBookmark: _toggleBookmark,
+              onTapPlay: () => _toggleTtsReader(article),
             ),
             Expanded(
               child: ListView(
@@ -193,7 +216,6 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                     category: _categoryLabel(article.category),
                     level: article.level,
                     emoji: _categoryEmoji(article.category),
-                    levelColor: _levelColor(article.level),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
@@ -215,22 +237,25 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                         ),
                       ),
                       const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
-                          vertical: AppSpacing.xxs,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryContainer,
-                          borderRadius: BorderRadius.circular(
-                            AppSpacing.radiusXs,
+                      GestureDetector(
+                        onTap: () => _toggleTtsReader(article),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xxs,
                           ),
-                        ),
-                        child: Text(
-                          t.articleListen,
-                          style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryContainer,
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusXs,
+                            ),
+                          ),
+                          child: Text(
+                            t.articleListen,
+                            style: AppTypography.labelSmall.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -264,6 +289,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                     content: article.translatedContent ?? article.content,
                     level: article.level,
                     vocabulary: article.vocabulary,
+                    segments: article.segments,
                   ),
                   const SizedBox(height: AppSpacing.xxl),
                 ],
@@ -285,12 +311,16 @@ class _AppBar extends StatelessWidget {
   final Article article;
   final Color accentColor;
   final bool isBookmarked;
+  final bool isTtsOpen;
   final VoidCallback onToggleBookmark;
+  final VoidCallback onTapPlay;
   const _AppBar({
     required this.article,
     required this.accentColor,
     this.isBookmarked = false,
+    this.isTtsOpen = false,
     required this.onToggleBookmark,
+    required this.onTapPlay,
   });
 
   @override
@@ -353,8 +383,33 @@ class _AppBar extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Center(
-                  child: Text('🔊', style: TextStyle(fontSize: 18)),
+                child: Center(
+                  child: Icon(Icons.volume_up_rounded, color: accentColor, size: 18),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: AppSpacing.sm.w),
+          Container(
+            width: 40.w,
+            height: 40.w,
+            decoration: BoxDecoration(
+              color: isTtsOpen
+                  ? AppColors.error.withValues(alpha: 0.12)
+                  : accentColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                onTap: onTapPlay,
+                child: Center(
+                  child: Icon(
+                    isTtsOpen ? Icons.stop_rounded : Icons.play_circle_rounded,
+                    color: isTtsOpen ? AppColors.error : AppColors.accentBlue,
+                    size: 22,
+                  ),
                 ),
               ),
             ),
@@ -369,12 +424,10 @@ class _CategoryRow extends StatelessWidget {
   final String category;
   final String level;
   final String emoji;
-  final Color levelColor;
   const _CategoryRow({
     required this.category,
     required this.level,
     required this.emoji,
-    required this.levelColor,
   });
 
   @override
@@ -394,14 +447,14 @@ class _CategoryRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: levelColor.withValues(alpha: 0.12),
+            color: Colors.grey.shade200,
             borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
           ),
           child: Text(
             level,
             style: AppTypography.labelSmall.copyWith(
-              color: levelColor,
-              fontWeight: FontWeight.w800,
+              color: Colors.black87,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -416,12 +469,14 @@ class _ArticleContent extends StatefulWidget {
   final String content;
   final String level;
   final List<WordDefinition> vocabulary;
+  final List<TextSegment> segments;
   const _ArticleContent({
     required this.articleId,
     required this.accentColor,
     required this.content,
     required this.level,
     required this.vocabulary,
+    this.segments = const [],
   });
 
   @override
@@ -432,17 +487,28 @@ class _ArticleContentState extends State<_ArticleContent> {
   static const _levelLimits = {'A1': 2, 'A2': 3, 'B1': 5, 'B2': 8, 'C1': 999};
 
   late final Map<String, WordDefinition> _vocabularyCache;
+  late final Map<String, HighlightedWordModel> _segmentWordCache;
 
   @override
   void initState() {
     super.initState();
     _buildVocabularyCache();
+    _buildSegmentWordCache();
   }
 
   void _buildVocabularyCache() {
     _vocabularyCache = {};
     for (final def in widget.vocabulary) {
       _vocabularyCache[def.word.toLowerCase()] = def;
+    }
+  }
+
+  void _buildSegmentWordCache() {
+    _segmentWordCache = {};
+    for (final seg in widget.segments) {
+      for (final hw in seg.highlightedWordsData) {
+        _segmentWordCache[hw.word.toLowerCase()] = hw;
+      }
     }
   }
 
@@ -536,65 +602,76 @@ class _ArticleContentState extends State<_ArticleContent> {
     );
   }
 
+  static const _highlightColor = Color(0xFF2CABE2);
+  static const _baseStyle = TextStyle(
+    color: Colors.black,
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    height: 1.8,
+  );
+  static const _highlightStyle = TextStyle(
+    color: _highlightColor,
+    fontWeight: FontWeight.w700,
+    height: 1.8,
+  );
+  static const _boldStyle = TextStyle(
+    color: Colors.black,
+    fontWeight: FontWeight.w700,
+    height: 1.8,
+  );
+
   Widget _buildParagraph(String text) {
-    final regex = RegExp(r'<highlight>(.*?)</highlight>');
-    final matches = regex.allMatches(text);
-    if (matches.isEmpty) {
+    final highlightRE = RegExp(r'<highlight>(.*?)</highlight>');
+    final boldRE = RegExp(r'<b>(.*?)</b>');
+
+    String escape(String s) => s.replaceAll(RegExp(r'</?[^>]+>'), '');
+
+    if (!text.contains('<')) {
       return Padding(
         padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-        child: Text(text, style: AppTypography.bodyLarge.copyWith(height: 1.8)),
+        child: Text(text, style: _baseStyle),
       );
     }
 
     final spans = <InlineSpan>[];
-    int lastEnd = 0;
-    for (final match in matches) {
-      if (match.start > lastEnd) {
-        spans.add(
-          TextSpan(
-            text: text.substring(lastEnd, match.start),
-            style: AppTypography.bodyLarge.copyWith(height: 1.8),
-          ),
-        );
-      }
-      final word = match.group(1)!;
-      spans.add(
-        WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: GestureDetector(
-            onTap: () => _showWordDefinition(context, word),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
-              decoration: BoxDecoration(
-                color: AppColors.accentBlue.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(AppSpacing.radiusXs.r),
-              ),
-              child: Text(
-                word,
-                style: AppTypography.bodyLarge.copyWith(
-                  color: AppColors.accentBlue,
-                  fontWeight: FontWeight.w600,
-                  height: 1.8,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      lastEnd = match.end;
+    int pos = 0;
+
+    final tags = <(int, int, String)>{};
+    for (final m in highlightRE.allMatches(text)) {
+      tags.add((m.start, m.end, 'highlight'));
     }
-    if (lastEnd < text.length) {
-      spans.add(
-        TextSpan(
-          text: text.substring(lastEnd),
-          style: AppTypography.bodyLarge.copyWith(height: 1.8),
-        ),
-      );
+    for (final m in boldRE.allMatches(text)) {
+      tags.add((m.start, m.end, 'bold'));
+    }
+
+    final sorted = tags.toList()..sort((a, b) => a.$1.compareTo(b.$1));
+
+    for (final (start, end, type) in sorted) {
+      if (start > pos) {
+        spans.add(TextSpan(text: escape(text.substring(pos, start)), style: _baseStyle));
+      }
+      final inner = text.substring(start, end).replaceAll(RegExp(r'</?[^>]+>'), '');
+      if (type == 'highlight') {
+        spans.add(TextSpan(
+          text: inner,
+          style: _highlightStyle,
+          recognizer: TapGestureRecognizer()..onTap = () => _showWordDefinition(context, inner),
+        ));
+      } else {
+        spans.add(TextSpan(text: inner, style: _boldStyle));
+      }
+      pos = end;
+    }
+    if (pos < text.length) {
+      spans.add(TextSpan(text: escape(text.substring(pos)), style: _baseStyle));
     }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-      child: RichText(text: TextSpan(children: spans)),
+      child: Text.rich(
+        TextSpan(children: spans),
+        textAlign: TextAlign.justify,
+      ),
     );
   }
 
@@ -602,8 +679,7 @@ class _ArticleContentState extends State<_ArticleContent> {
     final cacheKey = word.toLowerCase();
     final cached = _vocabularyCache[cacheKey];
 
-    if (cached != null) {
-      // CACHE HIT — instant, zero latency
+    if (cached != null && cached.definition.isNotEmpty) {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -623,7 +699,36 @@ class _ArticleContentState extends State<_ArticleContent> {
       return;
     }
 
-    // CACHE MISS — shimmer + async fallback
+    // Check segment-level highlighted words data
+    final segmentWord = _segmentWordCache[cacheKey];
+    if (segmentWord != null) {
+      final firstMeaning = segmentWord.meanings.isNotEmpty
+          ? segmentWord.meanings.first
+          : null;
+      final firstDef = firstMeaning?.definitions.isNotEmpty == true
+          ? firstMeaning!.definitions.first
+          : null;
+      if (firstDef != null && firstDef.definition.isNotEmpty) {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => WordDefinitionSheet(
+            word: segmentWord.word,
+            translation: '',
+            definition: firstDef.definition,
+            partOfSpeech: firstMeaning?.partOfSpeech ?? '',
+            examples: firstDef.example.isNotEmpty ? [firstDef.example] : [],
+            synonyms: const [],
+            accentColor: widget.accentColor,
+            articleId: widget.articleId,
+            level: widget.level,
+          ),
+        );
+        return;
+      }
+    }
+
     unawaited(_showWordSheetWithLoading(context, word));
   }
 
@@ -688,18 +793,40 @@ class _LoadingWordSheetState extends State<_LoadingWordSheet>
         widget.word,
       );
       if (!mounted) return;
-      if (defs.isNotEmpty) {
+      if (defs.isNotEmpty && defs.first.definition.isNotEmpty) {
         setState(() {
           _def = defs.first;
           _isLoading = false;
         });
-      } else {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-        });
+        return;
       }
-    } catch (_) {
+    } catch (_) {}
+
+    if (!mounted) return;
+
+    final apiData = await DictionaryService.fetchDefinition(widget.word);
+    if (!mounted) return;
+    if (apiData != null) {
+      final firstMeaning =
+          apiData.meanings.isNotEmpty ? apiData.meanings.first : null;
+      final firstDef = firstMeaning?.definitions.isNotEmpty == true
+          ? firstMeaning!.definitions.first
+          : null;
+      setState(() {
+        _def = WordDefinition(
+          word: apiData.word,
+          definition: firstDef?.definition ?? '',
+          translation: '',
+          synonyms: const [],
+          examples:
+              firstDef != null && firstDef.example.isNotEmpty
+                  ? [firstDef.example]
+                  : [],
+          partOfSpeech: firstMeaning?.partOfSpeech ?? '',
+        );
+        _isLoading = false;
+      });
+    } else {
       if (mounted) {
         setState(() {
           _isLoading = false;

@@ -134,7 +134,7 @@ class SideRail extends StatelessWidget {
                   ),
                   SizedBox(width: 10.w),
                   Text(
-                    'NewsLingo',
+                    'News & Languages',
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,

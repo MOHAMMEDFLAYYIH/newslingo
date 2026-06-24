@@ -143,7 +143,12 @@ final GoRouter appRouter = GoRouter(
       parentNavigatorKey: _rootNavigator,
       builder: (context, state) {
         final word = state.pathParameters['word']!;
-        return VocabularyDetailPage(word: word);
+        final saved = state.extra as SavedWord?;
+        return VocabularyDetailPage(
+          word: word,
+          savedTranslation: saved?.translation,
+          savedDefinition: saved?.definition,
+        );
       },
     ),
     GoRoute(

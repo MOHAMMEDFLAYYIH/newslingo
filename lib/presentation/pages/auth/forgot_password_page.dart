@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:newslingo/core/di/injection.dart';
@@ -21,6 +23,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _emailController = TextEditingController();
   bool _isSent = false;
   bool _isLoading = false;
+  static DateTime? _lastRateLimitHit;
 
   @override
   void dispose() {
@@ -188,22 +191,48 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   Future<void> _onSend() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_lastRateLimitHit != null) {
+      final elapsed = DateTime.now().difference(_lastRateLimitHit!).inSeconds;
+      if (elapsed < 120) {
+        final remaining = 120 - elapsed;
+        final t = AppLocalizations.of(context);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${t.errorRateLimit} ($remaining ${t.seconds(remaining)})'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+        return;
+      }
+      _lastRateLimitHit = null;
+    }
+
     setState(() => _isLoading = true);
     try {
       await sl<SupabaseClient>().auth.signInWithOtp(
         email: _emailController.text.trim(),
       );
-      if (mounted) setState(() => _isSent = true);
+      if (mounted) {
+        setState(() => _isSent = true);
+      }
     } catch (e) {
       if (mounted) {
-        final msg = e.toString();
+        final msg = e.toString().toLowerCase();
         final t = AppLocalizations.of(context);
+        if (msg.contains('rate_limit') || msg.contains('429') || msg.contains('over_request_rate_limit')) {
+          _lastRateLimitHit = DateTime.now();
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              msg.contains('rate_limit') || msg.contains('429')
-                  ? t.errorRateLimit
-                  : t.errorGeneric,
+              e is SocketException || e is TimeoutException || e is HandshakeException
+                  ? t.errorNetwork
+                  : msg.contains('rate_limit') || msg.contains('429') || msg.contains('over_request_rate_limit')
+                      ? t.errorRateLimit
+                      : t.errorGeneric,
             ),
             backgroundColor: AppColors.error,
           ),

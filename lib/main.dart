@@ -46,11 +46,11 @@ void main() async {
 
   await initDependencies();
   await sl<LocaleCubit>().loadLocale();
-  runApp(const NewsLingoApp());
+  runApp(const NewsAndLanguagesApp());
 }
 
-class NewsLingoApp extends StatelessWidget {
-  const NewsLingoApp({super.key});
+class NewsAndLanguagesApp extends StatelessWidget {
+  const NewsAndLanguagesApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +81,7 @@ class NewsLingoApp extends StatelessWidget {
           child: BlocBuilder<LocaleCubit, Locale>(
             builder: (context, locale) {
               return MaterialApp.router(
-                title: 'NewsLingo',
+                title: 'News & Languages',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.light(languageCode: locale.languageCode),
                 routerConfig: appRouter,

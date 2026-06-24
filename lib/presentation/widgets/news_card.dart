@@ -14,26 +14,9 @@ class NewsCard extends StatelessWidget {
   const NewsCard({
     super.key,
     required this.article,
-    this.accentColor = AppColors.primary,
+    this.accentColor = Colors.blue,
     required this.onTap,
   });
-
-  Color _levelColor(String level) {
-    switch (level) {
-      case 'A1':
-        return AppColors.levelA1;
-      case 'A2':
-        return AppColors.levelA2;
-      case 'B1':
-        return AppColors.levelB1;
-      case 'B2':
-        return AppColors.levelB2;
-      case 'C1':
-        return AppColors.levelC1;
-      default:
-        return AppColors.levelB1;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,9 +58,7 @@ class NewsCard extends StatelessWidget {
                               vertical: AppSpacing.xxs,
                             ),
                             decoration: BoxDecoration(
-                              color: _levelColor(
-                                article.level,
-                              ).withValues(alpha: 0.12),
+                              color: Colors.grey.shade200,
                               borderRadius: BorderRadius.circular(
                                 AppSpacing.radiusXs,
                               ),
@@ -85,8 +66,8 @@ class NewsCard extends StatelessWidget {
                             child: Text(
                               article.level,
                               style: AppTypography.labelSmall.copyWith(
-                                color: _levelColor(article.level),
-                                fontWeight: FontWeight.w800,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),

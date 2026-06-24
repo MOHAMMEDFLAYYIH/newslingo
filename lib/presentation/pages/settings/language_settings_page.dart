@@ -21,7 +21,7 @@ class LanguageSettingsPage extends StatelessWidget {
         .clamp(0, langCodes.length - 1);
 
     final languages = [
-      _LangData('🇸🇦', t.settingsArabic, 'Arabic'),
+      _LangData('🇦🇪', t.settingsArabic, 'Arabic'),
       _LangData('🇬🇧', 'English', 'English'),
       _LangData('🇪🇸', 'Español', 'Spanish'),
       _LangData('🇫🇷', 'Français', 'French'),

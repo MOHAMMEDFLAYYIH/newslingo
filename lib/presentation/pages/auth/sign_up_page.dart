@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:newslingo/core/di/injection.dart';
@@ -26,6 +28,7 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _agreedToTerms = false;
   bool _isLoading = false;
   bool _emailSent = false;
+  static DateTime? _lastRateLimitHit;
 
   @override
   void dispose() {
@@ -367,6 +370,24 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<void> _onSignUp() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_lastRateLimitHit != null) {
+      final elapsed = DateTime.now().difference(_lastRateLimitHit!).inSeconds;
+      if (elapsed < 120) {
+        final remaining = 120 - elapsed;
+        final t = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${t.errorRateLimit} ($remaining ${t.seconds(remaining)})'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        return;
+      }
+      _lastRateLimitHit = null;
+    }
+
     setState(() => _isLoading = true);
     try {
       final result = await sl<AuthRemoteDataSource>().signUp(
@@ -377,11 +398,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
       if (!mounted) return;
 
-      await _saveOnboardingData();
-      if (!mounted) return;
-
       final session = result['session'];
       if (session != null) {
+        await _saveOnboardingData();
+        if (!mounted) return;
         await sl<UserLocalDataSource>().markOnboardingComplete();
         if (!mounted) return;
         await sl<UserLocalDataSource>().clearOnboardingSelections();
@@ -395,6 +415,11 @@ class _SignUpPageState extends State<SignUpPage> {
       }
     } catch (e) {
       if (!mounted) return;
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('429') || msg.contains('too many requests') ||
+          msg.contains('over_request_rate_limit') || msg.contains('rate_limit')) {
+        _lastRateLimitHit = DateTime.now();
+      }
       setState(() => _isLoading = false);
       final message = _formatAuthError(e);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -413,7 +438,7 @@ class _SignUpPageState extends State<SignUpPage> {
       final interests = await sl<UserLocalDataSource>()
           .getOnboardingInterests();
       final profile = <String, dynamic>{};
-      if (level != null) { profile['language_level'] = level; }
+      if (level != null) { profile['level'] = level; }
       if (interests != null && interests.isNotEmpty) {
         profile['interests'] = interests;
       }
@@ -426,7 +451,16 @@ class _SignUpPageState extends State<SignUpPage> {
   String _formatAuthError(Object e) {
     final t = AppLocalizations.of(context);
     final msg = e.toString().toLowerCase();
-    if (msg.contains('429') || msg.contains('too many requests')) {
+
+    if (e is SocketException || e is TimeoutException || e is HandshakeException) {
+      return t.errorNetwork;
+    }
+
+    if (msg.contains('signup_failed')) {
+      return t.errorGeneric;
+    }
+    if (msg.contains('429') || msg.contains('too many requests') ||
+        msg.contains('over_request_rate_limit') || msg.contains('rate_limit')) {
       return t.errorRateLimit;
     }
     if (msg.contains('email not confirmed') ||
@@ -434,13 +468,15 @@ class _SignUpPageState extends State<SignUpPage> {
       return t.errorEmailNotConfirmed;
     }
     if (msg.contains('already registered') ||
-        msg.contains('user already exists')) {
+        msg.contains('user already exists') ||
+        msg.contains('user_already_exists')) {
       return t.errorAlreadyRegistered;
     }
-    if (msg.contains('invalid email')) {
+    if (msg.contains('invalid email') || msg.contains('email_address_not_authorized')) {
       return t.emailInvalid;
     }
-    if (msg.contains('weak password')) {
+    if (msg.contains('weak password') || msg.contains('weak_password') ||
+        msg.contains('password should be')) {
       return t.errorWeakPassword;
     }
     return t.errorGeneric;

@@ -204,7 +204,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildLangBadge() {
     final code = context.watch<LocaleCubit>().state.languageCode;
     final langMap = <String, String>{
-      'ar': '🇸🇦',
+      'ar': '🇦🇪',
       'en': '🇬🇧',
       'es': '🇪🇸',
       'fr': '🇫🇷',

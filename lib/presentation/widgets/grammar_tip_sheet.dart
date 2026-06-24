@@ -326,7 +326,7 @@ class _GrammarTipSheetContent extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('🇸🇦', style: const TextStyle(fontSize: 14)),
+                            Text('🇦🇪', style: const TextStyle(fontSize: 14)),
                             const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(

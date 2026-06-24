@@ -266,7 +266,7 @@ class WordDefinitionSheet extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () {},
-                        icon: const Text('🔊', style: TextStyle(fontSize: 16)),
+                        icon: const Icon(Icons.volume_up_rounded, size: 16),
                         label: Text(
                           t.wordListen,
                           style: AppTypography.labelLarge.copyWith(

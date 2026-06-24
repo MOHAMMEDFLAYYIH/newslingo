@@ -16,12 +16,7 @@ class AuthRemoteDataSource {
       data: {'name': name},
     );
     final user = response.user;
-    if (user == null) throw Exception('Account creation failed');
-    await _client.from('profiles').upsert({
-      'id': user.id,
-      'name': name,
-      'email': email,
-    });
+    if (user == null) throw Exception('signup_failed');
     return {'user': user, 'session': response.session};
   }
 

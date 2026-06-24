@@ -163,7 +163,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                   ),
                   child: const Center(
-                    child: Text('🔊', style: TextStyle(fontSize: 20)),
+                    child: Icon(Icons.volume_up_rounded, color: AppColors.primary, size: 20),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),
@@ -218,7 +218,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
             const SizedBox(height: AppSpacing.xxl),
           ] else if (!_hasAudio) ...[
             const SizedBox(height: AppSpacing.xxl),
-            const Center(child: Text('🔇', style: TextStyle(fontSize: 40))),
+            const Center(child: Icon(Icons.volume_off_rounded, size: 40, color: AppColors.textTertiary)),
             const SizedBox(height: AppSpacing.sm),
             Center(
               child: Text(
@@ -402,7 +402,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                       ),
                     ),
                     child: const Center(
-                      child: Text('⏭️', style: TextStyle(fontSize: 20)),
+                      child: Icon(Icons.skip_next_rounded, color: AppColors.textSecondary, size: 20),
                     ),
                   ),
                 ),

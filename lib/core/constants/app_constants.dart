@@ -1,8 +1,7 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'NewsLingo';
-  static const String appNameAr = 'نيوز لينجو';
+  static const String appName = 'News & Languages';
 
   static const String supabaseUrl = 'https://qwxsntvobtfjldurswfq.supabase.co';
   static const String supabaseAnonKey =
