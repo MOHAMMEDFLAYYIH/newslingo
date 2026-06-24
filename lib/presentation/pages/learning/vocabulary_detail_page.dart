@@ -7,7 +7,6 @@ import 'package:newslingo/core/services/deepl_service.dart';
 import 'package:newslingo/core/services/tts_service.dart';
 import 'package:newslingo/core/theme/app_colors.dart';
 import 'package:newslingo/core/theme/app_spacing.dart';
-import 'package:newslingo/core/constants/word_data.dart';
 import 'package:newslingo/core/theme/app_typography.dart';
 import 'package:newslingo/domain/entities/article.dart';
 import 'package:newslingo/presentation/cubit/word/word_cubit.dart';
@@ -690,29 +689,13 @@ class _SimilarWord {
 }
 
 _WordData _generateWordData(String word) {
-  final lower = word.toLowerCase();
-  final entry = wordDataMap[lower];
-  if (entry != null) {
-    return _WordData(
-      translation: entry.translation,
-      level: entry.level,
-      partOfSpeech: entry.partOfSpeech,
-      definitionEn: entry.definitionEn,
-      definitionAr: entry.definitionAr,
-      examples: entry.examples,
-      synonyms: entry.synonyms,
-      similar: entry.similar
-          .map((s) => _SimilarWord(s.word, s.translation, s.level))
-          .toList(),
-    );
-  }
   return _WordData(
     translation: word,
     level: 'B1',
     partOfSpeech: 'word',
-    definitionEn: 'Definition of "$word".',
-    definitionAr: 'تعريف كلمة "$word".',
-    examples: ['Example sentence using "$word".'],
+    definitionEn: '',
+    definitionAr: '',
+    examples: <String>[],
     synonyms: <String>[],
     similar: <_SimilarWord>[],
   );

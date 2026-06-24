@@ -25,10 +25,7 @@ class WordDefinitionSheet extends StatelessWidget {
     required this.definition,
     this.accentColor = AppColors.accentBlue,
     this.partOfSpeech = 'noun',
-    this.examples = const [
-      'This is a great example sentence for the word.',
-      'Another example showing how to use the word naturally.',
-    ],
+    this.examples = const [],
     this.synonyms = const [],
     this.level = 'B1',
     this.articleId,

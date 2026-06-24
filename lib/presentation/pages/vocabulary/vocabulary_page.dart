@@ -37,44 +37,6 @@ class _VocabularyBodyState extends State<_VocabularyBody>
   final _searchController = TextEditingController();
   late AnimationController _staggerController;
 
-  final List<_WordData> _dailyWords = [
-    _WordData(
-      'breakthrough',
-      'اختراق',
-      'C1',
-      'A sudden, dramatic and important discovery',
-      AppColors.accentBlue,
-    ),
-    _WordData(
-      'resilience',
-      'مرونة / قدرة على التعافي',
-      'C1',
-      'The ability to recover quickly from difficulties',
-      AppColors.tertiary,
-    ),
-    _WordData(
-      'innovative',
-      'مبتكر',
-      'B2',
-      'Featuring new methods or ideas',
-      AppColors.accentPink,
-    ),
-    _WordData(
-      'unprecedented',
-      'غير مسبوق',
-      'C1',
-      'Never done or known before',
-      AppColors.accentOrange,
-    ),
-    _WordData(
-      'sustainable',
-      'مستدام',
-      'B1',
-      'Able to be maintained over time',
-      AppColors.primary,
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -281,35 +243,11 @@ class _VocabularyBodyState extends State<_VocabularyBody>
   }
 
   Widget _buildDailyWords(AppLocalizations t) {
-    final words = _dailyWords
-        .where(
-          (w) =>
-              _searchQuery.isEmpty ||
-              w.word.contains(_searchQuery) ||
-              w.translation.contains(_searchQuery),
-        )
-        .toList();
-    return ListView.builder(
+    return ListView(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-      itemCount: words.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) return _buildProgressHeader(t);
-        final i = index - 1;
-        final w = words[i];
-        return StaggeredFadeSlide(
-          index: i,
-          controller: _staggerController,
-          child: _InteractiveWordCard(
-            key: ValueKey('daily_${w.word}'),
-            word: w.word,
-            translation: w.translation,
-            level: w.level,
-            example: w.example,
-            color: w.color,
-            onTap: () => context.push('/vocabulary/${w.word}'),
-          ),
-        );
-      },
+      children: [
+        _buildProgressHeader(t),
+      ],
     );
   }
 
@@ -940,17 +878,3 @@ class _ActionChip extends StatelessWidget {
   }
 }
 
-class _WordData {
-  final String word;
-  final String translation;
-  final String level;
-  final String example;
-  final Color color;
-  const _WordData(
-    this.word,
-    this.translation,
-    this.level,
-    this.example,
-    this.color,
-  );
-}

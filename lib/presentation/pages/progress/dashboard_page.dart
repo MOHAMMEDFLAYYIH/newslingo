@@ -87,9 +87,7 @@ class _DashboardBody extends StatelessWidget {
                     children: [
                       BentoContainer.card(
                         child: _WeeklyChart(
-                          values: state.progress.articlesRead > 0
-                              ? [0.4, 0.7, 0.3, 0.9, 0.6, 0.8, 0.5]
-                              : [],
+                          values: <double>[],
                         ),
                       ),
                     ],
@@ -375,7 +373,7 @@ class _WeeklyChart extends StatelessWidget {
     final days = t.weekDaysAbbr;
     final chartValues = values.length == 7
         ? values
-        : [0.4, 0.7, 0.3, 0.9, 0.6, 0.8, 0.5];
+        : <double>[];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -547,7 +545,7 @@ class _WeeklyComparison extends StatelessWidget {
               ),
               SizedBox(height: 4.h),
               Text(
-                '8.5',
+                '-',
                 style: ResponsiveTypography.displayMedium.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -574,7 +572,7 @@ class _WeeklyComparison extends StatelessWidget {
               ),
               SizedBox(height: 4.h),
               Text(
-                '6.2',
+                '-',
                 style: ResponsiveTypography.displayMedium.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppColors.textSecondary,

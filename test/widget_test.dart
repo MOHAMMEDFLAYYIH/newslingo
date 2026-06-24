@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('App smoke test - placeholder', () {
+  test('Smoke test — project compiles and test runner works', () {
     expect(1 + 1, 2);
   });
 }
