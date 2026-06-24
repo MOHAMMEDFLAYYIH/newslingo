@@ -30,20 +30,22 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _loadSettings() async {
-    final settings = await sl<AuthRemoteDataSource>().getSettings();
-    if (settings != null && mounted) {
-      setState(() {
-        _notifications = settings['notifications_enabled'] as bool? ?? true;
-        _dailyNews = settings['daily_reminder'] as bool? ?? false;
-        _vocabReminder = false;
-        final timeStr = settings['reminder_time'] as String? ?? '09:00';
-        final parts = timeStr.split(':');
-        _reminderTime = TimeOfDay(
-          hour: int.tryParse(parts[0]) ?? 9,
-          minute: int.tryParse(parts[1]) ?? 0,
-        );
-      });
-    }
+    try {
+      final settings = await sl<AuthRemoteDataSource>().getSettings();
+      if (settings != null && mounted) {
+        setState(() {
+          _notifications = settings['notifications_enabled'] as bool? ?? true;
+          _dailyNews = settings['daily_reminder'] as bool? ?? false;
+          _vocabReminder = false;
+          final timeStr = settings['reminder_time'] as String? ?? '09:00';
+          final parts = timeStr.split(':');
+          _reminderTime = TimeOfDay(
+            hour: int.tryParse(parts[0]) ?? 9,
+            minute: int.tryParse(parts[1]) ?? 0,
+          );
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _saveSettings() async {
@@ -83,67 +85,111 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                  ),
                   children: [
-                    _Group(title: t.settingsApp, items: [
-                      _SettingsTile(
-                        emoji: '🌐',
-                        title: t.settingsLanguage,
-                        subtitle: t.settingsArabic,
-                        trailing: _buildLangBadge(),
-                        onTap: () => context.push('/language-settings'),
-                      ),
-                    ]),
-                    _Group(title: t.settingsNotifications, items: [
-                      _SwitchTile(emoji: '🔔', title: t.settingsNotifTitle, subtitle: t.settingsNotifSub, value: _notifications, onChanged: (v) { setState(() => _notifications = v); _saveSettings(); }),
-                      _SwitchTile(emoji: '📰', title: t.settingsDailyNewsTitle, subtitle: t.settingsDailyNewsSub, value: _dailyNews, onChanged: (v) { setState(() => _dailyNews = v); _saveSettings(); }),
-                      _SwitchTile(emoji: '📝', title: t.settingsVocabRemindTitle, subtitle: t.settingsVocabRemindSub, value: _vocabReminder, onChanged: (v) { setState(() => _vocabReminder = v); _saveSettings(); }),
-                      _SettingsTile(
-                        emoji: '⏰',
-                        title: t.settingsRemindTime,
-                        subtitle: _reminderTime.format(context),
-                        onTap: _pickTime,
-                      ),
-                    ]),
-                    _Group(title: t.settingsAccount, items: [
-                      _SettingsTile(
-                        emoji: '👤',
-                        title: t.settingsProfileTitle,
-                        subtitle: t.settingsProfileSub,
-                        onTap: () => context.push('/edit-profile'),
-                      ),
-                      _SettingsTile(
-                        emoji: '⭐',
-                        title: t.settingsSubscription,
-                        subtitle: t.settingsSubscriptionSub,
-                        onTap: () => context.push('/subscription'),
-                      ),
-                    ]),
-                    _Group(title: t.settingsSupport, items: [
-                      _SettingsTile(
-                        emoji: '🎧',
-                        title: t.settingsHelp,
-                        onTap: () => context.push('/help'),
-                      ),
-                      _SettingsTile(
-                        emoji: 'ℹ️',
-                        title: t.settingsAbout,
-                        subtitle: 'NewsLingo v1.0.0',
-                        onTap: () => context.push('/about'),
-                      ),
-                      _SettingsTile(
-                        emoji: '🔒',
-                        title: t.settingsPrivacy,
-                        onTap: () => context.push('/privacy'),
-                      ),
-                      _SettingsTile(
-                        emoji: '📄',
-                        title: t.settingsTerms,
-                        onTap: () => context.push('/terms'),
-                      ),
-                    ]),
+                    _Group(
+                      title: t.settingsApp,
+                      items: [
+                        _SettingsTile(
+                          emoji: '🌐',
+                          title: t.settingsLanguage,
+                          subtitle: t.settingsArabic,
+                          trailing: _buildLangBadge(),
+                          onTap: () => context.push('/language-settings'),
+                        ),
+                      ],
+                    ),
+                    _Group(
+                      title: t.settingsNotifications,
+                      items: [
+                        _SwitchTile(
+                          emoji: '🔔',
+                          title: t.settingsNotifTitle,
+                          subtitle: t.settingsNotifSub,
+                          value: _notifications,
+                          onChanged: (v) {
+                            setState(() => _notifications = v);
+                            _saveSettings();
+                          },
+                        ),
+                        _SwitchTile(
+                          emoji: '📰',
+                          title: t.settingsDailyNewsTitle,
+                          subtitle: t.settingsDailyNewsSub,
+                          value: _dailyNews,
+                          onChanged: (v) {
+                            setState(() => _dailyNews = v);
+                            _saveSettings();
+                          },
+                        ),
+                        _SwitchTile(
+                          emoji: '📝',
+                          title: t.settingsVocabRemindTitle,
+                          subtitle: t.settingsVocabRemindSub,
+                          value: _vocabReminder,
+                          onChanged: (v) {
+                            setState(() => _vocabReminder = v);
+                            _saveSettings();
+                          },
+                        ),
+                        _SettingsTile(
+                          emoji: '⏰',
+                          title: t.settingsRemindTime,
+                          subtitle: _reminderTime.format(context),
+                          onTap: _pickTime,
+                        ),
+                      ],
+                    ),
+                    _Group(
+                      title: t.settingsAccount,
+                      items: [
+                        _SettingsTile(
+                          emoji: '👤',
+                          title: t.settingsProfileTitle,
+                          subtitle: t.settingsProfileSub,
+                          onTap: () => context.push('/edit-profile'),
+                        ),
+                        _SettingsTile(
+                          emoji: '⭐',
+                          title: t.settingsSubscription,
+                          subtitle: t.settingsSubscriptionSub,
+                          onTap: () => context.push('/subscription'),
+                        ),
+                      ],
+                    ),
+                    _Group(
+                      title: t.settingsSupport,
+                      items: [
+                        _SettingsTile(
+                          emoji: '🎧',
+                          title: t.settingsHelp,
+                          onTap: () => context.push('/help'),
+                        ),
+                        _SettingsTile(
+                          emoji: 'ℹ️',
+                          title: t.settingsAbout,
+                          subtitle: 'NewsLingo v1.0.0',
+                          onTap: () => context.push('/about'),
+                        ),
+                        _SettingsTile(
+                          emoji: '🔒',
+                          title: t.settingsPrivacy,
+                          onTap: () => context.push('/privacy'),
+                        ),
+                        _SettingsTile(
+                          emoji: '📄',
+                          title: t.settingsTerms,
+                          onTap: () => context.push('/terms'),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: AppSpacing.xl),
-                    _DangerSection(onLogout: _onLogout, onDeleteAccount: _onDeleteAccount),
+                    _DangerSection(
+                      onLogout: _onLogout,
+                      onDeleteAccount: _onDeleteAccount,
+                    ),
                     const SizedBox(height: AppSpacing.xl4),
                   ],
                 ),
@@ -179,7 +225,10 @@ class _SettingsPageState extends State<SettingsPage> {
     };
     final t = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: AppColors.primaryContainer,
         borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
@@ -206,13 +255,16 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       initialTime: _reminderTime,
       builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: ColorScheme.light(primary: AppColors.primary),
-        ),
+        data: Theme.of(
+          context,
+        ).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary)),
         child: child!,
       ),
     );
-    if (time != null && mounted) { setState(() => _reminderTime = time); _saveSettings(); }
+    if (time != null && mounted) {
+      setState(() => _reminderTime = time);
+      _saveSettings();
+    }
   }
 
   Future<void> _onLogout() async {
@@ -297,7 +349,12 @@ class _Group extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: AppTypography.titleSmall.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: AppSpacing.md),
           ...items,
         ],
@@ -314,7 +371,11 @@ class _SettingsTile extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _SettingsTile({
-    required this.emoji, required this.title, this.subtitle, this.trailing, this.onTap,
+    required this.emoji,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
   });
 
   @override
@@ -332,7 +393,10 @@ class _SettingsTile extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
             child: Row(
               children: [
                 Text(emoji, style: const TextStyle(fontSize: 20)),
@@ -341,15 +405,32 @@ class _SettingsTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.w600)),
+                      Text(
+                        title,
+                        style: AppTypography.titleSmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 2),
-                        Text(subtitle!, style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary)),
+                        Text(
+                          subtitle!,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                       ],
                     ],
                   ),
                 ),
-                trailing ?? Icon(Icons.chevron_left_rounded, color: AppColors.textTertiary, size: 22),
+                trailing ??
+                    Icon(
+                      Directionality.of(context) == TextDirection.rtl
+                          ? Icons.chevron_right_rounded
+                          : Icons.chevron_left_rounded,
+                      color: AppColors.textTertiary,
+                      size: 22,
+                    ),
               ],
             ),
           ),
@@ -366,7 +447,13 @@ class _SwitchTile extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  const _SwitchTile({required this.emoji, required this.title, required this.subtitle, required this.value, required this.onChanged});
+  const _SwitchTile({
+    required this.emoji,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -378,7 +465,10 @@ class _SwitchTile extends StatelessWidget {
         border: Border.all(color: AppColors.outline.withValues(alpha: 0.3)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.sm,
+        ),
         child: Row(
           children: [
             Text(emoji, style: const TextStyle(fontSize: 20)),
@@ -387,8 +477,18 @@ class _SwitchTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.w600)),
-                  Text(subtitle, style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary)),
+                  Text(
+                    title,
+                    style: AppTypography.titleSmall.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -411,10 +511,7 @@ class _DangerSection extends StatelessWidget {
   final VoidCallback onLogout;
   final VoidCallback onDeleteAccount;
 
-  const _DangerSection({
-    required this.onLogout,
-    required this.onDeleteAccount,
-  });
+  const _DangerSection({required this.onLogout, required this.onDeleteAccount});
 
   @override
   Widget build(BuildContext context) {
@@ -434,16 +531,24 @@ class _DangerSection extends StatelessWidget {
               onTap: onLogout,
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
+                ),
                 child: Row(
                   children: [
                     Container(
-                      width: 36, height: 36,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
                         color: AppColors.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusSm,
+                        ),
                       ),
-                      child: const Center(child: Text('🚪', style: TextStyle(fontSize: 18))),
+                      child: const Center(
+                        child: Text('🚪', style: TextStyle(fontSize: 18)),
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Text(
@@ -471,16 +576,24 @@ class _DangerSection extends StatelessWidget {
               onTap: onDeleteAccount,
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
+                ),
                 child: Row(
                   children: [
                     Container(
-                      width: 36, height: 36,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
                         color: AppColors.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusSm,
+                        ),
                       ),
-                      child: const Center(child: Text('🗑️', style: TextStyle(fontSize: 18))),
+                      child: const Center(
+                        child: Text('🗑️', style: TextStyle(fontSize: 18)),
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Text(

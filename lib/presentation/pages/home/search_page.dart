@@ -48,14 +48,23 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _loadArticles() async {
-    setState(() { _isLoading = true; _errorMessage = null; });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
       final articles = await sl<NewsRepository>().getArticles();
       if (!mounted) return;
-      setState(() { _allArticles = articles; _isLoading = false; });
+      setState(() {
+        _allArticles = articles;
+        _isLoading = false;
+      });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _isLoading = false; _errorMessage = AppLocalizations.of(context).articleError; });
+      setState(() {
+        _isLoading = false;
+        _errorMessage = AppLocalizations.of(context).articleError;
+      });
     }
   }
 
@@ -78,10 +87,13 @@ class _SearchPageState extends State<SearchPage> {
         if (_recentSearches.length > 8) _recentSearches.removeLast();
       }
       _results = _allArticles.where((a) {
-        final matchesQuery = a.title.toLowerCase().contains(lower) ||
+        final matchesQuery =
+            a.title.toLowerCase().contains(lower) ||
             a.description.toLowerCase().contains(lower);
-        final matchesCategory = _selectedCategory == null || a.category == _selectedCategory;
-        final matchesLevel = _selectedLevel == null || a.level == _selectedLevel;
+        final matchesCategory =
+            _selectedCategory == null || a.category == _selectedCategory;
+        final matchesLevel =
+            _selectedLevel == null || a.level == _selectedLevel;
         return matchesQuery && matchesCategory && matchesLevel;
       }).toList();
     });
@@ -101,26 +113,42 @@ class _SearchPageState extends State<SearchPage> {
                 onBack: () => context.pop(),
               ),
               if (_isLoading)
-                const Expanded(child: Center(child: CircularProgressIndicator()))
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
               else if (_errorMessage != null)
-                Expanded(child: _ErrorView(message: _errorMessage!, onRetry: _loadArticles))
+                Expanded(
+                  child: _ErrorView(
+                    message: _errorMessage!,
+                    onRetry: _loadArticles,
+                  ),
+                )
               else if (_query.isEmpty)
-                Expanded(child: _RecentSearches(
-                  searches: _recentSearches,
-                  onTap: _search,
-                  onRemove: _removeRecent,
-                ))
+                Expanded(
+                  child: _RecentSearches(
+                    searches: _recentSearches,
+                    onTap: _search,
+                    onRemove: _removeRecent,
+                  ),
+                )
               else
-                Expanded(child: _SearchResults(
-                  query: _query,
-                  results: _results,
-                  selectedCategory: _selectedCategory,
-                  selectedLevel: _selectedLevel,
-                  categories: _categories,
-                  levels: _levels,
-                  onCategoryChanged: (c) => setState(() => _selectedCategory = _selectedCategory == c ? null : c),
-                  onLevelChanged: (l) => setState(() => _selectedLevel = _selectedLevel == l ? null : l),
-                )),
+                Expanded(
+                  child: _SearchResults(
+                    query: _query,
+                    results: _results,
+                    selectedCategory: _selectedCategory,
+                    selectedLevel: _selectedLevel,
+                    categories: _categories,
+                    levels: _levels,
+                    onCategoryChanged: (c) => setState(
+                      () =>
+                          _selectedCategory = _selectedCategory == c ? null : c,
+                    ),
+                    onLevelChanged: (l) => setState(
+                      () => _selectedLevel = _selectedLevel == l ? null : l,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -144,8 +172,11 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xs, AppSpacing.sm, AppSpacing.xl, AppSpacing.sm,
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.xs,
+        AppSpacing.sm,
+        AppSpacing.xl,
+        AppSpacing.sm,
       ),
       child: Row(
         children: [
@@ -156,18 +187,21 @@ class _SearchBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                border: Border.all(color: AppColors.outline.withValues(alpha: 0.5)),
+                border: Border.all(
+                  color: AppColors.outline.withValues(alpha: 0.5),
+                ),
               ),
               child: TextField(
                 controller: controller,
                 focusNode: focusNode,
-                textDirection: TextDirection.rtl,
+                textDirection: Directionality.of(context),
                 decoration: InputDecoration(
                   hintText: t.searchArticlesHint,
-                  hintTextDirection: TextDirection.rtl,
+                  hintTextDirection: Directionality.of(context),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg, vertical: AppSpacing.md,
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.md,
                   ),
                   suffixIcon: controller.text.isNotEmpty
                       ? IconButton(
@@ -235,8 +269,11 @@ class _RecentSearches extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.xl, AppSpacing.md, AppSpacing.xl, AppSpacing.sm,
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.xl,
+            AppSpacing.md,
+            AppSpacing.xl,
+            AppSpacing.sm,
           ),
           child: Row(
             children: [
@@ -263,7 +300,9 @@ class _RecentSearches extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                  border: Border.all(color: AppColors.outline.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: AppColors.outline.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: ListTile(
                   leading: const Text('🕐', style: TextStyle(fontSize: 18)),
@@ -276,13 +315,20 @@ class _RecentSearches extends StatelessWidget {
                   trailing: GestureDetector(
                     onTap: () => onRemove(search),
                     child: Container(
-                      width: 32, height: 32,
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
                         color: AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusFull,
+                        ),
                       ),
                       child: const Center(
-                        child: Icon(Icons.close_rounded, size: 16, color: AppColors.textTertiary),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 16,
+                          color: AppColors.textTertiary,
+                        ),
                       ),
                     ),
                   ),
@@ -325,9 +371,10 @@ class _SearchResults extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final filtered = results.where((r) {
-      if (selectedCategory != null && r.category != selectedCategory) return false;
-      if (selectedLevel != null && r.level != selectedLevel) return false;
-      if (query.isNotEmpty && !r.title.toLowerCase().contains(query.toLowerCase())) return false;
+      if (selectedCategory != null && r.category != selectedCategory) { return false; }
+      if (selectedLevel != null && r.level != selectedLevel) { return false; }
+      if (query.isNotEmpty &&
+          !r.title.toLowerCase().contains(query.toLowerCase())) { return false; }
       return true;
     }).toList();
 
@@ -349,10 +396,13 @@ class _SearchResults extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md, vertical: AppSpacing.sm,
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primaryContainer : AppColors.surface,
+                    color: isSelected
+                        ? AppColors.primaryContainer
+                        : AppColors.surface,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                     border: Border.all(
                       color: isSelected
@@ -366,10 +416,14 @@ class _SearchResults extends StatelessWidget {
                       Text(cat.emoji, style: const TextStyle(fontSize: 14)),
                       const SizedBox(width: 6),
                       Text(
-                        cat.id,
+                        AppLocalizations.of(context).categoryLabel(cat.id),
                         style: AppTypography.labelMedium.copyWith(
-                          color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                         ),
                       ),
                     ],
@@ -396,10 +450,13 @@ class _SearchResults extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md, vertical: AppSpacing.xxs,
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.xxs,
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected ? levelColor.withValues(alpha: 0.12) : AppColors.surface,
+                    color: isSelected
+                        ? levelColor.withValues(alpha: 0.12)
+                        : AppColors.surface,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                     border: Border.all(
                       color: isSelected
@@ -411,7 +468,9 @@ class _SearchResults extends StatelessWidget {
                     level,
                     style: AppTypography.labelMedium.copyWith(
                       color: isSelected ? levelColor : AppColors.textSecondary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                     ),
                   ),
                 ),
@@ -455,9 +514,12 @@ class _SearchResults extends StatelessWidget {
                   ),
                 )
               : ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                  ),
                   itemCount: filtered.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: AppSpacing.sm),
                   itemBuilder: (context, index) {
                     final result = filtered[index];
                     final accentColors = [
@@ -472,18 +534,26 @@ class _SearchResults extends StatelessWidget {
                     return Container(
                       decoration: BoxDecoration(
                         color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                        border: Border.all(color: AppColors.outline.withValues(alpha: 0.3)),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMd,
+                        ),
+                        border: Border.all(
+                          color: AppColors.outline.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg, vertical: AppSpacing.sm,
+                          horizontal: AppSpacing.lg,
+                          vertical: AppSpacing.sm,
                         ),
                         leading: Container(
-                          width: 44, height: 44,
+                          width: 44,
+                          height: 44,
                           decoration: BoxDecoration(
                             color: accent.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusMd,
+                            ),
                           ),
                           child: Center(
                             child: Text(
@@ -507,10 +577,13 @@ class _SearchResults extends StatelessWidget {
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 1,
+                                  horizontal: 6,
+                                  vertical: 1,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: _levelColor(result.level).withValues(alpha: 0.12),
+                                  color: _levelColor(
+                                    result.level,
+                                  ).withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -523,7 +596,10 @@ class _SearchResults extends StatelessWidget {
                               ),
                               const SizedBox(width: AppSpacing.sm),
                               Text(
-                                result.publishedAt.toIso8601String().substring(0, 10),
+                                result.publishedAt.toIso8601String().substring(
+                                  0,
+                                  10,
+                                ),
                                 style: AppTypography.bodySmall.copyWith(
                                   color: AppColors.textTertiary,
                                 ),
@@ -532,7 +608,9 @@ class _SearchResults extends StatelessWidget {
                           ),
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
                         ),
                         onTap: () => context.push('/article/${result.id}'),
                       ),
@@ -546,24 +624,37 @@ class _SearchResults extends StatelessWidget {
 
   Color _levelColor(String level) {
     switch (level) {
-      case 'A1': return AppColors.levelA1;
-      case 'A2': return AppColors.levelA2;
-      case 'B1': return AppColors.levelB1;
-      case 'B2': return AppColors.levelB2;
-      case 'C1': return AppColors.levelC1;
-      default: return AppColors.levelB1;
+      case 'A1':
+        return AppColors.levelA1;
+      case 'A2':
+        return AppColors.levelA2;
+      case 'B1':
+        return AppColors.levelB1;
+      case 'B2':
+        return AppColors.levelB2;
+      case 'C1':
+        return AppColors.levelC1;
+      default:
+        return AppColors.levelB1;
     }
   }
 
   String _categoryEmoji(String category) {
     switch (category) {
-      case 'general': return '🌍';
-      case 'sports': return '⚽';
-      case 'technology': return '💻';
-      case 'business': return '📈';
-      case 'science': return '🔬';
-      case 'entertainment': return '🎬';
-      default: return '🌍';
+      case 'general':
+        return '🌍';
+      case 'sports':
+        return '⚽';
+      case 'technology':
+        return '💻';
+      case 'business':
+        return '📈';
+      case 'science':
+        return '🔬';
+      case 'entertainment':
+        return '🎬';
+      default:
+        return '🌍';
     }
   }
 }

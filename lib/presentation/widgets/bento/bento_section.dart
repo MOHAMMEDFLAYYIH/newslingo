@@ -39,15 +39,21 @@ class BentoSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (title != null)
-                          Text(title!, style: ResponsiveTypography.titleSmall.copyWith(
-                            fontWeight: FontWeight.bold,
-                          )),
+                          Text(
+                            title!,
+                            style: ResponsiveTypography.titleSmall.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         if (subtitle != null)
                           Padding(
                             padding: EdgeInsets.only(top: 2.h),
-                            child: Text(subtitle!, style: ResponsiveTypography.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
-                            )),
+                            child: Text(
+                              subtitle!,
+                              style: ResponsiveTypography.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
                           ),
                       ],
                     ),

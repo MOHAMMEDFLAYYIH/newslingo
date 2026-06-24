@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:newslingo/core/services/deepl_service.dart';
 import 'package:newslingo/data/datasources/local/article_translation_cache.dart';
 import 'package:newslingo/data/datasources/local/news_local_datasource.dart';
@@ -28,18 +29,26 @@ class NewsRepositoryImpl implements NewsRepository {
     int page = 1,
   }) async {
     try {
+      debugPrint('[Repo] getArticles — category: $category, level: $level, page: $page');
       final remote = await remoteDataSource.getArticles(
         category: category,
         level: level,
         page: page,
       );
+      debugPrint('[Repo] Remote returned ${remote.length} articles, caching...');
       await localDataSource.cacheArticles(remote);
-      return remote.map((e) => e.toEntity()).toList();
-    } catch (_) {
+      final entities = remote.map((e) => e.toEntity()).toList();
+      debugPrint('[Repo] Mapped ${entities.length} entities');
+      return entities;
+    } catch (e, stack) {
+      debugPrint('[Repo] Remote failed: $e');
+      debugPrint('[Repo] Stack: $stack');
+      debugPrint('[Repo] Falling back to cache...');
       final cached = await localDataSource.getCachedArticles(
         category: category,
         page: page,
       );
+      debugPrint('[Repo] Cache returned ${cached.length} articles');
       return cached.map((e) => e.toEntity()).toList();
     }
   }
@@ -69,6 +78,14 @@ class NewsRepositoryImpl implements NewsRepository {
   Future<Quiz> getQuizForArticle(String articleId) async {
     final remote = await remoteDataSource.getQuizForArticle(articleId);
     return remote.toEntity();
+  }
+
+  @override
+  Future<void> deleteWord(String word) async {
+    await localDataSource.deleteWord(word);
+    try {
+      await authRemoteDataSource.deleteSavedWord(word);
+    } catch (_) {}
   }
 
   @override
@@ -187,8 +204,7 @@ class NewsRepositoryImpl implements NewsRepository {
     final targetCode = DeepLService.targetCode(targetLocale);
 
     final ids = articles.map((a) => a.id).toList();
-    final cached =
-        await translationCache.getAllForLocale(ids, targetLocale);
+    final cached = await translationCache.getAllForLocale(ids, targetLocale);
 
     final result = <Article>[];
     final toTranslateIds = <String>[];
@@ -197,11 +213,13 @@ class NewsRepositoryImpl implements NewsRepository {
     for (final a in articles) {
       final c = cached[a.id];
       if (c != null) {
-        result.add(a.copyWith(
-          translatedTitle: c.title,
-          translatedDescription: c.description,
-          translatedContent: c.content,
-        ));
+        result.add(
+          a.copyWith(
+            translatedTitle: c.title,
+            translatedDescription: c.description,
+            translatedContent: c.content,
+          ),
+        );
       } else {
         toTranslateIds.add(a.id);
         toTranslateTexts.add(a.title);
@@ -219,15 +237,18 @@ class NewsRepositoryImpl implements NewsRepository {
         for (int i = 0; i < toTranslateIds.length; i++) {
           final title = translated[i * 2];
           final desc = translated[i * 2 + 1];
-          translations.add(ArticleTranslation(
-            title: title,
-            description: desc,
-            cachedAt: DateTime.now(),
-          ));
-          result.add(articles.firstWhere((a) => a.id == toTranslateIds[i]).copyWith(
-            translatedTitle: title,
-            translatedDescription: desc,
-          ));
+          translations.add(
+            ArticleTranslation(
+              title: title,
+              description: desc,
+              cachedAt: DateTime.now(),
+            ),
+          );
+          result.add(
+            articles
+                .firstWhere((a) => a.id == toTranslateIds[i])
+                .copyWith(translatedTitle: title, translatedDescription: desc),
+          );
         }
         await translationCache.saveBatch(
           toTranslateIds,

@@ -106,10 +106,7 @@ class _NotificationPreferencesPageState
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    _TimePickerTile(
-                      time: _reminderTime,
-                      onTap: _pickTime,
-                    ),
+                    _TimePickerTile(time: _reminderTime, onTap: _pickTime),
                   ],
                 ),
               ),
@@ -125,9 +122,9 @@ class _NotificationPreferencesPageState
       context: context,
       initialTime: _reminderTime,
       builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: ColorScheme.light(primary: AppColors.primary),
-        ),
+        data: Theme.of(
+          context,
+        ).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary)),
         child: child!,
       ),
     );

@@ -81,49 +81,58 @@ class _DashboardBody extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: AppSpacing.lg.h),
-                BentoSection(
-                  title: t.dashboardWeekly,
-                  children: [
-                    BentoContainer.card(
-                      child: _WeeklyChart(),
-                    ),
-                  ],
+                BlocBuilder<ProgressCubit, ProgressState>(
+                  builder: (context, state) => BentoSection(
+                    title: t.dashboardWeekly,
+                    children: [
+                      BentoContainer.card(
+                        child: _WeeklyChart(
+                          values: state.progress.articlesRead > 0
+                              ? [0.4, 0.7, 0.3, 0.9, 0.6, 0.8, 0.5]
+                              : [],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: AppSpacing.lg.h),
-                BentoSection(
-                  title: t.dashboardToday,
-                  children: [
-                    BentoContainer.card(
-                      child: _TodaysActivity(),
-                    ),
-                  ],
+                BlocBuilder<ProgressCubit, ProgressState>(
+                  builder: (context, state) => BentoSection(
+                    title: t.dashboardToday,
+                    children: [
+                      BentoContainer.card(
+                        child: _TodaysActivity(
+                          lastActiveDate: state.progress.lastActiveDate,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: AppSpacing.lg.h),
                 BentoSection(
                   title: t.dashboardComparison,
-                  children: [
-                    BentoContainer.card(
-                      child: _WeeklyComparison(),
-                    ),
-                  ],
+                  children: [BentoContainer.card(child: _WeeklyComparison())],
                 ),
                 SizedBox(height: AppSpacing.lg.h),
                 BentoSection(
                   title: t.dashboardLevelProgress,
-                  children: [
-                    BentoContainer.card(
-                      child: _LevelProgress(),
-                    ),
-                  ],
+                  children: [BentoContainer.card(child: _LevelProgress())],
                 ),
                 SizedBox(height: AppSpacing.lg.h),
-                BentoSection(
-                  title: t.dashboardLearningTime,
-                  children: [
-                    BentoContainer.card(
-                      child: _TimeSpent(),
-                    ),
-                  ],
+                BlocBuilder<ProgressCubit, ProgressState>(
+                  builder: (context, state) => BentoSection(
+                    title: t.dashboardLearningTime,
+                    children: [
+                      BentoContainer.card(
+                        child: _TimeSpent(
+                          articlesRead: state.progress.articlesRead,
+                          quizzesPassed: state.progress.quizzesPassed,
+                          wordsLearned: state.progress.wordsLearned,
+                          streak: state.progress.streak,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: AppSpacing.xl4.h),
               ],
@@ -155,12 +164,15 @@ class _DashboardBody extends StatelessWidget {
       ),
       padding: EdgeInsets.zero,
       shrinkWrap: true,
-      children: List.generate(4, (_) => BentoContainer.card(
-        height: 100.h,
-        child: Center(
-          child: Text('⬜', style: TextStyle(fontSize: 28.sp)),
+      children: List.generate(
+        4,
+        (_) => BentoContainer.card(
+          height: 100.h,
+          child: Center(
+            child: Text('⬜', style: TextStyle(fontSize: 28.sp)),
+          ),
         ),
-      )),
+      ),
     );
   }
 }
@@ -170,7 +182,9 @@ class _LevelHeader extends StatelessWidget {
   const _LevelHeader({required this.progress});
 
   int _levelPoints() {
-    return progress.articlesRead * 10 + progress.wordsLearned * 5 + progress.quizzesPassed * 20;
+    return progress.articlesRead * 10 +
+        progress.wordsLearned * 5 +
+        progress.quizzesPassed * 20;
   }
 
   double _levelProgress() {
@@ -198,12 +212,18 @@ class _LevelHeader extends StatelessWidget {
 
   String _levelEmoji(String key) {
     switch (key) {
-      case 'C2': return '💎';
-      case 'C1': return '🏆';
-      case 'B2': return '🌟';
-      case 'B1': return '📚';
-      case 'A2': return '🌱';
-      default: return '🪴';
+      case 'C2':
+        return '💎';
+      case 'C1':
+        return '🏆';
+      case 'B2':
+        return '🌟';
+      case 'B1':
+        return '📚';
+      case 'A2':
+        return '🌱';
+      default:
+        return '🪴';
     }
   }
 
@@ -238,20 +258,29 @@ class _LevelHeader extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(t.levelLabel(levelKey), style: ResponsiveTypography.titleMedium.copyWith(
-                    color: Colors.white, fontWeight: FontWeight.bold,
-                  )),
+                  Text(
+                    t.levelLabel(levelKey),
+                    style: ResponsiveTypography.titleMedium.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 4.h),
-                  Text(t.points(_levelPoints()), style: ResponsiveTypography.bodySmall.copyWith(
-                    color: Colors.white.withValues(alpha: 0.8),
-                  )),
+                  Text(
+                    t.points(_levelPoints()),
+                    style: ResponsiveTypography.bodySmall.copyWith(
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
+                  ),
                   SizedBox(height: AppSpacing.sm.h),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4.r),
                     child: LinearProgressIndicator(
                       value: _levelProgress(),
                       backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
                       minHeight: 8.h,
                     ),
                   ),
@@ -274,9 +303,21 @@ class _StatsGrid extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final stats = [
       {'emoji': '🔥', 'value': '${progress.streak}', 'label': t.streakDays},
-      {'emoji': '📰', 'value': '${progress.articlesRead}', 'label': t.articlesRead},
-      {'emoji': '📝', 'value': '${progress.wordsLearned}', 'label': t.wordsSaved},
-      {'emoji': '✅', 'value': '${progress.quizzesPassed}', 'label': t.quizzesPassed},
+      {
+        'emoji': '📰',
+        'value': '${progress.articlesRead}',
+        'label': t.articlesRead,
+      },
+      {
+        'emoji': '📝',
+        'value': '${progress.wordsLearned}',
+        'label': t.wordsSaved,
+      },
+      {
+        'emoji': '✅',
+        'value': '${progress.quizzesPassed}',
+        'label': t.quizzesPassed,
+      },
     ];
     return BentoGridView(
       delegate: const BentoGridDelegate(
@@ -286,40 +327,64 @@ class _StatsGrid extends StatelessWidget {
       ),
       padding: EdgeInsets.zero,
       shrinkWrap: true,
-      children: stats.map((s) => BentoContainer.card(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: AppSpacing.md.h),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(s['emoji'] as String, style: TextStyle(fontSize: 28.sp)),
-              SizedBox(height: 4.h),
-              Text(s['value'] as String, style: ResponsiveTypography.titleLarge.copyWith(
-                fontWeight: FontWeight.bold, color: AppColors.textPrimary,
-              )),
-              Text(s['label'] as String, style: ResponsiveTypography.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-              ), maxLines: 1, overflow: TextOverflow.ellipsis),
-            ],
-          ),
-        ),
-      )).toList(),
+      children: stats
+          .map(
+            (s) => BentoContainer.card(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.md.h),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      s['emoji'] as String,
+                      style: TextStyle(fontSize: 28.sp),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      s['value'] as String,
+                      style: ResponsiveTypography.titleLarge.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      s['label'] as String,
+                      style: ResponsiveTypography.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 }
 
 class _WeeklyChart extends StatelessWidget {
+  final List<double> values;
+  const _WeeklyChart({this.values = const []});
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final days = t.weekDaysAbbr;
-    final values = [0.4, 0.7, 0.3, 0.9, 0.6, 0.8, 0.5];
+    final chartValues = values.length == 7
+        ? values
+        : [0.4, 0.7, 0.3, 0.9, 0.6, 0.8, 0.5];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(t.hourLabel, style: ResponsiveTypography.titleSmall.copyWith(
-          fontWeight: FontWeight.w600,
-        )),
+        Text(
+          t.hourLabel,
+          style: ResponsiveTypography.titleSmall.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         SizedBox(height: AppSpacing.lg.h),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -330,16 +395,21 @@ class _WeeklyChart extends StatelessWidget {
               children: [
                 Container(
                   width: 32.w,
-                  height: 100.h * values[i],
+                  height: 100.h * chartValues[i],
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.3 + values[i] * 0.5),
+                    color: AppColors.primary.withValues(
+                      alpha: 0.3 + chartValues[i] * 0.5,
+                    ),
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm.r),
                   ),
                 ),
                 SizedBox(height: 4.h),
-                Text(days[i], style: ResponsiveTypography.labelSmall.copyWith(
-                  color: AppColors.textSecondary,
-                )),
+                Text(
+                  days[i],
+                  style: ResponsiveTypography.labelSmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ],
             );
           }),
@@ -350,19 +420,50 @@ class _WeeklyChart extends StatelessWidget {
 }
 
 class _TodaysActivity extends StatelessWidget {
+  final DateTime lastActiveDate;
+  const _TodaysActivity({required this.lastActiveDate});
+
+  bool get _isToday {
+    final now = DateTime.now();
+    return lastActiveDate.year == now.year &&
+        lastActiveDate.month == now.month &&
+        lastActiveDate.day == now.day;
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final isToday = _isToday;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _ActivityRow(emoji: '📖', label: t.activityReadArticle, detail: t.activityReadDetail, done: false),
+        _ActivityRow(
+          emoji: '📖',
+          label: t.activityReadArticle,
+          detail: t.activityReadDetail,
+          done: isToday,
+        ),
         SizedBox(height: AppSpacing.sm.h),
-        _ActivityRow(emoji: '📝', label: t.activityQuiz, detail: t.activityQuizDetail, done: false),
+        _ActivityRow(
+          emoji: '📝',
+          label: t.activityQuiz,
+          detail: t.activityQuizDetail,
+          done: isToday,
+        ),
         SizedBox(height: AppSpacing.sm.h),
-        _ActivityRow(emoji: '🔄', label: t.activityFlashcards, detail: t.activityFlashcardDetail, done: false),
+        _ActivityRow(
+          emoji: '🔄',
+          label: t.activityFlashcards,
+          detail: t.activityFlashcardDetail,
+          done: isToday,
+        ),
         SizedBox(height: AppSpacing.sm.h),
-        _ActivityRow(emoji: '🎤', label: t.activityPronunciation, detail: t.activityPronunciationDetail, done: false),
+        _ActivityRow(
+          emoji: '🎤',
+          label: t.activityPronunciation,
+          detail: t.activityPronunciationDetail,
+          done: isToday,
+        ),
       ],
     );
   }
@@ -373,37 +474,56 @@ class _ActivityRow extends StatelessWidget {
   final String label;
   final String detail;
   final bool done;
-  const _ActivityRow({required this.emoji, required this.label, required this.detail, required this.done});
+  const _ActivityRow({
+    required this.emoji,
+    required this.label,
+    required this.detail,
+    required this.done,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Container(
-          width: 36.w, height: 36.w,
+          width: 36.w,
+          height: 36.w,
           decoration: BoxDecoration(
             color: done ? AppColors.successContainer : AppColors.surfaceVariant,
             borderRadius: BorderRadius.circular(AppSpacing.radiusSm.r),
           ),
-          child: Center(child: Text(emoji, style: TextStyle(fontSize: 18.sp))),
+          child: Center(
+            child: Text(emoji, style: TextStyle(fontSize: 18.sp)),
+          ),
         ),
         SizedBox(width: AppSpacing.md.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: ResponsiveTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
-                decoration: done ? TextDecoration.lineThrough : null,
-                color: done ? AppColors.textSecondary : AppColors.textPrimary,
-              )),
-              Text(detail, style: ResponsiveTypography.bodySmall.copyWith(
-                color: AppColors.textTertiary,
-              )),
+              Text(
+                label,
+                style: ResponsiveTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                  decoration: done ? TextDecoration.lineThrough : null,
+                  color: done ? AppColors.textSecondary : AppColors.textPrimary,
+                ),
+              ),
+              Text(
+                detail,
+                style: ResponsiveTypography.bodySmall.copyWith(
+                  color: AppColors.textTertiary,
+                ),
+              ),
             ],
           ),
         ),
-        if (done) Icon(Icons.check_circle_rounded, color: AppColors.success, size: 20.w),
+        if (done)
+          Icon(
+            Icons.check_circle_rounded,
+            color: AppColors.success,
+            size: 20.w,
+          ),
       ],
     );
   }
@@ -419,10 +539,25 @@ class _WeeklyComparison extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(t.thisWeek, style: ResponsiveTypography.labelSmall.copyWith(color: AppColors.textSecondary)),
+              Text(
+                t.thisWeek,
+                style: ResponsiveTypography.labelSmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
               SizedBox(height: 4.h),
-              Text('8.5', style: ResponsiveTypography.displayMedium.copyWith(fontWeight: FontWeight.bold)),
-              Text(t.hour, style: ResponsiveTypography.bodySmall.copyWith(color: AppColors.textSecondary)),
+              Text(
+                '8.5',
+                style: ResponsiveTypography.displayMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                t.hour,
+                style: ResponsiveTypography.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ],
           ),
         ),
@@ -431,10 +566,26 @@ class _WeeklyComparison extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(t.lastWeek, style: ResponsiveTypography.labelSmall.copyWith(color: AppColors.textSecondary)),
+              Text(
+                t.lastWeek,
+                style: ResponsiveTypography.labelSmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
               SizedBox(height: 4.h),
-              Text('6.2', style: ResponsiveTypography.displayMedium.copyWith(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
-              Text(t.hour, style: ResponsiveTypography.bodySmall.copyWith(color: AppColors.textSecondary)),
+              Text(
+                '6.2',
+                style: ResponsiveTypography.displayMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              Text(
+                t.hour,
+                style: ResponsiveTypography.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ],
           ),
         ),
@@ -449,7 +600,8 @@ class _LevelProgress extends StatelessWidget {
     return BlocBuilder<ProgressCubit, ProgressState>(
       builder: (context, state) {
         final t = AppLocalizations.of(context);
-        final total = state.progress.articlesRead * 10 +
+        final total =
+            state.progress.articlesRead * 10 +
             state.progress.wordsLearned * 5 +
             state.progress.quizzesPassed * 20;
         final levelPoints = total % 2000;
@@ -463,10 +615,22 @@ class _LevelProgress extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Flexible(
-                  child: Text('$currentLevel → $nextLevel', style: ResponsiveTypography.titleSmall.copyWith(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  child: Text(
+                    '$currentLevel → $nextLevel',
+                    style: ResponsiveTypography.titleSmall.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 SizedBox(width: AppSpacing.sm.w),
-                Text('$levelPoints / 2,000', style: ResponsiveTypography.bodySmall.copyWith(color: AppColors.textSecondary)),
+                Text(
+                  '$levelPoints / 2,000',
+                  style: ResponsiveTypography.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ],
             ),
             SizedBox(height: AppSpacing.sm.h),
@@ -475,12 +639,19 @@ class _LevelProgress extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: levelPoints / 2000,
                 backgroundColor: AppColors.primaryContainer,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
                 minHeight: 10.h,
               ),
             ),
             SizedBox(height: 4.h),
-            Text(t.remainingPoints(remaining), style: ResponsiveTypography.bodySmall.copyWith(color: AppColors.textTertiary)),
+            Text(
+              t.remainingPoints(remaining),
+              style: ResponsiveTypography.bodySmall.copyWith(
+                color: AppColors.textTertiary,
+              ),
+            ),
           ],
         );
       },
@@ -489,15 +660,41 @@ class _LevelProgress extends StatelessWidget {
 }
 
 class _TimeSpent extends StatelessWidget {
+  final int articlesRead;
+  final int quizzesPassed;
+  final int wordsLearned;
+  final int streak;
+  const _TimeSpent({
+    required this.articlesRead,
+    required this.quizzesPassed,
+    required this.wordsLearned,
+    required this.streak,
+  });
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _TimeStat(emoji: '📅', value: '8.5', unit: t.hour, label: t.thisWeek),
-        _TimeStat(emoji: '📊', value: '34', unit: t.hour, label: t.thisMonth),
-        _TimeStat(emoji: '🏆', value: '156', unit: t.hour, label: t.total),
+        _TimeStat(
+          emoji: '📅',
+          value: '$articlesRead',
+          unit: t.articlesRead,
+          label: t.thisWeek,
+        ),
+        _TimeStat(
+          emoji: '📊',
+          value: '$quizzesPassed',
+          unit: t.quizzesPassed,
+          label: t.thisMonth,
+        ),
+        _TimeStat(
+          emoji: '🏆',
+          value: '$wordsLearned',
+          unit: t.wordsSaved,
+          label: t.total,
+        ),
       ],
     );
   }
@@ -508,7 +705,12 @@ class _TimeStat extends StatelessWidget {
   final String value;
   final String unit;
   final String label;
-  const _TimeStat({required this.emoji, required this.value, required this.unit, required this.label});
+  const _TimeStat({
+    required this.emoji,
+    required this.value,
+    required this.unit,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -517,9 +719,26 @@ class _TimeStat extends StatelessWidget {
       children: [
         Text(emoji, style: TextStyle(fontSize: 24.sp)),
         SizedBox(height: 4.h),
-        Text(value, style: ResponsiveTypography.titleLarge.copyWith(fontWeight: FontWeight.bold)),
-        Text(unit, style: ResponsiveTypography.bodySmall.copyWith(color: AppColors.textSecondary)),
-        Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: ResponsiveTypography.labelSmall.copyWith(color: AppColors.textTertiary)),
+        Text(
+          value,
+          style: ResponsiveTypography.titleLarge.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          unit,
+          style: ResponsiveTypography.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: ResponsiveTypography.labelSmall.copyWith(
+            color: AppColors.textTertiary,
+          ),
+        ),
       ],
     );
   }

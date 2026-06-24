@@ -68,7 +68,9 @@ class _PaymentPageState extends State<PaymentPage> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                  ),
                   child: Row(
                     children: [
                       AppBackButton(),
@@ -79,8 +81,8 @@ class _PaymentPageState extends State<PaymentPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    const Spacer(),
-                    SizedBox(width: 48),
+                      const Spacer(),
+                      SizedBox(width: 48),
                     ],
                   ),
                 ),
@@ -94,11 +96,15 @@ class _PaymentPageState extends State<PaymentPage> {
                   cardNumber: _cardNumberController.text.isEmpty
                       ? '•••• •••• •••• ••••'
                       : _formatCardNumber(_cardNumberController.text),
-                  expiry: _expiryController.text.isEmpty ? 'MM/YY' : _expiryController.text,
+                  expiry: _expiryController.text.isEmpty
+                      ? 'MM/YY'
+                      : _expiryController.text,
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xxl,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -255,9 +261,13 @@ class _PaymentPageState extends State<PaymentPage> {
                         padding: const EdgeInsets.all(AppSpacing.lg),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
                           border: Border.all(
-                            color: AppColors.outlineVariant.withValues(alpha: 0.5),
+                            color: AppColors.outlineVariant.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
                         ),
                         child: Column(
@@ -275,7 +285,9 @@ class _PaymentPageState extends State<PaymentPage> {
                               ),
                             ],
                             const Padding(
-                              padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                              padding: EdgeInsets.symmetric(
+                                vertical: AppSpacing.sm,
+                              ),
                               child: Divider(height: 1),
                             ),
                             _PriceRow(
@@ -327,15 +339,16 @@ class _PaymentPageState extends State<PaymentPage> {
                           ),
                         ),
                       ),
-                    const SizedBox(height: AppSpacing.xl5),
-                  ],
+                      const SizedBox(height: AppSpacing.xl5),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 
   String _formatCardNumber(String number) {
@@ -402,7 +415,9 @@ class _CardPreview extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusFull,
+                      ),
                     ),
                     child: Text(
                       planTitle,
@@ -510,9 +525,7 @@ class _PaymentMethodOption extends StatelessWidget {
           vertical: AppSpacing.md,
         ),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primaryContainer
-              : AppColors.surface,
+          color: isSelected ? AppColors.primaryContainer : AppColors.surface,
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           border: Border.all(
             color: isSelected
@@ -583,9 +596,7 @@ class _CardField extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(
-          color: AppColors.outline.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: AppColors.outline.withValues(alpha: 0.3)),
       ),
       child: TextField(
         controller: controller,
@@ -594,28 +605,24 @@ class _CardField extends StatelessWidget {
         obscureText: obscureText,
         enabled: enabled,
         onChanged: onChanged,
-        style: AppTypography.bodyLarge.copyWith(
-          color: AppColors.textPrimary,
-        ),
+        style: AppTypography.bodyLarge.copyWith(color: AppColors.textPrimary),
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
-          hintStyle: TextStyle(
-            color: AppColors.textTertiary,
-            fontSize: 14,
-          ),
-          labelStyle: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-          ),
-          floatingLabelStyle: TextStyle(
-            color: AppColors.primary,
-          ),
+          hintStyle: TextStyle(color: AppColors.textTertiary, fontSize: 14),
+          labelStyle: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+          floatingLabelStyle: TextStyle(color: AppColors.primary),
           prefixIcon: Padding(
-            padding: const EdgeInsetsDirectional.only(start: AppSpacing.md, end: AppSpacing.sm),
+            padding: const EdgeInsetsDirectional.only(
+              start: AppSpacing.md,
+              end: AppSpacing.sm,
+            ),
             child: Text(prefix, style: const TextStyle(fontSize: 18)),
           ),
-          prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 0),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 40,
+            minHeight: 0,
+          ),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
@@ -650,18 +657,20 @@ class _PriceRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: (isTotal ? AppTypography.titleSmall : AppTypography.bodyMedium).copyWith(
-            color: color ?? AppColors.textSecondary,
-            fontWeight: isTotal ? FontWeight.w600 : FontWeight.w400,
-          ),
+          style: (isTotal ? AppTypography.titleSmall : AppTypography.bodyMedium)
+              .copyWith(
+                color: color ?? AppColors.textSecondary,
+                fontWeight: isTotal ? FontWeight.w600 : FontWeight.w400,
+              ),
         ),
         const Spacer(),
         Text(
           amount,
-          style: (isTotal ? AppTypography.titleMedium : AppTypography.bodyLarge).copyWith(
-            color: color ?? AppColors.textPrimary,
-            fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
-          ),
+          style: (isTotal ? AppTypography.titleMedium : AppTypography.bodyLarge)
+              .copyWith(
+                color: color ?? AppColors.textPrimary,
+                fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
+              ),
         ),
       ],
     );

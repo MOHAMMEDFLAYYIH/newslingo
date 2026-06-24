@@ -33,25 +33,18 @@ class _LanguageLevelPageState extends State<LanguageLevelPage> {
         ),
         child: SafeArea(
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xs,
-              ),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
                 child: AppBackButton(),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xxl,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      t.levelTitle,
-                      style: AppTypography.displayMedium,
-                    ),
+                    Text(t.levelTitle, style: AppTypography.displayMedium),
                     const SizedBox(height: AppSpacing.md),
                     Text(
                       t.levelSubtitle,
@@ -70,9 +63,8 @@ class _LanguageLevelPageState extends State<LanguageLevelPage> {
                     horizontal: AppSpacing.xxl,
                   ),
                   itemCount: LanguageLevel.values.length,
-                  separatorBuilder: (_, _) => const SizedBox(
-                    height: AppSpacing.md,
-                  ),
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: AppSpacing.md),
                   itemBuilder: (context, index) {
                     final level = LanguageLevel.values[index];
                     final isSelected = _selectedLevel == level;
@@ -160,13 +152,16 @@ class _LanguageLevelPageState extends State<LanguageLevelPage> {
                                     children: [
                                       Text(
                                         level.label,
-                                        style: AppTypography.titleMedium.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        style: AppTypography.titleMedium
+                                            .copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                       ),
                                       const SizedBox(height: AppSpacing.xs),
                                       Text(
-                                        t.levelDescription(level.name.toUpperCase()),
+                                        t.levelDescription(
+                                          level.name.toUpperCase(),
+                                        ),
                                         style: AppTypography.bodySmall.copyWith(
                                           color: AppColors.textSecondary,
                                         ),
@@ -205,7 +200,7 @@ class _LanguageLevelPageState extends State<LanguageLevelPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.xxl,
                   AppSpacing.lg,
                   AppSpacing.xxl,
@@ -230,9 +225,8 @@ class _LanguageLevelPageState extends State<LanguageLevelPage> {
                     child: FilledButton(
                       onPressed: _selectedLevel != null
                           ? () async {
-                              await sl<UserLocalDataSource>().saveOnboardingLevel(
-                                _selectedLevel!.name,
-                              );
+                              await sl<UserLocalDataSource>()
+                                  .saveOnboardingLevel(_selectedLevel!.name);
                               if (context.mounted) {
                                 context.go('/onboarding/interests');
                               }
@@ -242,8 +236,9 @@ class _LanguageLevelPageState extends State<LanguageLevelPage> {
                         backgroundColor: _selectedLevel != null
                             ? AppColors.primary
                             : AppColors.outline.withValues(alpha: 0.5),
-                        disabledBackgroundColor:
-                            AppColors.outline.withValues(alpha: 0.3),
+                        disabledBackgroundColor: AppColors.outline.withValues(
+                          alpha: 0.3,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                             AppSpacing.radiusMd,
@@ -254,8 +249,8 @@ class _LanguageLevelPageState extends State<LanguageLevelPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                             t.levelContinue,
-                             style: AppTypography.titleMedium.copyWith(
+                            t.levelContinue,
+                            style: AppTypography.titleMedium.copyWith(
                               color: _selectedLevel != null
                                   ? Colors.white
                                   : AppColors.textTertiary,
@@ -263,8 +258,10 @@ class _LanguageLevelPageState extends State<LanguageLevelPage> {
                           ),
                           if (_selectedLevel != null) ...[
                             const SizedBox(width: AppSpacing.sm),
-                            const Icon(
-                              Icons.arrow_forward_ios_rounded,
+                            Icon(
+                              Directionality.of(context) == TextDirection.rtl
+                                  ? Icons.arrow_back_ios_rounded
+                                  : Icons.arrow_forward_ios_rounded,
                               size: 18,
                               color: Colors.white,
                             ),
@@ -296,6 +293,4 @@ class _LanguageLevelPageState extends State<LanguageLevelPage> {
         return AppColors.levelC1;
     }
   }
-
-
 }

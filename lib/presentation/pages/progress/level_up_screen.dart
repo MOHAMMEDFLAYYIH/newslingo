@@ -7,10 +7,30 @@ import 'package:newslingo/core/theme/app_spacing.dart';
 import 'package:newslingo/core/theme/app_typography.dart';
 
 class LevelUpScreen extends StatefulWidget {
-  const LevelUpScreen({super.key});
+  final String level;
+  final int wordsLearned;
+  final int streak;
+  final int quizzesPassed;
+  final int articlesRead;
+
+  const LevelUpScreen({
+    super.key,
+    this.level = 'B2',
+    this.wordsLearned = 1250,
+    this.streak = 48,
+    this.quizzesPassed = 24,
+    this.articlesRead = 15,
+  });
 
   @override
   State<LevelUpScreen> createState() => _LevelUpScreenState();
+}
+
+String _previousLevel(String level) {
+  const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  final idx = levels.indexOf(level);
+  if (idx <= 0) return levels[0];
+  return levels[idx - 1];
 }
 
 class _LevelUpScreenState extends State<LevelUpScreen>
@@ -76,7 +96,7 @@ class _LevelUpScreenState extends State<LevelUpScreen>
                 builder: (context, _) {
                   return Transform.scale(
                     scale: _badgeScale.value,
-                    child: _NewLevelBadge(t: t),
+                    child: _NewLevelBadge(t: t, level: widget.level),
                   );
                 },
               ),
@@ -89,7 +109,9 @@ class _LevelUpScreenState extends State<LevelUpScreen>
                     child: Expanded(
                       flex: 6,
                       child: ListView(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.xl,
+                        ),
                         children: [
                           const SizedBox(height: AppSpacing.lg),
                           Text(
@@ -102,22 +124,37 @@ class _LevelUpScreenState extends State<LevelUpScreen>
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            t.levelUpMessage('B2'),
+                            t.levelUpMessage(widget.level),
                             style: AppTypography.bodyLarge.copyWith(
                               color: AppColors.textSecondary,
                             ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppSpacing.xxl),
-                          _ComparisonCard(t: t),
+                          _ComparisonCard(
+                            t: t,
+                            oldLevel: _previousLevel(widget.level),
+                            newLevel: widget.level,
+                          ),
                           const SizedBox(height: AppSpacing.lg),
                           _UnlockList(t: t),
                           const SizedBox(height: AppSpacing.xxl),
-                          _StatsRow(t: t),
+                          _StatsRow(
+                            t: t,
+                            wordsLearned: widget.wordsLearned,
+                            articlesRead: widget.articlesRead,
+                            quizzesPassed: widget.quizzesPassed,
+                            streak: widget.streak,
+                          ),
                           const SizedBox(height: AppSpacing.xxl),
                           FilledButton.icon(
                             onPressed: () => context.go('/home'),
-                            icon: const Icon(Icons.arrow_back_rounded, size: 20),
+                            icon: Icon(
+                              Directionality.of(context) == TextDirection.rtl
+                                  ? Icons.arrow_forward_rounded
+                                  : Icons.arrow_back_rounded,
+                              size: 20,
+                            ),
                             label: Text(
                               t.levelUpContinue,
                               style: AppTypography.labelLarge.copyWith(
@@ -127,9 +164,13 @@ class _LevelUpScreenState extends State<LevelUpScreen>
                             ),
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.primary,
-                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.lg,
+                              ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.radiusMd,
+                                ),
                               ),
                             ),
                           ),
@@ -173,7 +214,10 @@ class _EmojiRain extends StatelessWidget {
                   opacity: value,
                   child: Transform.translate(
                     offset: Offset(0, -(1 - value) * 40),
-                    child: Text(emoji, style: TextStyle(fontSize: 20 + random.nextDouble() * 12)),
+                    child: Text(
+                      emoji,
+                      style: TextStyle(fontSize: 20 + random.nextDouble() * 12),
+                    ),
                   ),
                 );
               },
@@ -187,7 +231,8 @@ class _EmojiRain extends StatelessWidget {
 
 class _NewLevelBadge extends StatelessWidget {
   final AppLocalizations t;
-  const _NewLevelBadge({required this.t});
+  final String level;
+  const _NewLevelBadge({required this.t, required this.level});
 
   @override
   Widget build(BuildContext context) {
@@ -216,7 +261,7 @@ class _NewLevelBadge extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               Text(
-                'B2',
+                level,
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w900,
@@ -228,12 +273,15 @@ class _NewLevelBadge extends StatelessWidget {
                 top: 8,
                 right: 8,
                 child: Container(
-                    width: 28, height: 28,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.3),
                     shape: BoxShape.circle,
                   ),
-                  child: const Center(child: Text('👑', style: TextStyle(fontSize: 16))),
+                  child: const Center(
+                    child: Text('👑', style: TextStyle(fontSize: 16)),
+                  ),
                 ),
               ),
             ],
@@ -241,13 +289,16 @@ class _NewLevelBadge extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.xs,
+          ),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.9),
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
           ),
           child: Text(
-            t.levelName('B2'),
+            t.levelName(level),
             style: AppTypography.labelLarge.copyWith(
               color: AppColors.levelB2,
               fontWeight: FontWeight.w800,
@@ -261,7 +312,13 @@ class _NewLevelBadge extends StatelessWidget {
 
 class _ComparisonCard extends StatelessWidget {
   final AppLocalizations t;
-  const _ComparisonCard({required this.t});
+  final String oldLevel;
+  final String newLevel;
+  const _ComparisonCard({
+    required this.t,
+    required this.oldLevel,
+    required this.newLevel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -279,7 +336,7 @@ class _ComparisonCard extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  'B1',
+                  oldLevel,
                   style: AppTypography.headlineLarge.copyWith(
                     fontWeight: FontWeight.w900,
                     color: AppColors.levelB1,
@@ -287,7 +344,7 @@ class _ComparisonCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  t.levelName('B1'),
+                  t.levelName(oldLevel),
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -296,18 +353,21 @@ class _ComparisonCard extends StatelessWidget {
             ),
           ),
           Container(
-            width: 36, height: 36,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               color: AppColors.primaryContainer,
               borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
             ),
-            child: const Center(child: Text('➡️', style: TextStyle(fontSize: 16))),
+            child: const Center(
+              child: Text('➡️', style: TextStyle(fontSize: 16)),
+            ),
           ),
           Expanded(
             child: Column(
               children: [
                 Text(
-                  'B2',
+                  newLevel,
                   style: AppTypography.headlineLarge.copyWith(
                     fontWeight: FontWeight.w900,
                     color: AppColors.levelB2,
@@ -315,7 +375,7 @@ class _ComparisonCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  t.levelName('B2'),
+                  t.levelName(newLevel),
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -365,42 +425,50 @@ class _UnlockList extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          ...features.map((f) => Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.md),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 36, height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryContainer,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                  ),
-                  child: Center(child: Text(f.emoji, style: const TextStyle(fontSize: 18))),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        f.title,
-                        style: AppTypography.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+          ...features.map(
+            (f) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryContainer,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    ),
+                    child: Center(
+                      child: Text(
+                        f.emoji,
+                        style: const TextStyle(fontSize: 18),
                       ),
-                      Text(
-                        f.subtitle,
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.textTertiary,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          f.title,
+                          style: AppTypography.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          f.subtitle,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -414,52 +482,81 @@ class _FeatureData {
   const _FeatureData(this.emoji, this.title, this.subtitle);
 }
 
+String _formatNumber(int n) {
+  final str = n.toString();
+  final result = StringBuffer();
+  for (var i = 0; i < str.length; i++) {
+    if (i > 0 && (str.length - i) % 3 == 0) result.write(',');
+    result.write(str[i]);
+  }
+  return result.toString();
+}
+
 class _StatsRow extends StatelessWidget {
   final AppLocalizations t;
-  const _StatsRow({required this.t});
+  final int wordsLearned;
+  final int articlesRead;
+  final int quizzesPassed;
+  final int streak;
+  const _StatsRow({
+    required this.t,
+    required this.wordsLearned,
+    required this.articlesRead,
+    required this.quizzesPassed,
+    required this.streak,
+  });
 
   @override
   Widget build(BuildContext context) {
     final stats = [
-      _StatItem('📖', '1,250', t.levelUpWordLearned),
-      _StatItem('📰', '48', t.levelUpArticleRead),
-      _StatItem('✅', '24', t.levelUpQuizPassed),
-      _StatItem('🔥', '15', t.levelUpStreakDays),
+      _StatItem('📖', _formatNumber(wordsLearned), t.levelUpWordLearned),
+      _StatItem('📰', _formatNumber(articlesRead), t.levelUpArticleRead),
+      _StatItem('✅', _formatNumber(quizzesPassed), t.levelUpQuizPassed),
+      _StatItem('🔥', _formatNumber(streak), t.levelUpStreakDays),
     ];
 
     return Row(
-      children: stats.map((s) => Expanded(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.sm),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-            border: Border.all(color: AppColors.outline.withValues(alpha: 0.2)),
-          ),
-          child: Column(
-            children: [
-              Text(s.emoji, style: const TextStyle(fontSize: 20)),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                s.value,
-                style: AppTypography.titleSmall.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.primary,
+      children: stats
+          .map(
+            (s) => Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.md,
+                  horizontal: AppSpacing.sm,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                  border: Border.all(
+                    color: AppColors.outline.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(s.emoji, style: const TextStyle(fontSize: 20)),
+                    const SizedBox(height: AppSpacing.xxs),
+                    Text(
+                      s.value,
+                      style: AppTypography.titleSmall.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    Text(
+                      s.label,
+                      style: AppTypography.labelSmall.copyWith(
+                        color: AppColors.textTertiary,
+                        fontSize: 9,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
-              Text(
-                s.label,
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.textTertiary,
-                  fontSize: 9,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      )).toList(),
+            ),
+          )
+          .toList(),
     );
   }
 }

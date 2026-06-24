@@ -1,0 +1,69 @@
+name: Daily News Fetch
+
+on:
+  schedule:
+    # Run daily at 01:00 UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: Number of articles to fetch
+        required: false
+        default: '10'
+      mode:
+        description: 'raw = no AI | auto = AI if available'
+        required: false
+        default: 'raw'
+
+env:
+  SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://qwxsntvobtfjldurswfq.supabase.co' }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  WORLDNEWS_API_KEY: ${{ secrets.WORLDNEWS_API_KEY }}
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install deps
+        run: pip install -q -r scripts/requirements.txt
+
+      - name: Fetch news
+        id: fetch
+        working-directory: scripts
+        env:
+          # Only set AI key if mode is not raw (for auto mode)
+          OPENAI_API_KEY: ${{ inputs.mode != 'raw' && secrets.OPENAI_API_KEY || '' }}
+        run: |
+          python3 fetch_news.py --limit ${{ inputs.limit || '10' }} --mode ${{ inputs.mode || 'raw' }} 2>&1 | tee output.txt
+          echo "status=done" >> $GITHUB_OUTPUT
+
+      - name: Publish summary
+        run: |
+          {
+            echo "### 📰 Daily News Fetch Results"
+            echo "\`\`\`"
+            tail -7 scripts/output.txt
+            echo "\`\`\`"
+            echo ""
+            echo "- ⏱ $(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo "- 📄 Requested: ${{ inputs.limit || '10' }} articles"
+            echo "- ⚙️ Mode: ${{ inputs.mode || 'raw' }}"
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "::error::Daily news fetch failed"
+          echo "### ❌ Fetch Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Check [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY

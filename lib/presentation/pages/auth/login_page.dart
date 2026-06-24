@@ -61,10 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          t.loginTitle,
-                          style: AppTypography.displayMedium,
-                        ),
+                        Text(t.loginTitle, style: AppTypography.displayMedium),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
                           t.loginSubtitle,
@@ -88,6 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                           hint: 'example@email.com',
                           prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
+                          isRtl: Directionality.of(context) == TextDirection.rtl,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return t.emailRequired;
@@ -102,6 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                           hint: t.passwordHint,
                           prefixIcon: Icons.lock_outline_rounded,
                           obscureText: true,
+                          isRtl: Directionality.of(context) == TextDirection.rtl,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return t.passwordRequired;
@@ -145,8 +144,9 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary
-                                      .withValues(alpha: 0.3),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 16,
                                   offset: const Offset(0, 6),
                                 ),
@@ -173,8 +173,9 @@ class _LoginPageState extends State<LoginPage> {
                                     )
                                   : Text(
                                       t.login,
-                                      style: AppTypography.titleMedium
-                                          .copyWith(color: Colors.white),
+                                      style: AppTypography.titleMedium.copyWith(
+                                        color: Colors.white,
+                                      ),
                                     ),
                             ),
                           ),
@@ -190,8 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             TextButton(
-                              onPressed: () =>
-                                  context.go('/onboarding/signup'),
+                              onPressed: () => context.go('/onboarding/signup'),
                               child: Text(
                                 t.signUp,
                                 style: AppTypography.labelLarge.copyWith(
@@ -242,12 +242,13 @@ class _LoginPageState extends State<LoginPage> {
     if (msg.contains('429') || msg.contains('too many requests')) {
       return t.errorRateLimit;
     }
-    if (msg.contains('email not confirmed') || msg.contains('email_not_confirmed')) {
+    if (msg.contains('email not confirmed') ||
+        msg.contains('email_not_confirmed')) {
       return t.errorEmailNotConfirmed;
     }
     if (msg.contains('invalid login') || msg.contains('invalid credentials')) {
       return t.errorInvalidCredentials;
     }
-      return t.errorGeneric;
+    return t.errorGeneric;
   }
 }

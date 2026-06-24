@@ -166,8 +166,11 @@ class _GrammarTipSheetContent extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xxl, AppSpacing.xl, AppSpacing.xxl, AppSpacing.xxl,
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              AppSpacing.xxl,
+              AppSpacing.xl,
+              AppSpacing.xxl,
+              AppSpacing.xxl,
             ),
             child: Column(
               children: [
@@ -178,10 +181,15 @@ class _GrammarTipSheetContent extends StatelessWidget {
                       height: 56,
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMd,
+                        ),
                       ),
                       child: Center(
-                        child: Text(tip.emoji, style: const TextStyle(fontSize: 28)),
+                        child: Text(
+                          tip.emoji,
+                          style: const TextStyle(fontSize: 28),
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
@@ -252,9 +260,7 @@ class _GrammarTipSheetContent extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    border: Border.all(
-                      color: color.withValues(alpha: 0.15),
-                    ),
+                    border: Border.all(color: color.withValues(alpha: 0.15)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -303,10 +309,7 @@ class _GrammarTipSheetContent extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '🇬🇧',
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                            Text('🇬🇧', style: const TextStyle(fontSize: 14)),
                             const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
@@ -323,10 +326,7 @@ class _GrammarTipSheetContent extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '🇸🇦',
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                            Text('🇸🇦', style: const TextStyle(fontSize: 14)),
                             const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
@@ -354,7 +354,9 @@ class _GrammarTipSheetContent extends StatelessWidget {
                         vertical: AppSpacing.md,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMd,
+                        ),
                       ),
                     ),
                     child: Text(

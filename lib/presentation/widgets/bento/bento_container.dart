@@ -98,7 +98,8 @@ class BentoContainer extends StatelessWidget {
     final decoration = BoxDecoration(
       color: gradient == null ? (color ?? theme.cardTheme.color) : null,
       gradient: gradient,
-      borderRadius: borderRadius ?? BorderRadius.circular(AppSpacing.radiusMd.r),
+      borderRadius:
+          borderRadius ?? BorderRadius.circular(AppSpacing.radiusMd.r),
       boxShadow: boxShadow,
       border: border,
     );
@@ -113,10 +114,7 @@ class BentoContainer extends StatelessWidget {
     );
 
     if (borderRadius != null) {
-      return ClipRRect(
-        borderRadius: borderRadius!,
-        child: container,
-      );
+      return ClipRRect(borderRadius: borderRadius!, child: container);
     }
 
     return container;

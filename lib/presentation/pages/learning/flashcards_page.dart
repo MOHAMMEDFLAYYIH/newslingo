@@ -16,7 +16,8 @@ class FlashcardsPage extends StatefulWidget {
   State<FlashcardsPage> createState() => _FlashcardsPageState();
 }
 
-class _FlashcardsPageState extends State<FlashcardsPage> with TickerProviderStateMixin {
+class _FlashcardsPageState extends State<FlashcardsPage>
+    with TickerProviderStateMixin {
   List<SavedWord> _words = [];
   int _currentIndex = 0;
   bool _isFlipped = false;
@@ -102,12 +103,18 @@ class _FlashcardsPageState extends State<FlashcardsPage> with TickerProviderStat
 
   Color _levelColor(String level) {
     switch (level) {
-      case 'A1': return AppColors.levelA1;
-      case 'A2': return AppColors.levelA2;
-      case 'B1': return AppColors.levelB1;
-      case 'B2': return AppColors.levelB2;
-      case 'C1': return AppColors.levelC1;
-      default: return AppColors.levelB1;
+      case 'A1':
+        return AppColors.levelA1;
+      case 'A2':
+        return AppColors.levelA2;
+      case 'B1':
+        return AppColors.levelB1;
+      case 'B2':
+        return AppColors.levelB2;
+      case 'C1':
+        return AppColors.levelC1;
+      default:
+        return AppColors.levelB1;
     }
   }
 
@@ -170,11 +177,15 @@ class _FlashcardsPageState extends State<FlashcardsPage> with TickerProviderStat
     return Scaffold(
       body: Container(
         color: AppColors.background,
-        child: SafeArea(child: Column(
+        child: SafeArea(
+          child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.xs, AppSpacing.sm, AppSpacing.xl, AppSpacing.sm,
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.xs,
+                  AppSpacing.sm,
+                  AppSpacing.xl,
+                  AppSpacing.sm,
                 ),
                 child: Row(
                   children: [
@@ -233,7 +244,9 @@ class _FlashcardsPageState extends State<FlashcardsPage> with TickerProviderStat
                     }
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xl,
+                    ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         return AnimatedBuilder(
@@ -247,11 +260,18 @@ class _FlashcardsPageState extends State<FlashcardsPage> with TickerProviderStat
                                 ..setEntry(3, 2, 0.001)
                                 ..rotateY(angle),
                               child: isFront
-                                  ? _FrontCard(word: word, accentColor: accentColor)
+                                  ? _FrontCard(
+                                      word: word,
+                                      accentColor: accentColor,
+                                    )
                                   : Transform(
                                       alignment: Alignment.center,
-                                      transform: Matrix4.identity()..rotateY(pi),
-                                      child: _BackCard(word: word, accentColor: accentColor),
+                                      transform: Matrix4.identity()
+                                        ..rotateY(pi),
+                                      child: _BackCard(
+                                        word: word,
+                                        accentColor: accentColor,
+                                      ),
                                     ),
                             );
                           },
@@ -316,7 +336,8 @@ class _FrontCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 64, height: 64,
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
@@ -385,7 +406,8 @@ class _BackCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 56, height: 56,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
               color: AppColors.primaryContainer,
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
@@ -444,7 +466,8 @@ class _SwipeButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xl, vertical: AppSpacing.md,
+          horizontal: AppSpacing.xl,
+          vertical: AppSpacing.md,
         ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
@@ -473,7 +496,10 @@ class _SwipeButton extends StatelessWidget {
 class _CompletionScreen extends StatelessWidget {
   final int knownCount;
   final int reviewCount;
-  const _CompletionScreen({required this.knownCount, required this.reviewCount});
+  const _CompletionScreen({
+    required this.knownCount,
+    required this.reviewCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -481,7 +507,8 @@ class _CompletionScreen extends StatelessWidget {
     return Scaffold(
       body: Container(
         color: AppColors.background,
-        child: SafeArea(child: Center(
+        child: SafeArea(
+          child: Center(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.xxl),
               child: Column(
@@ -540,7 +567,9 @@ class _CompletionScreen extends StatelessWidget {
                         vertical: AppSpacing.lg,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMd,
+                        ),
                       ),
                     ),
                   ),
@@ -582,7 +611,8 @@ class _StatBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.xl, vertical: AppSpacing.lg,
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.lg,
       ),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -611,5 +641,3 @@ class _StatBadge extends StatelessWidget {
     );
   }
 }
-
-

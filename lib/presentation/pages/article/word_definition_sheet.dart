@@ -40,22 +40,28 @@ class WordDefinitionSheet extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXxl)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.radiusXxl),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             margin: const EdgeInsets.only(top: AppSpacing.md),
-            width: 40, height: 4,
+            width: 40,
+            height: 4,
             decoration: BoxDecoration(
               color: AppColors.outline.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xxl, AppSpacing.xl, AppSpacing.xxl, AppSpacing.xxl,
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              AppSpacing.xxl,
+              AppSpacing.xl,
+              AppSpacing.xxl,
+              AppSpacing.xxl,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,10 +70,13 @@ class WordDefinitionSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 56, height: 56,
+                      width: 56,
+                      height: 56,
                       decoration: BoxDecoration(
                         color: accentColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMd,
+                        ),
                       ),
                       child: Center(
                         child: Text(
@@ -95,7 +104,8 @@ class WordDefinitionSheet extends StatelessWidget {
                               const SizedBox(width: AppSpacing.sm),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 1,
+                                  horizontal: 6,
+                                  vertical: 1,
                                 ),
                                 decoration: BoxDecoration(
                                   color: accentColor.withValues(alpha: 0.12),
@@ -126,7 +136,8 @@ class WordDefinitionSheet extends StatelessWidget {
                 const SizedBox(height: AppSpacing.lg),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md, vertical: AppSpacing.xs,
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.xs,
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceVariant,
@@ -163,24 +174,31 @@ class WordDefinitionSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  ...examples.map((ex) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('• ', style: AppTypography.bodyMedium.copyWith(color: accentColor)),
-                        Expanded(
-                          child: Text(
-                            ex,
+                  ...examples.map(
+                    (ex) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '• ',
                             style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
-                              height: 1.5,
+                              color: accentColor,
                             ),
                           ),
-                        ),
-                      ],
+                          Expanded(
+                            child: Text(
+                              ex,
+                              style: AppTypography.bodyMedium.copyWith(
+                                color: AppColors.textSecondary,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  )),
+                  ),
                 ],
                 if (synonyms.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.lg),
@@ -195,22 +213,29 @@ class WordDefinitionSheet extends StatelessWidget {
                   Wrap(
                     spacing: AppSpacing.sm,
                     runSpacing: AppSpacing.xs,
-                    children: synonyms.map((s) => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md, vertical: AppSpacing.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                      ),
-                      child: Text(
-                        s,
-                        style: AppTypography.labelMedium.copyWith(
-                          color: accentColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    )).toList(),
+                    children: synonyms
+                        .map(
+                          (s) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.xs,
+                            ),
+                            decoration: BoxDecoration(
+                              color: accentColor.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusFull,
+                              ),
+                            ),
+                            child: Text(
+                              s,
+                              style: AppTypography.labelMedium.copyWith(
+                                color: accentColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
                 ],
                 const SizedBox(height: AppSpacing.xxl),
@@ -229,9 +254,13 @@ class WordDefinitionSheet extends StatelessWidget {
                         ),
                         style: FilledButton.styleFrom(
                           backgroundColor: accentColor,
-                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.md,
+                          ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusMd,
+                            ),
                           ),
                         ),
                       ),
@@ -249,10 +278,16 @@ class WordDefinitionSheet extends StatelessWidget {
                         ),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: accentColor,
-                          side: BorderSide(color: accentColor.withValues(alpha: 0.4)),
-                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                          side: BorderSide(
+                            color: accentColor.withValues(alpha: 0.4),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.md,
+                          ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusMd,
+                            ),
                           ),
                         ),
                       ),

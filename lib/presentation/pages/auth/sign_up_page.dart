@@ -60,7 +60,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     child: AppBackButton(),
                   ),
-                  if (!_emailSent) ..._buildFormFields() else ..._buildSuccessState(),
+                  if (!_emailSent)
+                    ..._buildFormFields()
+                  else
+                    ..._buildSuccessState(),
                 ],
               ),
             ),
@@ -78,10 +81,7 @@ class _SignUpPageState extends State<SignUpPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              t.signUpTitle,
-              style: AppTypography.displayMedium,
-            ),
+            Text(t.signUpTitle, style: AppTypography.displayMedium),
             const SizedBox(height: AppSpacing.sm),
             Text(
               t.signUpSubtitle,
@@ -102,7 +102,7 @@ class _SignUpPageState extends State<SignUpPage> {
               label: t.getNameLabel,
               hint: t.getNameHint,
               prefixIcon: Icons.person_outline_rounded,
-              isRtl: true,
+              isRtl: Directionality.of(context) == TextDirection.rtl,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return t.getNameRequired;
@@ -117,12 +117,14 @@ class _SignUpPageState extends State<SignUpPage> {
               hint: t.emailHint,
               prefixIcon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
+              isRtl: Directionality.of(context) == TextDirection.rtl,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return t.emailRequired;
                 }
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                    .hasMatch(value)) {
+                if (!RegExp(
+                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                ).hasMatch(value)) {
                   return t.emailInvalid;
                 }
                 return null;
@@ -135,6 +137,7 @@ class _SignUpPageState extends State<SignUpPage> {
               hint: t.passwordMin,
               prefixIcon: Icons.lock_outline_rounded,
               obscureText: true,
+              isRtl: Directionality.of(context) == TextDirection.rtl,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return t.passwordRequired;
@@ -152,6 +155,7 @@ class _SignUpPageState extends State<SignUpPage> {
               hint: t.confirmPasswordHint,
               prefixIcon: Icons.lock_outline_rounded,
               obscureText: true,
+              isRtl: Directionality.of(context) == TextDirection.rtl,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return t.confirmPasswordRequired;
@@ -184,9 +188,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
                 ),
                 side: BorderSide(
-                  color: _agreedToTerms
-                      ? AppColors.primary
-                      : AppColors.outline,
+                  color: _agreedToTerms ? AppColors.primary : AppColors.outline,
                 ),
               ),
             ),
@@ -229,8 +231,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     backgroundColor: _agreedToTerms
                         ? AppColors.primary
                         : AppColors.outline.withValues(alpha: 0.5),
-                    disabledBackgroundColor:
-                        AppColors.outline.withValues(alpha: 0.3),
+                    disabledBackgroundColor: AppColors.outline.withValues(
+                      alpha: 0.3,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                     ),
@@ -291,10 +294,7 @@ class _SignUpPageState extends State<SignUpPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              t.accountCreated,
-              style: AppTypography.displayMedium,
-            ),
+            Text(t.accountCreated, style: AppTypography.displayMedium),
             const SizedBox(height: AppSpacing.sm),
             Text(
               t.checkEmail,
@@ -353,7 +353,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 child: Text(
                   t.login,
-                  style: AppTypography.titleMedium.copyWith(color: Colors.white),
+                  style: AppTypography.titleMedium.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -376,11 +378,14 @@ class _SignUpPageState extends State<SignUpPage> {
       if (!mounted) return;
 
       await _saveOnboardingData();
+      if (!mounted) return;
 
       final session = result['session'];
       if (session != null) {
         await sl<UserLocalDataSource>().markOnboardingComplete();
+        if (!mounted) return;
         await sl<UserLocalDataSource>().clearOnboardingSelections();
+        if (!mounted) return;
         if (mounted) context.go('/home');
       } else {
         setState(() {
@@ -405,10 +410,13 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _saveOnboardingData() async {
     try {
       final level = await sl<UserLocalDataSource>().getOnboardingLevel();
-      final interests = await sl<UserLocalDataSource>().getOnboardingInterests();
+      final interests = await sl<UserLocalDataSource>()
+          .getOnboardingInterests();
       final profile = <String, dynamic>{};
-      if (level != null) profile['language_level'] = level;
-      if (interests != null && interests.isNotEmpty) profile['interests'] = interests;
+      if (level != null) { profile['language_level'] = level; }
+      if (interests != null && interests.isNotEmpty) {
+        profile['interests'] = interests;
+      }
       if (profile.isNotEmpty) {
         await sl<AuthRemoteDataSource>().updateProfile(profile);
       }
@@ -421,10 +429,12 @@ class _SignUpPageState extends State<SignUpPage> {
     if (msg.contains('429') || msg.contains('too many requests')) {
       return t.errorRateLimit;
     }
-    if (msg.contains('email not confirmed') || msg.contains('email_not_confirmed')) {
+    if (msg.contains('email not confirmed') ||
+        msg.contains('email_not_confirmed')) {
       return t.errorEmailNotConfirmed;
     }
-    if (msg.contains('already registered') || msg.contains('user already exists')) {
+    if (msg.contains('already registered') ||
+        msg.contains('user already exists')) {
       return t.errorAlreadyRegistered;
     }
     if (msg.contains('invalid email')) {

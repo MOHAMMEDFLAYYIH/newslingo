@@ -8,11 +8,7 @@ class NoInternetWidget extends StatelessWidget {
   final VoidCallback? onRetry;
   final bool isFullPage;
 
-  const NoInternetWidget({
-    super.key,
-    this.onRetry,
-    this.isFullPage = false,
-  });
+  const NoInternetWidget({super.key, this.onRetry, this.isFullPage = false});
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +39,7 @@ class NoInternetWidget extends StatelessWidget {
         const SizedBox(height: AppSpacing.xxl),
         Text(
           AppLocalizations.of(context).noInternetTitle,
-          style: AppTypography.titleLarge.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpacing.md),

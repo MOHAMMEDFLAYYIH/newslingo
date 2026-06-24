@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:newslingo/core/di/injection.dart';
 import 'package:newslingo/core/localization/app_localizations.dart';
 import 'package:newslingo/core/theme/app_colors.dart';
 import 'package:newslingo/core/theme/app_spacing.dart';
 import 'package:newslingo/core/theme/app_typography.dart';
+import 'package:newslingo/presentation/cubit/progress/progress_cubit.dart';
 
 class QuizResultsPage extends StatelessWidget {
   const QuizResultsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<ProgressCubit>(
+      create: (_) => sl<ProgressCubit>()..loadAndMarkQuizPassed(),
+      child: const _QuizResultsBody(),
+    );
+  }
+}
+
+class _QuizResultsBody extends StatelessWidget {
+  const _QuizResultsBody();
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +44,15 @@ class QuizResultsPage extends StatelessWidget {
     return Scaffold(
       body: Container(
         color: AppColors.background,
-        child: SafeArea(child: Column(
+        child: SafeArea(
+          child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.xs, AppSpacing.sm, AppSpacing.xl, AppSpacing.sm,
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.xs,
+                  AppSpacing.sm,
+                  AppSpacing.xl,
+                  AppSpacing.sm,
                 ),
                 child: Row(
                   children: [
@@ -57,7 +76,9 @@ class QuizResultsPage extends StatelessWidget {
               ),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                  ),
                   children: [
                     const SizedBox(height: AppSpacing.md),
                     Center(
@@ -65,7 +86,8 @@ class QuizResultsPage extends StatelessWidget {
                         alignment: Alignment.center,
                         children: [
                           SizedBox(
-                            width: 160, height: 160,
+                            width: 160,
+                            height: 160,
                             child: CircularProgressIndicator(
                               value: correct / total,
                               strokeWidth: 12,
@@ -74,8 +96,8 @@ class QuizResultsPage extends StatelessWidget {
                                 score >= 80
                                     ? AppColors.success
                                     : score >= 50
-                                        ? AppColors.warning
-                                        : AppColors.error,
+                                    ? AppColors.warning
+                                    : AppColors.error,
                               ),
                             ),
                           ),
@@ -89,12 +111,16 @@ class QuizResultsPage extends StatelessWidget {
                                   color: score >= 80
                                       ? AppColors.success
                                       : score >= 50
-                                          ? AppColors.warning
-                                          : AppColors.error,
+                                      ? AppColors.warning
+                                      : AppColors.error,
                                 ),
                               ),
                               Text(
-                                score >= 80 ? t.resultsExcellent : score >= 50 ? t.resultsGood : t.resultsTryAgain,
+                                score >= 80
+                                    ? t.resultsExcellent
+                                    : score >= 50
+                                    ? t.resultsGood
+                                    : t.resultsTryAgain,
                                 style: AppTypography.bodySmall.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
@@ -112,7 +138,9 @@ class QuizResultsPage extends StatelessWidget {
                           gradient: const LinearGradient(
                             colors: [Color(0xFFFFC800), Color(0xFFFF9600)],
                           ),
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -133,7 +161,9 @@ class QuizResultsPage extends StatelessWidget {
                                   Text(
                                     t.resultsAchievementDesc,
                                     style: AppTypography.bodySmall.copyWith(
-                                      color: Colors.white.withValues(alpha: 0.9),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.9,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -188,7 +218,9 @@ class QuizResultsPage extends StatelessWidget {
                         padding: const EdgeInsets.all(AppSpacing.lg),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
                           border: Border.all(
                             color: isCorrect
                                 ? AppColors.success.withValues(alpha: 0.3)
@@ -199,12 +231,15 @@ class QuizResultsPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              width: 32, height: 32,
+                              width: 32,
+                              height: 32,
                               decoration: BoxDecoration(
                                 color: isCorrect
                                     ? AppColors.successContainer
                                     : AppColors.errorContainer,
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.radiusSm,
+                                ),
                               ),
                               child: Center(
                                 child: Text(
@@ -236,7 +271,9 @@ class QuizResultsPage extends StatelessWidget {
                                   if (!isCorrect) ...[
                                     const SizedBox(height: 4),
                                     Text(
-                                      t.resultsAnswer(q.options[q.correctIndex]),
+                                      t.resultsAnswer(
+                                        q.options[q.correctIndex],
+                                      ),
                                       style: AppTypography.bodySmall.copyWith(
                                         color: AppColors.success,
                                         fontWeight: FontWeight.w500,
@@ -256,7 +293,10 @@ class QuizResultsPage extends StatelessWidget {
                         Expanded(
                           child: FilledButton.icon(
                             onPressed: () => context.pop(),
-                            icon: const Text('🔄', style: TextStyle(fontSize: 18)),
+                            icon: const Text(
+                              '🔄',
+                              style: TextStyle(fontSize: 18),
+                            ),
                             label: Text(
                               t.quizTryAgain,
                               style: AppTypography.labelLarge.copyWith(
@@ -266,9 +306,13 @@ class QuizResultsPage extends StatelessWidget {
                             ),
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.primary,
-                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.lg,
+                              ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.radiusMd,
+                                ),
                               ),
                             ),
                           ),
@@ -281,7 +325,10 @@ class QuizResultsPage extends StatelessWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () => context.go('/home'),
-                            icon: const Text('📰', style: TextStyle(fontSize: 18)),
+                            icon: const Text(
+                              '📰',
+                              style: TextStyle(fontSize: 18),
+                            ),
                             label: Text(
                               t.resultsBackToArticle,
                               style: AppTypography.labelLarge.copyWith(
@@ -290,10 +337,16 @@ class QuizResultsPage extends StatelessWidget {
                             ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.textSecondary,
-                              side: BorderSide(color: AppColors.outline.withValues(alpha: 0.5)),
-                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                              side: BorderSide(
+                                color: AppColors.outline.withValues(alpha: 0.5),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.lg,
+                              ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.radiusMd,
+                                ),
                               ),
                             ),
                           ),
@@ -302,7 +355,10 @@ class QuizResultsPage extends StatelessWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () => context.go('/vocabulary'),
-                            icon: const Text('📖', style: TextStyle(fontSize: 18)),
+                            icon: const Text(
+                              '📖',
+                              style: TextStyle(fontSize: 18),
+                            ),
                             label: Text(
                               t.resultsReviewWords,
                               style: AppTypography.labelLarge.copyWith(
@@ -311,10 +367,18 @@ class QuizResultsPage extends StatelessWidget {
                             ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.tertiary,
-                              side: BorderSide(color: AppColors.tertiary.withValues(alpha: 0.4)),
-                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                              side: BorderSide(
+                                color: AppColors.tertiary.withValues(
+                                  alpha: 0.4,
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.lg,
+                              ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.radiusMd,
+                                ),
                               ),
                             ),
                           ),
@@ -364,7 +428,8 @@ class _StatCard extends StatelessWidget {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.lg, horizontal: AppSpacing.md,
+          vertical: AppSpacing.lg,
+          horizontal: AppSpacing.md,
         ),
         decoration: BoxDecoration(
           color: AppColors.surface,

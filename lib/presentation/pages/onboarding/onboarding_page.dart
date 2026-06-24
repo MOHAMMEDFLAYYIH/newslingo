@@ -71,8 +71,11 @@ class _OnboardingPageState extends State<OnboardingPage>
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.xl, AppSpacing.sm, AppSpacing.xl, 0,
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.xl,
+                  AppSpacing.sm,
+                  AppSpacing.xl,
+                  0,
                 ),
                 child: Row(
                   children: [
@@ -91,9 +94,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                     const Spacer(),
                     _buildDots(),
                     const Spacer(),
-                    SizedBox(
-                      width: _currentPage < _pages.length - 1 ? 64 : 72,
-                    ),
+                    SizedBox(width: _currentPage < _pages.length - 1 ? 64 : 72),
                   ],
                 ),
               ),
@@ -141,8 +142,11 @@ class _OnboardingPageState extends State<OnboardingPage>
   Widget _buildBottom(AppLocalizations t) {
     final color = _pages[_currentPage].color;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xxl, AppSpacing.lg, AppSpacing.xxl, AppSpacing.xl4,
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.xxl,
+        AppSpacing.lg,
+        AppSpacing.xxl,
+        AppSpacing.xl4,
       ),
       child: Column(
         children: [
@@ -190,7 +194,9 @@ class _OnboardingPageState extends State<OnboardingPage>
                     const SizedBox(width: AppSpacing.sm),
                     Icon(
                       _currentPage < _pages.length - 1
-                          ? Icons.arrow_forward_rounded
+                          ? Directionality.of(context) == TextDirection.rtl
+                              ? Icons.arrow_back_rounded
+                              : Icons.arrow_forward_rounded
                           : Icons.rocket_launch_rounded,
                       size: 22,
                       color: Colors.white,
@@ -242,10 +248,7 @@ class _OnboardingPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(40),
             ),
             child: Center(
-              child: Text(
-                data.emoji,
-                style: TextStyle(fontSize: 72),
-              ),
+              child: Text(data.emoji, style: TextStyle(fontSize: 72)),
             ),
           ),
           const SizedBox(height: AppSpacing.xl5),

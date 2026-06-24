@@ -28,7 +28,10 @@ void main() async {
     final migrated = await storage.read(key: 'migrated_old_session');
     if (migrated == null) {
       final prefs = await SharedPreferences.getInstance();
-      final keysToRemove = prefs.getKeys().where((k) => k.startsWith('sb-')).toList();
+      final keysToRemove = prefs
+          .getKeys()
+          .where((k) => k.startsWith('sb-'))
+          .toList();
       for (final key in keysToRemove) {
         await prefs.remove(key);
       }
@@ -53,14 +56,16 @@ class NewsLingoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) {
-          final cubit = sl<NewsCubit>();
-          final locale = sl<LocaleCubit>().state.languageCode;
-          try {
-            cubit.loadArticles(locale: locale);
-          } catch (_) {}
-          return cubit;
-        }),
+        BlocProvider(
+          create: (_) {
+            final cubit = sl<NewsCubit>();
+            final locale = sl<LocaleCubit>().state.languageCode;
+            try {
+              cubit.loadArticles(locale: locale);
+            } catch (_) {}
+            return cubit;
+          },
+        ),
         BlocProvider.value(value: sl<LocaleCubit>()),
       ],
       child: ScreenUtilInit(
@@ -75,33 +80,33 @@ class NewsLingoApp extends StatelessWidget {
           listener: (context, locale) => appRouter.refresh(),
           child: BlocBuilder<LocaleCubit, Locale>(
             builder: (context, locale) {
-            return MaterialApp.router(
-              title: 'NewsLingo',
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.light(languageCode: locale.languageCode),
-              routerConfig: appRouter,
-              locale: locale,
-              supportedLocales: const [
-                Locale('ar'),
-                Locale('en'),
-                Locale('es'),
-                Locale('fr'),
-                Locale('pt'),
-                Locale('ru'),
-                Locale('hi'),
-                Locale('zh'),
-              ],
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-            );
-          },
+              return MaterialApp.router(
+                title: 'NewsLingo',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.light(languageCode: locale.languageCode),
+                routerConfig: appRouter,
+                locale: locale,
+                supportedLocales: const [
+                  Locale('ar'),
+                  Locale('en'),
+                  Locale('es'),
+                  Locale('fr'),
+                  Locale('pt'),
+                  Locale('ru'),
+                  Locale('hi'),
+                  Locale('zh'),
+                ],
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+              );
+            },
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

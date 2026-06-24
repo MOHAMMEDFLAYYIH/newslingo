@@ -64,15 +64,15 @@ class BentoGridView extends StatelessWidget {
             ? (padding as EdgeInsets).horizontal
             : AppSpacing.md.w * 2;
         final availableWidth = totalWidth - horizontalPadding;
-        final itemWidth = (availableWidth - spacing * (crossAxisCount - 1)) / crossAxisCount;
+        final itemWidth =
+            (availableWidth - spacing * (crossAxisCount - 1)) / crossAxisCount;
 
         return Wrap(
           spacing: spacing,
           runSpacing: delegate.mainAxisSpacing.h,
-          children: children.map((child) => SizedBox(
-            width: itemWidth,
-            child: child,
-          )).toList(),
+          children: children
+              .map((child) => SizedBox(width: itemWidth, child: child))
+              .toList(),
         );
       },
     );

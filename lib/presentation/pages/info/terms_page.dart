@@ -10,10 +10,26 @@ class TermsPage extends StatelessWidget {
   const TermsPage({super.key});
 
   List<_SectionData> _buildSections(AppLocalizations t) => [
-    _SectionData(emoji: '📝', title: t.termsSection1Title, body: t.termsSection1Body),
-    _SectionData(emoji: '👤', title: t.termsSection2Title, body: t.termsSection2Body),
-    _SectionData(emoji: '📖', title: t.termsSection3Title, body: t.termsSection3Body),
-    _SectionData(emoji: '🚫', title: t.termsSection4Title, body: t.termsSection4Body),
+    _SectionData(
+      emoji: '📝',
+      title: t.termsSection1Title,
+      body: t.termsSection1Body,
+    ),
+    _SectionData(
+      emoji: '👤',
+      title: t.termsSection2Title,
+      body: t.termsSection2Body,
+    ),
+    _SectionData(
+      emoji: '📖',
+      title: t.termsSection3Title,
+      body: t.termsSection3Body,
+    ),
+    _SectionData(
+      emoji: '🚫',
+      title: t.termsSection4Title,
+      body: t.termsSection4Body,
+    ),
   ];
 
   @override
@@ -60,9 +76,9 @@ class TermsPage extends StatelessWidget {
                     horizontal: AppSpacing.xl,
                   ),
                   children: [
-                    ..._buildSections(t).map(
-                      (section) => _TermsSection(section: section),
-                    ),
+                    ..._buildSections(
+                      t,
+                    ).map((section) => _TermsSection(section: section)),
                     const SizedBox(height: AppSpacing.xl5),
                   ],
                 ),
@@ -103,17 +119,16 @@ class _TermsSection extends StatelessWidget {
       child: Theme(
         data: Theme.of(context).copyWith(
           dividerColor: Colors.transparent,
-          colorScheme: ColorScheme.light(
-            primary: AppColors.primary,
-          ),
+          colorScheme: ColorScheme.light(primary: AppColors.primary),
         ),
         child: ExpansionTile(
           initiallyExpanded: true,
-          tilePadding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-          ),
-          childrenPadding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg,
+          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          childrenPadding: const EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.lg,
           ),
           shape: const Border(),
           collapsedShape: const Border(),

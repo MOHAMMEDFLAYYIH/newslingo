@@ -6,6 +6,10 @@ class ManageVocabulary {
 
   ManageVocabulary(this.repository);
 
+  Future<void> deleteWord(String word) {
+    return repository.deleteWord(word);
+  }
+
   Future<void> saveWord(SavedWord word) {
     return repository.saveWord(word);
   }

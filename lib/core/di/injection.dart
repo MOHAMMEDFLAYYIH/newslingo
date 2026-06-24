@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:newslingo/core/localization/locale_cubit.dart';
 import 'package:newslingo/core/services/deepl_service.dart';
+import 'package:newslingo/core/services/tts_service.dart';
 import 'package:newslingo/data/datasources/local/article_translation_cache.dart';
 import 'package:newslingo/data/datasources/local/news_local_datasource.dart';
 import 'package:newslingo/data/datasources/local/user_local_datasource.dart';
@@ -30,23 +31,17 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSource(sl()),
   );
-  sl.registerLazySingleton<NewsLocalDataSource>(
-    () => NewsLocalDataSource(),
-  );
-  sl.registerLazySingleton<UserLocalDataSource>(
-    () => UserLocalDataSource(),
-  );
+  sl.registerLazySingleton<NewsLocalDataSource>(() => NewsLocalDataSource());
+  sl.registerLazySingleton<UserLocalDataSource>(() => UserLocalDataSource());
   sl.registerLazySingleton<ArticleTranslationCache>(
     () => ArticleTranslationCache(),
   );
 
-  sl.registerLazySingleton<DeepLService>(
-    () => DeepLService(),
-  );
+  sl.registerLazySingleton<DeepLService>(() => DeepLService());
 
-  sl.registerLazySingleton<LocaleCubit>(
-    () => LocaleCubit(sl()),
-  );
+  sl.registerLazySingleton<TtsService>(() => TtsService());
+
+  sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl()));
 
   sl.registerLazySingleton<NewsRepository>(
     () => NewsRepositoryImpl(

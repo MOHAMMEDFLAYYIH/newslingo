@@ -61,7 +61,9 @@ class _AchievementsBodyState extends State<_AchievementsBody>
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                  ),
                   child: Row(
                     children: [
                       AppBackButton(),
@@ -86,14 +88,24 @@ class _AchievementsBodyState extends State<_AchievementsBody>
                         child: CircularProgressIndicator(),
                       );
                     }
-                    final achievements = _computeAchievements(state.progress, t);
-                    final unlocked = achievements.where((a) => a.unlocked).length;
+                    final achievements = _computeAchievements(
+                      state.progress,
+                      t,
+                    );
+                    final unlocked = achievements
+                        .where((a) => a.unlocked)
+                        .length;
                     return Column(
                       children: [
-                        _ProgressHeader(unlocked: unlocked, total: achievements.length),
+                        _ProgressHeader(
+                          unlocked: unlocked,
+                          total: achievements.length,
+                        ),
                         const SizedBox(height: AppSpacing.xxl),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.xl,
+                          ),
                           child: Wrap(
                             spacing: AppSpacing.md,
                             runSpacing: AppSpacing.md,
@@ -101,7 +113,11 @@ class _AchievementsBodyState extends State<_AchievementsBody>
                               final i = entry.key;
                               final achievement = entry.value;
                               return SizedBox(
-                                width: (MediaQuery.of(context).size.width - AppSpacing.xl * 2 - AppSpacing.md) / 2,
+                                width:
+                                    (MediaQuery.of(context).size.width -
+                                        AppSpacing.xl * 2 -
+                                        AppSpacing.md) /
+                                    2,
                                 child: FadeTransition(
                                   opacity: CurvedAnimation(
                                     parent: _animController,
@@ -135,8 +151,30 @@ class _AchievementsBodyState extends State<_AchievementsBody>
 
   List<_Achievement> _computeAchievements(UserProgress p, AppLocalizations t) {
     final today = DateTime.now();
-    final dateStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    final emojis = ['🏆', '🔥', '📝', '✅', '🦉', '👑', '💎', '📰', '🎯', '🌟', '🎓', '⚡', '🎪', '🔁', '🗣️', '📚', '🏅', '🎊', '🤝', '💪'];
+    final dateStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final emojis = [
+      '🏆',
+      '🔥',
+      '📝',
+      '✅',
+      '🦉',
+      '👑',
+      '💎',
+      '📰',
+      '🎯',
+      '🌟',
+      '🎓',
+      '⚡',
+      '🎪',
+      '🔁',
+      '🗣️',
+      '📚',
+      '🏅',
+      '🎊',
+      '🤝',
+      '💪',
+    ];
     return List.generate(20, (i) {
       final unlocked = switch (i) {
         0 => p.articlesRead >= 1,
@@ -145,23 +183,29 @@ class _AchievementsBodyState extends State<_AchievementsBody>
         3 => p.quizzesPassed >= 10,
         4 => p.wordsLearned >= 100,
         5 => p.streak >= 30,
-        6 => false,
+        6 => p.wordsLearned >= 50,
         7 => p.articlesRead >= 50,
         8 => p.articlesRead >= 1,
         9 => p.streak >= 7,
-        10 => false,
+        10 => p.quizzesPassed >= 20,
         11 => p.streak >= 5,
-        12 => false,
-        13 => false,
-        14 => false,
+        12 => p.articlesRead >= 100,
+        13 => p.streak >= 365,
+        14 => p.wordsLearned >= 500,
         15 => p.wordsLearned >= 5,
         16 => p.streak >= 30,
         17 => p.wordsLearned >= 500,
-        18 => false,
+        18 => p.articlesRead >= 30,
         19 => p.quizzesPassed >= 100,
         _ => false,
       };
-      return _Achievement(emojis[i], t.achievementTitle(i), t.achievementDesc(i), unlocked, unlocked ? dateStr : null);
+      return _Achievement(
+        emojis[i],
+        t.achievementTitle(i),
+        t.achievementDesc(i),
+        unlocked,
+        unlocked ? dateStr : null,
+      );
     });
   }
 }
@@ -172,7 +216,13 @@ class _Achievement {
   final String description;
   final bool unlocked;
   final String? date;
-  const _Achievement(this.emoji, this.title, this.description, this.unlocked, this.date);
+  const _Achievement(
+    this.emoji,
+    this.title,
+    this.description,
+    this.unlocked,
+    this.date,
+  );
 }
 
 class _ProgressHeader extends StatelessWidget {
@@ -301,7 +351,11 @@ class _AchievementCard extends StatelessWidget {
                     : null,
                 color: achievement.unlocked ? null : AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                border: achievement.unlocked ? null : Border.all(color: AppColors.outline.withValues(alpha: 0.3)),
+                border: achievement.unlocked
+                    ? null
+                    : Border.all(
+                        color: AppColors.outline.withValues(alpha: 0.3),
+                      ),
               ),
               child: Center(
                 child: Text(
@@ -318,7 +372,9 @@ class _AchievementCard extends StatelessWidget {
               achievement.title,
               style: AppTypography.titleSmall.copyWith(
                 fontWeight: FontWeight.bold,
-                color: achievement.unlocked ? AppColors.textPrimary : AppColors.textTertiary,
+                color: achievement.unlocked
+                    ? AppColors.textPrimary
+                    : AppColors.textTertiary,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,
@@ -330,7 +386,9 @@ class _AchievementCard extends StatelessWidget {
                   ? '🟢 ${achievement.date}'
                   : achievement.description,
               style: AppTypography.bodySmall.copyWith(
-                color: achievement.unlocked ? AppColors.primary : AppColors.textTertiary,
+                color: achievement.unlocked
+                    ? AppColors.primary
+                    : AppColors.textTertiary,
                 fontSize: 10.sp,
               ),
               textAlign: TextAlign.center,

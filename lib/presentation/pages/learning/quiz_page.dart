@@ -10,14 +10,16 @@ import 'package:newslingo/domain/repositories/news_repository.dart';
 
 class QuizPage extends StatefulWidget {
   final String articleId;
+  final Quiz? initialQuiz;
 
-  const QuizPage({super.key, required this.articleId});
+  const QuizPage({super.key, required this.articleId, this.initialQuiz});
 
   @override
   State<QuizPage> createState() => _QuizPageState();
 }
 
-class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin {
+class _QuizPageState extends State<QuizPage>
+    with SingleTickerProviderStateMixin {
   int _currentQuestion = 0;
   int? _selectedAnswer;
   bool _showFeedback = false;
@@ -42,13 +44,27 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
       parent: _feedbackController,
       curve: Curves.easeOutBack,
     );
-    _loadQuiz();
+    if (widget.initialQuiz != null && widget.initialQuiz!.questions.isNotEmpty) {
+      _questions = widget.initialQuiz!.questions;
+      _isLoading = false;
+    } else {
+      _loadQuiz();
+    }
   }
 
   Future<void> _loadQuiz() async {
     try {
-      final quiz = await sl<NewsRepository>().getQuizForArticle(widget.articleId);
+      final quiz = await sl<NewsRepository>().getQuizForArticle(
+        widget.articleId,
+      );
       if (!mounted) return;
+      if (quiz.questions.isEmpty) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = AppLocalizations.of(context).articleNoQuiz;
+        });
+        return;
+      }
       setState(() {
         _questions = quiz.questions;
         _isLoading = false;
@@ -79,14 +95,17 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
   void _nextQuestion() {
     if (_currentQuestion >= _questions.length - 1) {
       final timeTaken = DateTime.now().difference(_startTime).inSeconds;
-      context.go('/quiz-results', extra: {
-        'correct': _correctCount,
-        'wrong': _wrongCount,
-        'total': _questions.length,
-        'timeTaken': timeTaken,
-        'questions': _questions,
-        'selectedAnswers': _selectedAnswers,
-      });
+      context.go(
+        '/quiz-results',
+        extra: {
+          'correct': _correctCount,
+          'wrong': _wrongCount,
+          'total': _questions.length,
+          'timeTaken': timeTaken,
+          'questions': _questions,
+          'selectedAnswers': _selectedAnswers,
+        },
+      );
       return;
     }
     setState(() {
@@ -154,11 +173,15 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
     return Scaffold(
       body: Container(
         color: AppColors.background,
-        child: SafeArea(child: Column(
+        child: SafeArea(
+          child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.xs, AppSpacing.sm, AppSpacing.xl, AppSpacing.sm,
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.xs,
+                  AppSpacing.sm,
+                  AppSpacing.xl,
+                  AppSpacing.sm,
                 ),
                 child: Row(
                   children: [
@@ -178,11 +201,14 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md, vertical: AppSpacing.xs,
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.xs,
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusFull,
+                        ),
                       ),
                       child: Text(
                         '${_correctCount * 10}/${_questions.length * 10}',
@@ -200,12 +226,16 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
                 child: Column(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusFull,
+                      ),
                       child: LinearProgressIndicator(
                         value: progress,
                         minHeight: 6,
                         backgroundColor: AppColors.surfaceVariant,
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColors.primary,
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
@@ -221,22 +251,29 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
               const SizedBox(height: AppSpacing.xl),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                  ),
                   children: [
                     Container(
                       padding: const EdgeInsets.all(AppSpacing.xxl),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusXl,
+                        ),
                         boxShadow: AppColors.shadowMd,
                       ),
                       child: Column(
                         children: [
                           Container(
-                            width: 56, height: 56,
+                            width: 56,
+                            height: 56,
                             decoration: BoxDecoration(
                               color: AppColors.primaryContainer,
-                              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
                             ),
                             child: const Center(
                               child: Text('❓', style: TextStyle(fontSize: 24)),
@@ -294,60 +331,82 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
                                   padding: const EdgeInsets.all(AppSpacing.lg),
                                   decoration: BoxDecoration(
                                     color: bgColor ?? AppColors.surface,
-                                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                                    borderRadius: BorderRadius.circular(
+                                      AppSpacing.radiusMd,
+                                    ),
                                     border: Border.all(
-                                      color: borderColor ??
+                                      color:
+                                          borderColor ??
                                           (isSelected
                                               ? AppColors.primary
-                                              : AppColors.outline.withValues(alpha: 0.3)),
-                                      width: isSelected && !_showFeedback ? 2 : 1,
+                                              : AppColors.outline.withValues(
+                                                  alpha: 0.3,
+                                                )),
+                                      width: isSelected && !_showFeedback
+                                          ? 2
+                                          : 1,
                                     ),
                                   ),
                                   child: Row(
                                     children: [
                                       if (prefix != null) ...[
-                                        Text(prefix, style: const TextStyle(fontSize: 20)),
+                                        Text(
+                                          prefix,
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
                                         const SizedBox(width: AppSpacing.md),
                                       ],
                                       if (prefix == null)
                                         Container(
-                                          width: 28, height: 28,
+                                          width: 28,
+                                          height: 28,
                                           decoration: BoxDecoration(
                                             color: AppColors.surfaceVariant,
-                                            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                            borderRadius: BorderRadius.circular(
+                                              AppSpacing.radiusSm,
+                                            ),
                                           ),
                                           child: Center(
                                             child: Text(
                                               String.fromCharCode(65 + i),
-                                              style: AppTypography.labelMedium.copyWith(
-                                                fontWeight: FontWeight.w700,
-                                                color: AppColors.textSecondary,
-                                              ),
+                                              style: AppTypography.labelMedium
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.w700,
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
                                             ),
                                           ),
                                         ),
-                                      if (prefix == null) const SizedBox(width: AppSpacing.md),
+                                      if (prefix == null)
+                                        const SizedBox(width: AppSpacing.md),
                                       Expanded(
                                         child: Text(
                                           option,
-                                          style: AppTypography.bodyLarge.copyWith(
-                                            fontWeight: isSelected && !_showFeedback
-                                                ? FontWeight.w600
-                                                : FontWeight.w400,
-                                            height: 1.3,
-                                          ),
+                                          style: AppTypography.bodyLarge
+                                              .copyWith(
+                                                fontWeight:
+                                                    isSelected && !_showFeedback
+                                                    ? FontWeight.w600
+                                                    : FontWeight.w400,
+                                                height: 1.3,
+                                              ),
                                         ),
                                       ),
                                       if (_showFeedback && isCorrect)
                                         Container(
-                                          width: 24, height: 24,
+                                          width: 24,
+                                          height: 24,
                                           decoration: BoxDecoration(
                                             color: AppColors.success,
-                                            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                            borderRadius: BorderRadius.circular(
+                                              AppSpacing.radiusSm,
+                                            ),
                                           ),
                                           child: const Icon(
                                             Icons.check_rounded,
-                                            size: 16, color: Colors.white,
+                                            size: 16,
+                                            color: Colors.white,
                                           ),
                                         ),
                                     ],
@@ -367,7 +426,9 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
                           icon: Icon(
                             _currentQuestion >= _questions.length - 1
                                 ? Icons.done_all_rounded
-                                : Icons.arrow_forward_rounded,
+                                : Directionality.of(context) == TextDirection.rtl
+                                    ? Icons.arrow_back_rounded
+                                    : Icons.arrow_forward_rounded,
                             size: 20,
                           ),
                           label: Text(
@@ -386,7 +447,9 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
                               vertical: AppSpacing.lg,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
                             ),
                           ),
                         ),
@@ -408,5 +471,3 @@ class _QuizPageState extends State<QuizPage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 }
-
-

@@ -10,11 +10,31 @@ class PrivacyPage extends StatelessWidget {
   const PrivacyPage({super.key});
 
   List<_SectionData> _buildSections(AppLocalizations t) => [
-    _SectionData(emoji: '📊', title: t.privacySection1Title, body: t.privacySection1Body),
-    _SectionData(emoji: '🎯', title: t.privacySection2Title, body: t.privacySection2Body),
-    _SectionData(emoji: '🔒', title: t.privacySection3Title, body: t.privacySection3Body),
-    _SectionData(emoji: '⚖️', title: t.privacySection4Title, body: t.privacySection4Body),
-    _SectionData(emoji: '📧', title: t.privacySection5Title, body: t.privacySection5Body),
+    _SectionData(
+      emoji: '📊',
+      title: t.privacySection1Title,
+      body: t.privacySection1Body,
+    ),
+    _SectionData(
+      emoji: '🎯',
+      title: t.privacySection2Title,
+      body: t.privacySection2Body,
+    ),
+    _SectionData(
+      emoji: '🔒',
+      title: t.privacySection3Title,
+      body: t.privacySection3Body,
+    ),
+    _SectionData(
+      emoji: '⚖️',
+      title: t.privacySection4Title,
+      body: t.privacySection4Body,
+    ),
+    _SectionData(
+      emoji: '📧',
+      title: t.privacySection5Title,
+      body: t.privacySection5Body,
+    ),
   ];
 
   @override
@@ -61,9 +81,9 @@ class PrivacyPage extends StatelessWidget {
                     horizontal: AppSpacing.xl,
                   ),
                   children: [
-                    ..._buildSections(t).map(
-                      (section) => _PrivacySection(section: section),
-                    ),
+                    ..._buildSections(
+                      t,
+                    ).map((section) => _PrivacySection(section: section)),
                     const SizedBox(height: AppSpacing.xl5),
                   ],
                 ),
@@ -104,17 +124,16 @@ class _PrivacySection extends StatelessWidget {
       child: Theme(
         data: Theme.of(context).copyWith(
           dividerColor: Colors.transparent,
-          colorScheme: ColorScheme.light(
-            primary: AppColors.primary,
-          ),
+          colorScheme: ColorScheme.light(primary: AppColors.primary),
         ),
         child: ExpansionTile(
           initiallyExpanded: true,
-          tilePadding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-          ),
-          childrenPadding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg,
+          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          childrenPadding: const EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.lg,
           ),
           shape: const Border(),
           collapsedShape: const Border(),

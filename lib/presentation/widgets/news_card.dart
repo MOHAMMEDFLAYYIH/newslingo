@@ -60,10 +60,7 @@ class NewsCard extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(AppSpacing.radiusLg),
                   ),
-                  child: Container(
-                    height: 8,
-                    color: accentColor,
-                  ),
+                  child: Container(height: 8, color: accentColor),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(AppSpacing.lg),
@@ -78,8 +75,9 @@ class NewsCard extends StatelessWidget {
                               vertical: AppSpacing.xxs,
                             ),
                             decoration: BoxDecoration(
-                              color: _levelColor(article.level)
-                                  .withValues(alpha: 0.12),
+                              color: _levelColor(
+                                article.level,
+                              ).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(
                                 AppSpacing.radiusXs,
                               ),
@@ -94,14 +92,14 @@ class NewsCard extends StatelessWidget {
                           ),
                           const SizedBox(width: AppSpacing.sm),
                           Text(
-                            article.category.capitalize,
+                            AppLocalizations.of(context).categoryLabel(article.category),
                             style: AppTypography.labelSmall.copyWith(
                               color: AppColors.textTertiary,
                             ),
                           ),
                           const Spacer(),
                           Text(
-                            article.publishedAt.relativeTime,
+                            article.publishedAt.relativeTime(Localizations.localeOf(context)),
                             style: AppTypography.labelSmall.copyWith(
                               color: AppColors.textTertiary,
                             ),

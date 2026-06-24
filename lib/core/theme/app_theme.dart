@@ -76,9 +76,7 @@ class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.textOnPrimary,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(
-            vertical: AppSpacing.lg,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           ),
@@ -107,11 +105,15 @@ class AppTheme {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          borderSide: BorderSide(color: AppColors.outline.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+            color: AppColors.outline.withValues(alpha: 0.5),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          borderSide: BorderSide(color: AppColors.outline.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+            color: AppColors.outline.withValues(alpha: 0.5),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
@@ -166,6 +168,185 @@ class AppTheme {
         contentTextStyle: AppTypography.bodyMedium.copyWith(
           fontFamily: font,
           color: AppColors.textOnDark,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  static ThemeData dark({String? languageCode}) {
+    const darkBackground = Color(0xFF121212);
+    const darkSurface = Color(0xFF1E1E1E);
+    const darkSurfaceVariant = Color(0xFF2C2C2C);
+    const darkTextPrimary = Color(0xFFF0F0F0);
+    const darkTextSecondary = Color(0xFFB0B0B0);
+    const darkTextTertiary = Color(0xFF808080);
+    const darkOutline = Color(0xFF404040);
+    const darkOutlineVariant = Color(0xFF333333);
+    const darkPrimaryContainer = Color(0xFF1A3A00);
+    const darkSecondaryContainer = Color(0xFF4A1A0A);
+
+    final font = _fontFamily(languageCode);
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.primary,
+        onPrimary: AppColors.textOnPrimary,
+        primaryContainer: darkPrimaryContainer,
+        onPrimaryContainer: darkTextPrimary,
+        secondary: AppColors.secondary,
+        secondaryContainer: darkSecondaryContainer,
+        onSecondaryContainer: darkTextPrimary,
+        tertiary: AppColors.tertiary,
+        tertiaryContainer: AppColors.tertiaryContainer,
+        surface: darkSurface,
+        surfaceContainerHighest: darkSurfaceVariant,
+        onSurface: darkTextPrimary,
+        onSurfaceVariant: darkTextSecondary,
+        outline: darkOutline,
+        outlineVariant: darkOutlineVariant,
+        error: AppColors.error,
+        errorContainer: AppColors.errorContainer,
+      ),
+      scaffoldBackgroundColor: darkBackground,
+      textTheme: TextTheme(
+        displayLarge: AppTypography.displayLarge.copyWith(fontFamily: font),
+        displayMedium: AppTypography.displayMedium.copyWith(fontFamily: font),
+        headlineLarge: AppTypography.headlineLarge.copyWith(fontFamily: font),
+        headlineMedium: AppTypography.headlineMedium.copyWith(fontFamily: font),
+        headlineSmall: AppTypography.headlineSmall.copyWith(fontFamily: font),
+        titleLarge: AppTypography.titleLarge.copyWith(fontFamily: font),
+        titleMedium: AppTypography.titleMedium.copyWith(fontFamily: font),
+        titleSmall: AppTypography.titleSmall.copyWith(fontFamily: font),
+        bodyLarge: AppTypography.bodyLarge.copyWith(fontFamily: font),
+        bodyMedium: AppTypography.bodyMedium.copyWith(fontFamily: font),
+        bodySmall: AppTypography.bodySmall.copyWith(fontFamily: font),
+        labelLarge: AppTypography.labelLarge.copyWith(fontFamily: font),
+        labelMedium: AppTypography.labelMedium.copyWith(fontFamily: font),
+        labelSmall: AppTypography.labelSmall.copyWith(fontFamily: font),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        foregroundColor: darkTextPrimary,
+        elevation: 0,
+        centerTitle: true,
+        scrolledUnderElevation: 0,
+        titleTextStyle: AppTypography.titleLarge.copyWith(
+          fontFamily: font,
+          color: darkTextPrimary,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: darkSurface,
+        elevation: 0,
+        shadowColor: Colors.black.withValues(alpha: 0.3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        ),
+        clipBehavior: Clip.antiAlias,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.textOnPrimary,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          ),
+          textStyle: AppTypography.labelLarge.copyWith(
+            fontFamily: font,
+            color: AppColors.textOnPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          textStyle: AppTypography.labelLarge.copyWith(
+            fontFamily: font,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkSurface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.lg,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          borderSide: BorderSide(
+            color: darkOutline.withValues(alpha: 0.5),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          borderSide: BorderSide(
+            color: darkOutline.withValues(alpha: 0.5),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+        labelStyle: AppTypography.bodyMedium.copyWith(
+          fontFamily: font,
+          color: darkTextSecondary,
+        ),
+        hintStyle: AppTypography.bodyMedium.copyWith(
+          fontFamily: font,
+          color: darkTextTertiary,
+        ),
+        prefixIconColor: darkTextSecondary,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: darkSurfaceVariant,
+        selectedColor: darkPrimaryContainer,
+        labelStyle: AppTypography.labelMedium.copyWith(
+          fontFamily: font,
+          fontWeight: FontWeight.w600,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+        ),
+        side: BorderSide.none,
+      ),
+      dividerTheme: DividerThemeData(
+        color: darkOutlineVariant,
+        thickness: 1,
+        space: 1,
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: darkSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppSpacing.radiusXxl),
+          ),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: darkTextPrimary,
+        contentTextStyle: AppTypography.bodyMedium.copyWith(
+          fontFamily: font,
+          color: darkBackground,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),

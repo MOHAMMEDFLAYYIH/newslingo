@@ -29,7 +29,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadData() async {
-    setState(() { _isLoading = true; _errorMessage = null; });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
       final results = await Future.wait([
         sl<GetUserProgress>().call(),
@@ -43,7 +46,10 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _isLoading = false; _errorMessage = e.toString(); });
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
     }
   }
 
@@ -127,13 +133,20 @@ class _Header extends StatelessWidget {
     if (level == null) return AppColors.levelB1;
     final base = level.split(' - ').first;
     switch (base) {
-      case 'A1': return AppColors.levelA1;
-      case 'A2': return AppColors.levelA2;
-      case 'B1': return AppColors.levelB1;
-      case 'B2': return AppColors.levelB2;
-      case 'C1': return AppColors.levelC1;
-      case 'C2': return AppColors.levelC1;
-      default: return AppColors.levelB1;
+      case 'A1':
+        return AppColors.levelA1;
+      case 'A2':
+        return AppColors.levelA2;
+      case 'B1':
+        return AppColors.levelB1;
+      case 'B2':
+        return AppColors.levelB2;
+      case 'C1':
+        return AppColors.levelC1;
+      case 'C2':
+        return AppColors.levelC1;
+      default:
+        return AppColors.levelB1;
     }
   }
 
@@ -141,13 +154,20 @@ class _Header extends StatelessWidget {
     if (level == null) return '🟡';
     final base = level.split(' - ').first;
     switch (base) {
-      case 'A1': return '🟢';
-      case 'A2': return '🟢';
-      case 'B1': return '🟡';
-      case 'B2': return '🟠';
-      case 'C1': return '🔴';
-      case 'C2': return '🔴';
-      default: return '🟡';
+      case 'A1':
+        return '🟢';
+      case 'A2':
+        return '🟢';
+      case 'B1':
+        return '🟡';
+      case 'B2':
+        return '🟠';
+      case 'C1':
+        return '🔴';
+      case 'C2':
+        return '🔴';
+      default:
+        return '🟡';
     }
   }
 
@@ -160,8 +180,11 @@ class _Header extends StatelessWidget {
     final accentColor = _levelColor(level);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xl, AppSpacing.xxl, AppSpacing.xl, 0,
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.xl,
+        AppSpacing.xxl,
+        AppSpacing.xl,
+        0,
       ),
       child: Column(
         children: [
@@ -191,7 +214,11 @@ class _Header extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 3),
                     ),
-                    child: const Icon(Icons.edit_rounded, size: 14, color: Colors.white),
+                    child: const Icon(
+                      Icons.edit_rounded,
+                      size: 14,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -207,7 +234,8 @@ class _Header extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg, vertical: AppSpacing.xs,
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.xs,
             ),
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: 0.12),
@@ -262,10 +290,26 @@ class _StatsRow extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _StatItem(emoji: '🔥', value: '${progress?.streak ?? 0}', label: t.profileStatStreak),
-            _StatItem(emoji: '📰', value: '${progress?.articlesRead ?? 0}', label: t.profileStatArticles),
-            _StatItem(emoji: '📝', value: '${progress?.wordsLearned ?? 0}', label: t.profileStatWords),
-            _StatItem(emoji: '✅', value: '${progress?.quizzesPassed ?? 0}', label: t.profileStatQuizzes),
+            _StatItem(
+              emoji: '🔥',
+              value: '${progress?.streak ?? 0}',
+              label: t.profileStatStreak,
+            ),
+            _StatItem(
+              emoji: '📰',
+              value: '${progress?.articlesRead ?? 0}',
+              label: t.profileStatArticles,
+            ),
+            _StatItem(
+              emoji: '📝',
+              value: '${progress?.wordsLearned ?? 0}',
+              label: t.profileStatWords,
+            ),
+            _StatItem(
+              emoji: '✅',
+              value: '${progress?.quizzesPassed ?? 0}',
+              label: t.profileStatQuizzes,
+            ),
           ],
         ),
       ),
@@ -278,7 +322,11 @@ class _StatItem extends StatelessWidget {
   final String value;
   final String label;
 
-  const _StatItem({required this.emoji, required this.value, required this.label});
+  const _StatItem({
+    required this.emoji,
+    required this.value,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -374,6 +422,7 @@ class _MenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.xs),
       decoration: BoxDecoration(
@@ -388,7 +437,8 @@ class _MenuTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg, vertical: AppSpacing.md + 2,
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md + 2,
             ),
             child: Row(
               children: [
@@ -402,7 +452,11 @@ class _MenuTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Icon(Icons.chevron_left_rounded, color: AppColors.textTertiary, size: 22),
+                Icon(
+                  isRtl ? Icons.chevron_right_rounded : Icons.chevron_left_rounded,
+                  color: AppColors.textTertiary,
+                  size: 22,
+                ),
               ],
             ),
           ),

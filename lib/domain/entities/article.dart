@@ -15,6 +15,8 @@ class Article extends Equatable {
   final String? translatedTitle;
   final String? translatedDescription;
   final String? translatedContent;
+  final List<WordDefinition> vocabulary;
+  final Quiz? quiz;
 
   const Article({
     required this.id,
@@ -31,48 +33,68 @@ class Article extends Equatable {
     this.translatedTitle,
     this.translatedDescription,
     this.translatedContent,
+    this.vocabulary = const [],
+    this.quiz,
   });
 
   Article copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? content,
+    String? category,
+    String? source,
+    String? imageUrl,
+    String? audioUrl,
+    String? level,
+    DateTime? publishedAt,
+    List<String>? tags,
     String? translatedTitle,
     String? translatedDescription,
     String? translatedContent,
+    List<WordDefinition>? vocabulary,
+    Quiz? quiz,
   }) {
     return Article(
-      id: id,
-      title: title,
-      description: description,
-      content: content,
-      category: category,
-      source: source,
-      imageUrl: imageUrl,
-      audioUrl: audioUrl,
-      level: level,
-      publishedAt: publishedAt,
-      tags: tags,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      content: content ?? this.content,
+      category: category ?? this.category,
+      source: source ?? this.source,
+      imageUrl: imageUrl ?? this.imageUrl,
+      audioUrl: audioUrl ?? this.audioUrl,
+      level: level ?? this.level,
+      publishedAt: publishedAt ?? this.publishedAt,
+      tags: tags ?? this.tags,
       translatedTitle: translatedTitle ?? this.translatedTitle,
-      translatedDescription: translatedDescription ?? this.translatedDescription,
+      translatedDescription:
+          translatedDescription ?? this.translatedDescription,
       translatedContent: translatedContent ?? this.translatedContent,
+      vocabulary: vocabulary ?? this.vocabulary,
+      quiz: quiz ?? this.quiz,
     );
   }
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        description,
-        content,
-        category,
-        source,
-        imageUrl,
-        audioUrl,
-        level,
-        publishedAt,
-        tags,
-        translatedTitle,
-        translatedDescription,
-        translatedContent,
-      ];
+    id,
+    title,
+    description,
+    content,
+    category,
+    source,
+    imageUrl,
+    audioUrl,
+    level,
+    publishedAt,
+    tags,
+    translatedTitle,
+    translatedDescription,
+    translatedContent,
+    vocabulary,
+    quiz,
+  ];
 }
 
 class WordDefinition extends Equatable {
@@ -92,15 +114,33 @@ class WordDefinition extends Equatable {
     required this.partOfSpeech,
   });
 
+  WordDefinition copyWith({
+    String? word,
+    String? definition,
+    String? translation,
+    List<String>? synonyms,
+    List<String>? examples,
+    String? partOfSpeech,
+  }) {
+    return WordDefinition(
+      word: word ?? this.word,
+      definition: definition ?? this.definition,
+      translation: translation ?? this.translation,
+      synonyms: synonyms ?? this.synonyms,
+      examples: examples ?? this.examples,
+      partOfSpeech: partOfSpeech ?? this.partOfSpeech,
+    );
+  }
+
   @override
   List<Object?> get props => [
-        word,
-        definition,
-        translation,
-        synonyms,
-        examples,
-        partOfSpeech,
-      ];
+    word,
+    definition,
+    translation,
+    synonyms,
+    examples,
+    partOfSpeech,
+  ];
 }
 
 class Quiz extends Equatable {
@@ -113,6 +153,18 @@ class Quiz extends Equatable {
     required this.articleId,
     required this.questions,
   });
+
+  Quiz copyWith({
+    String? id,
+    String? articleId,
+    List<QuizQuestion>? questions,
+  }) {
+    return Quiz(
+      id: id ?? this.id,
+      articleId: articleId ?? this.articleId,
+      questions: questions ?? this.questions,
+    );
+  }
 
   @override
   List<Object?> get props => [id, articleId, questions];
@@ -128,6 +180,18 @@ class QuizQuestion extends Equatable {
     required this.options,
     required this.correctIndex,
   });
+
+  QuizQuestion copyWith({
+    String? question,
+    List<String>? options,
+    int? correctIndex,
+  }) {
+    return QuizQuestion(
+      question: question ?? this.question,
+      options: options ?? this.options,
+      correctIndex: correctIndex ?? this.correctIndex,
+    );
+  }
 
   @override
   List<Object?> get props => [question, options, correctIndex];
@@ -148,14 +212,30 @@ class UserProgress extends Equatable {
     required this.lastActiveDate,
   });
 
+  UserProgress copyWith({
+    int? streak,
+    int? articlesRead,
+    int? wordsLearned,
+    int? quizzesPassed,
+    DateTime? lastActiveDate,
+  }) {
+    return UserProgress(
+      streak: streak ?? this.streak,
+      articlesRead: articlesRead ?? this.articlesRead,
+      wordsLearned: wordsLearned ?? this.wordsLearned,
+      quizzesPassed: quizzesPassed ?? this.quizzesPassed,
+      lastActiveDate: lastActiveDate ?? this.lastActiveDate,
+    );
+  }
+
   @override
   List<Object?> get props => [
-        streak,
-        articlesRead,
-        wordsLearned,
-        quizzesPassed,
-        lastActiveDate,
-      ];
+    streak,
+    articlesRead,
+    wordsLearned,
+    quizzesPassed,
+    lastActiveDate,
+  ];
 }
 
 class SavedWord extends Equatable {
@@ -199,12 +279,12 @@ class SavedWord extends Equatable {
 
   @override
   List<Object?> get props => [
-        word,
-        definition,
-        translation,
-        articleId,
-        savedAt,
-        reviewCount,
-        nextReviewDate,
-      ];
+    word,
+    definition,
+    translation,
+    articleId,
+    savedAt,
+    reviewCount,
+    nextReviewDate,
+  ];
 }

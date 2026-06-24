@@ -6,15 +6,7 @@ class GetArticles {
 
   GetArticles(this.repository);
 
-  Future<List<Article>> call({
-    String? category,
-    String? level,
-    int page = 1,
-  }) {
-    return repository.getArticles(
-      category: category,
-      level: level,
-      page: page,
-    );
+  Future<List<Article>> call({String? category, String? level, int page = 1}) {
+    return repository.getArticles(category: category, level: level, page: page);
   }
 }

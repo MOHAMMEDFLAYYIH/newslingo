@@ -22,7 +22,11 @@ class _LeaderboardPageState extends State<LeaderboardPage>
   bool _isLoading = true;
   String? _errorMessage;
 
-  List<String> _tabs(AppLocalizations t) => [t.leaderboardWeek, t.leaderboardMonth, t.leaderboardAll];
+  List<String> _tabs(AppLocalizations t) => [
+    t.leaderboardWeek,
+    t.leaderboardMonth,
+    t.leaderboardAll,
+  ];
 
   @override
   void initState() {
@@ -39,8 +43,21 @@ class _LeaderboardPageState extends State<LeaderboardPage>
       final data = await sl<AuthRemoteDataSource>().getLeaderboard();
       if (!mounted) return;
       final emojis = [
-        '🦊', '🐯', '🐰', '🐼', '🦄', '🐨', '🦋', '🐲', '🐱', '🐶',
-        '🦁', '🐸', '🐵', '🐻', '🐧',
+        '🦊',
+        '🐯',
+        '🐰',
+        '🐼',
+        '🦄',
+        '🐨',
+        '🦋',
+        '🐲',
+        '🐱',
+        '🐶',
+        '🦁',
+        '🐸',
+        '🐵',
+        '🐻',
+        '🐧',
       ];
       final profiles = data.asMap().entries.map((entry) {
         final i = entry.key;
@@ -89,8 +106,7 @@ class _LeaderboardPageState extends State<LeaderboardPage>
           child: Column(
             children: [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
                 child: Row(
                   children: [
                     AppBackButton(),
@@ -117,25 +133,25 @@ class _LeaderboardPageState extends State<LeaderboardPage>
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : _errorMessage != null
-                        ? _ErrorView(
-                            message: _errorMessage!,
-                            onRetry: _loadLeaderboard,
-                          )
-                        : SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                _Podium(users: _users),
-                                const SizedBox(height: AppSpacing.xl),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: AppSpacing.xl),
-                                  child: _UserList(
-                                      users: _users.skip(3).toList()),
-                                ),
-                                const SizedBox(height: AppSpacing.xl4),
-                              ],
+                    ? _ErrorView(
+                        message: _errorMessage!,
+                        onRetry: _loadLeaderboard,
+                      )
+                    : SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            _Podium(users: _users),
+                            const SizedBox(height: AppSpacing.xl),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.xl,
+                              ),
+                              child: _UserList(users: _users.skip(3).toList()),
                             ),
-                          ),
+                            const SizedBox(height: AppSpacing.xl4),
+                          ],
+                        ),
+                      ),
               ),
             ],
           ),
@@ -161,8 +177,11 @@ class _ErrorView extends StatelessWidget {
           children: [
             const Text('😕', style: TextStyle(fontSize: 64)),
             const SizedBox(height: AppSpacing.xl),
-            Text(message,
-                style: AppTypography.bodyLarge, textAlign: TextAlign.center),
+            Text(
+              message,
+              style: AppTypography.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: AppSpacing.xxl),
             FilledButton.icon(
               onPressed: onRetry,
@@ -189,7 +208,11 @@ class _TabBar extends StatelessWidget {
   final List<String> tabs;
   final int selected;
   final ValueChanged<int> onChanged;
-  const _TabBar({required this.tabs, required this.selected, required this.onChanged});
+  const _TabBar({
+    required this.tabs,
+    required this.selected,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +241,9 @@ class _TabBar extends StatelessWidget {
                   tabs[i],
                   textAlign: TextAlign.center,
                   style: AppTypography.labelMedium.copyWith(
-                    color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                    color: isSelected
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   ),
                 ),
@@ -254,23 +279,32 @@ class _Podium extends StatelessWidget {
             final user = p.user;
             return Expanded(
               child: Padding(
-                padding: EdgeInsets.only(
-                  top: (220 - p.height) + 20,
-                  left: p.rank == 1 ? AppSpacing.xs : 0,
-                  right: p.rank == 1 ? AppSpacing.xs : 0,
-                ),
+                padding:
+                    EdgeInsets.only(top: (220 - p.height) + 20) +
+                    EdgeInsets.symmetric(
+                      horizontal: p.rank == 1 ? AppSpacing.xs : 0,
+                    ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
-                      width: 60, height: 60,
+                      width: 60,
+                      height: 60,
                       decoration: BoxDecoration(
                         gradient: p.rank == 1
-                            ? const LinearGradient(colors: [Color(0xFFFFC800), Color(0xFFFF9600)])
+                            ? const LinearGradient(
+                                colors: [Color(0xFFFFC800), Color(0xFFFF9600)],
+                              )
                             : p.rank == 2
-                                ? const LinearGradient(colors: [Color(0xFFD1D5DB), Color(0xFF9CA3AF)])
-                                : const LinearGradient(colors: [Color(0xFFD97706), Color(0xFFB45309)]),
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                            ? const LinearGradient(
+                                colors: [Color(0xFFD1D5DB), Color(0xFF9CA3AF)],
+                              )
+                            : const LinearGradient(
+                                colors: [Color(0xFFD97706), Color(0xFFB45309)],
+                              ),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMd,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: p.rank == 1
@@ -282,7 +316,10 @@ class _Podium extends StatelessWidget {
                         ],
                       ),
                       child: Center(
-                        child: Text(p.emoji, style: const TextStyle(fontSize: 30)),
+                        child: Text(
+                          p.emoji,
+                          style: const TextStyle(fontSize: 30),
+                        ),
                       ),
                     ),
                     if (user != null) ...[
@@ -290,7 +327,9 @@ class _Podium extends StatelessWidget {
                       Text(
                         user.name,
                         style: AppTypography.titleSmall.copyWith(
-                          fontWeight: p.rank == 1 ? FontWeight.w900 : FontWeight.w600,
+                          fontWeight: p.rank == 1
+                              ? FontWeight.w900
+                              : FontWeight.w600,
                         ),
                       ),
                       Text(
@@ -357,13 +396,19 @@ class _UserList extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        width: 44, height: 44,
+                        width: 44,
+                        height: 44,
                         decoration: BoxDecoration(
                           color: AppColors.primaryContainer,
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
                         ),
                         child: Center(
-                          child: Text(user.emoji, style: const TextStyle(fontSize: 22)),
+                          child: Text(
+                            user.emoji,
+                            style: const TextStyle(fontSize: 22),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.md),
@@ -397,7 +442,8 @@ class _UserList extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (!isLast) const Divider(height: 1, color: AppColors.outlineVariant),
+                if (!isLast)
+                  const Divider(height: 1, color: AppColors.outlineVariant),
               ],
             ),
           );

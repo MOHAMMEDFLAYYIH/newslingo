@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:newslingo/domain/entities/article.dart';
 import 'package:newslingo/presentation/pages/article/article_detail_page.dart';
 import 'package:newslingo/presentation/pages/auth/forgot_password_page.dart';
 import 'package:newslingo/presentation/pages/auth/interest_selection_page.dart';
@@ -35,16 +36,15 @@ import 'package:newslingo/presentation/pages/settings/settings_page.dart';
 import 'package:newslingo/presentation/pages/splash/splash_page.dart';
 import 'package:newslingo/presentation/pages/vocabulary/vocabulary_page.dart';
 
-final GlobalKey<NavigatorState> _rootNavigator = GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _rootNavigator = GlobalKey<NavigatorState>(
+  debugLabel: 'root',
+);
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigator,
   initialLocation: '/',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const SplashPage(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const SplashPage()),
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingPage(),
@@ -61,10 +61,7 @@ final GoRouter appRouter = GoRouter(
       path: '/onboarding/signup',
       builder: (context, state) => const SignUpPage(),
     ),
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginPage(),
-    ),
+    GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
     GoRoute(
       path: '/forgot-password',
       parentNavigatorKey: _rootNavigator,
@@ -159,7 +156,8 @@ final GoRouter appRouter = GoRouter(
       parentNavigatorKey: _rootNavigator,
       builder: (context, state) {
         final articleId = state.pathParameters['articleId']!;
-        return QuizPage(articleId: articleId);
+        final quiz = state.extra as Quiz?;
+        return QuizPage(articleId: articleId, initialQuiz: quiz);
       },
     ),
     GoRoute(

@@ -38,7 +38,6 @@ class AppTextField extends StatefulWidget {
 class _AppTextFieldState extends State<AppTextField> {
   bool _obscureText = false;
   bool _hasFocus = false;
-  bool _hasError = false;
 
   final _focusNode = FocusNode();
 
@@ -66,16 +65,14 @@ class _AppTextFieldState extends State<AppTextField> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: _hasFocus
-                ? AppColors.surface
-                : AppColors.surfaceVariant,
+            color: _hasFocus ? AppColors.surface : AppColors.surfaceVariant,
             borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             border: Border.all(
-              color: _hasError
+              color: widget.errorText != null
                   ? AppColors.error
                   : _hasFocus
-                      ? AppColors.primary
-                      : Colors.transparent,
+                  ? AppColors.primary
+                  : Colors.transparent,
               width: 1.5,
             ),
             boxShadow: _hasFocus ? AppColors.shadowSm : null,
@@ -87,19 +84,7 @@ class _AppTextFieldState extends State<AppTextField> {
             keyboardType: widget.keyboardType,
             textDirection: widget.isRtl ? TextDirection.rtl : TextDirection.ltr,
             maxLines: widget.maxLines,
-            validator: (value) {
-              final error = widget.validator?.call(value);
-              if (error != null) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  setState(() => _hasError = true);
-                });
-              } else {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  setState(() => _hasError = false);
-                });
-              }
-              return error;
-            },
+            validator: widget.validator,
             style: AppTypography.bodyLarge.copyWith(
               color: AppColors.textPrimary,
             ),
@@ -148,17 +133,15 @@ class _AppTextFieldState extends State<AppTextField> {
             ),
           ),
         ),
-        if (_hasError && widget.validator != null)
+        if (widget.errorText != null)
           Padding(
-            padding: const EdgeInsets.only(
+            padding: const EdgeInsetsDirectional.only(
               top: AppSpacing.xs,
-              right: AppSpacing.md,
+              end: AppSpacing.md,
             ),
             child: Text(
-              widget.validator!(widget.controller.text) ?? '',
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.error,
-              ),
+              widget.errorText!,
+              style: AppTypography.bodySmall.copyWith(color: AppColors.error),
             ),
           ),
       ],

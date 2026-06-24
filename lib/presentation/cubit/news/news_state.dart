@@ -44,12 +44,12 @@ class NewsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        articles,
-        category,
-        level,
-        currentPage,
-        hasMore,
-        errorMessage,
-      ];
+    status,
+    articles,
+    category,
+    level,
+    currentPage,
+    hasMore,
+    errorMessage,
+  ];
 }

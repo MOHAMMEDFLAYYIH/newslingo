@@ -1,9 +1,10 @@
+import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:newslingo/core/di/injection.dart';
 import 'package:newslingo/core/localization/app_localizations.dart';
-import 'package:newslingo/core/localization/locale_cubit.dart';
 import 'package:newslingo/core/responsive/responsive_config.dart';
 import 'package:newslingo/core/theme/app_colors.dart';
 import 'package:newslingo/core/theme/app_spacing.dart';
@@ -39,11 +40,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   Future<void> _loadArticle() async {
     try {
       var article = await sl<GetArticleDetails>().call(widget.articleId);
-      final locale = sl<LocaleCubit>().state.languageCode;
-      if (locale != 'en') {
-        final translated = await sl<NewsRepository>().translateArticles([article], locale);
-        article = translated.first;
-      }
+      // Article stays in English regardless of UI locale
       if (mounted) {
         setState(() {
           _article = article;
@@ -71,7 +68,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
     final t = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isBookmarked ? t.articleBookmarked : t.articleUnbookmarked),
+        content: Text(
+          _isBookmarked ? t.articleBookmarked : t.articleUnbookmarked,
+        ),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -79,37 +78,57 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
 
   Color _levelColor(String level) {
     switch (level) {
-      case 'A1': return AppColors.levelA1;
-      case 'A2': return AppColors.levelA2;
-      case 'B1': return AppColors.levelB1;
-      case 'B2': return AppColors.levelB2;
-      case 'C1': return AppColors.levelC1;
-      default: return AppColors.levelB1;
+      case 'A1':
+        return AppColors.levelA1;
+      case 'A2':
+        return AppColors.levelA2;
+      case 'B1':
+        return AppColors.levelB1;
+      case 'B2':
+        return AppColors.levelB2;
+      case 'C1':
+        return AppColors.levelC1;
+      default:
+        return AppColors.levelB1;
     }
   }
 
   String _categoryEmoji(String category) {
     switch (category) {
-      case 'general': return '🌍';
-      case 'sports': return '⚽';
-      case 'technology': return '💻';
-      case 'business': return '📈';
-      case 'science': return '🔬';
-      case 'entertainment': return '🎬';
-      default: return '🌍';
+      case 'general':
+        return '🌍';
+      case 'sports':
+        return '⚽';
+      case 'technology':
+        return '💻';
+      case 'business':
+        return '📈';
+      case 'science':
+        return '🔬';
+      case 'entertainment':
+        return '🎬';
+      default:
+        return '🌍';
     }
   }
 
   String _categoryLabel(String category) {
     final t = AppLocalizations.of(context);
     switch (category) {
-      case 'general': return t.categoryGeneral;
-      case 'sports': return t.categorySports;
-      case 'technology': return t.categoryTechnology;
-      case 'business': return t.categoryBusiness;
-      case 'science': return t.categoryScience;
-      case 'entertainment': return t.categoryEntertainment;
-      default: return category;
+      case 'general':
+        return t.categoryGeneral;
+      case 'sports':
+        return t.categorySports;
+      case 'technology':
+        return t.categoryTechnology;
+      case 'business':
+        return t.categoryBusiness;
+      case 'science':
+        return t.categoryScience;
+      case 'entertainment':
+        return t.categoryEntertainment;
+      default:
+        return category;
     }
   }
 
@@ -137,8 +156,14 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text('😕', style: TextStyle(fontSize: 64)),
-                  const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.lg),
               Text(_error ?? t.articleNotFound),
+              const SizedBox(height: AppSpacing.xl),
+              FilledButton.icon(
+                onPressed: _loadArticle,
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                label: Text(t.homeRetry),
+              ),
             ],
           ),
         ),
@@ -159,7 +184,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
             ),
             Expanded(
               child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: isTablet ? 48.w : AppSpacing.xl.w),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 48.w : AppSpacing.xl.w,
+                ),
                 children: [
                   const SizedBox(height: AppSpacing.xs),
                   _CategoryRow(
@@ -190,11 +217,14 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm, vertical: AppSpacing.xxs,
+                          horizontal: AppSpacing.sm,
+                          vertical: AppSpacing.xxs,
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.primaryContainer,
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusXs,
+                          ),
                         ),
                         child: Text(
                           t.articleListen,
@@ -209,11 +239,21 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                   const SizedBox(height: AppSpacing.lg),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    child: Container(
+                    child: CachedNetworkImage(
+                      imageUrl: article.imageUrl,
                       height: 200.h,
-                      color: accentColor.withValues(alpha: 0.1),
-                      child: const Center(
-                        child: Text('🖼️', style: TextStyle(fontSize: 64)),
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) => Container(
+                        height: 200.h,
+                        color: AppColors.surfaceVariant,
+                      ),
+                      errorWidget: (_, _, _) => Container(
+                        height: 200.h,
+                        color: accentColor.withValues(alpha: 0.1),
+                        child: const Center(
+                          child: Text('🖼️', style: TextStyle(fontSize: 64)),
+                        ),
                       ),
                     ),
                   ),
@@ -222,12 +262,18 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                     articleId: article.id,
                     accentColor: accentColor,
                     content: article.translatedContent ?? article.content,
+                    level: article.level,
+                    vocabulary: article.vocabulary,
                   ),
                   const SizedBox(height: AppSpacing.xxl),
                 ],
               ),
             ),
-            _BottomActions(accentColor: accentColor, articleId: article.id),
+            _BottomActions(
+              accentColor: accentColor,
+              articleId: article.id,
+              quiz: article.quiz,
+            ),
           ],
         ),
       ),
@@ -250,19 +296,25 @@ class _AppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xs, AppSpacing.sm, AppSpacing.md, AppSpacing.sm,
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.xs,
+        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.sm,
       ),
       child: Row(
         children: [
           AppBackButton(iconSize: 22),
           const Spacer(),
           Container(
-            width: 40.w, height: 40.w,
+            width: 40.w,
+            height: 40.w,
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              border: Border.all(color: AppColors.outline.withValues(alpha: 0.5)),
+              border: Border.all(
+                color: AppColors.outline.withValues(alpha: 0.5),
+              ),
             ),
             child: Material(
               color: Colors.transparent,
@@ -270,14 +322,18 @@ class _AppBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                 onTap: onToggleBookmark,
                 child: Center(
-                  child: Text(isBookmarked ? '🔖' : '🔖', style: TextStyle(fontSize: 18)),
+                  child: Text(
+                    isBookmarked ? '🔖' : '🔖',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
               ),
             ),
           ),
           SizedBox(width: AppSpacing.sm.w),
           Container(
-            width: 40.w, height: 40.w,
+            width: 40.w,
+            height: 40.w,
             decoration: BoxDecoration(
               color: AppColors.primaryContainer,
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
@@ -292,9 +348,9 @@ class _AppBar extends StatelessWidget {
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     builder: (_) => AudioPlayerWidget(
-                    audioUrl: article.audioUrl,
-                    title: article.translatedTitle ?? article.title,
-                  ),
+                      audioUrl: article.audioUrl,
+                      title: article.translatedTitle ?? article.title,
+                    ),
                   );
                 },
                 child: const Center(
@@ -358,10 +414,14 @@ class _ArticleContent extends StatefulWidget {
   final String articleId;
   final Color accentColor;
   final String content;
+  final String level;
+  final List<WordDefinition> vocabulary;
   const _ArticleContent({
     required this.articleId,
     required this.accentColor,
     required this.content,
+    required this.level,
+    required this.vocabulary,
   });
 
   @override
@@ -369,12 +429,110 @@ class _ArticleContent extends StatefulWidget {
 }
 
 class _ArticleContentState extends State<_ArticleContent> {
+  static const _levelLimits = {'A1': 2, 'A2': 3, 'B1': 5, 'B2': 8, 'C1': 999};
+
+  late final Map<String, WordDefinition> _vocabularyCache;
+
+  @override
+  void initState() {
+    super.initState();
+    _buildVocabularyCache();
+  }
+
+  void _buildVocabularyCache() {
+    _vocabularyCache = {};
+    for (final def in widget.vocabulary) {
+      _vocabularyCache[def.word.toLowerCase()] = def;
+    }
+  }
+
+  bool get _isTruncated {
+    final paragraphs = widget.content
+        .split('\n')
+        .where((p) => p.trim().isNotEmpty)
+        .toList();
+    final limit = _levelLimits[widget.level] ?? 5;
+    return paragraphs.length > limit;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final paragraphs = widget.content.split('\n');
+    final t = AppLocalizations.of(context);
+    final allParagraphs = widget.content
+        .split('\n')
+        .where((p) => p.trim().isNotEmpty)
+        .toList();
+    final limit = _levelLimits[widget.level] ?? 5;
+    final visible = allParagraphs.take(limit).toList();
+    final hiddenCount = allParagraphs.length - visible.length;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: paragraphs.where((p) => p.trim().isNotEmpty).map((p) => _buildParagraph(p)).toList(),
+      children: [
+        ...visible.map((p) => _buildParagraph(p)),
+        if (_isTruncated) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Center(
+            child: TextButton.icon(
+              onPressed: () => _showFull(),
+              icon: const Icon(Icons.expand_more_rounded, size: 20),
+              label: Text(
+                '${t.articleShowMore} (+$hiddenCount)',
+                style: AppTypography.labelMedium.copyWith(
+                  color: widget.accentColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _showFull() {
+    final t = AppLocalizations.of(context);
+    final allParagraphs = widget.content
+        .split('\n')
+        .where((p) => p.trim().isNotEmpty)
+        .toList();
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        insetPadding: const EdgeInsets.all(AppSpacing.lg),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${widget.level} — ${t.articleShowAll}',
+                      style: AppTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: ListView(
+                  children: allParagraphs
+                      .map((p) => _buildParagraph(p))
+                      .toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -384,10 +542,7 @@ class _ArticleContentState extends State<_ArticleContent> {
     if (matches.isEmpty) {
       return Padding(
         padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-        child: Text(
-          text,
-          style: AppTypography.bodyLarge.copyWith(height: 1.8),
-        ),
+        child: Text(text, style: AppTypography.bodyLarge.copyWith(height: 1.8)),
       );
     }
 
@@ -395,154 +550,318 @@ class _ArticleContentState extends State<_ArticleContent> {
     int lastEnd = 0;
     for (final match in matches) {
       if (match.start > lastEnd) {
-        spans.add(TextSpan(
-          text: text.substring(lastEnd, match.start),
-          style: AppTypography.bodyLarge.copyWith(height: 1.8),
-        ));
+        spans.add(
+          TextSpan(
+            text: text.substring(lastEnd, match.start),
+            style: AppTypography.bodyLarge.copyWith(height: 1.8),
+          ),
+        );
       }
       final word = match.group(1)!;
-      spans.add(WidgetSpan(
-        alignment: PlaceholderAlignment.middle,
-        child: GestureDetector(
-          onTap: () => _showWordDefinition(context, word),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
-            decoration: BoxDecoration(
-              color: AppColors.accentBlue.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppSpacing.radiusXs.r),
-            ),
-            child: Text(
-              word,
-              style: AppTypography.bodyLarge.copyWith(
-                color: AppColors.accentBlue,
-                fontWeight: FontWeight.w600,
-                height: 1.8,
+      spans.add(
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: GestureDetector(
+            onTap: () => _showWordDefinition(context, word),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
+              decoration: BoxDecoration(
+                color: AppColors.accentBlue.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusXs.r),
+              ),
+              child: Text(
+                word,
+                style: AppTypography.bodyLarge.copyWith(
+                  color: AppColors.accentBlue,
+                  fontWeight: FontWeight.w600,
+                  height: 1.8,
+                ),
               ),
             ),
           ),
         ),
-      ));
+      );
       lastEnd = match.end;
     }
     if (lastEnd < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastEnd),
-        style: AppTypography.bodyLarge.copyWith(height: 1.8),
-      ));
+      spans.add(
+        TextSpan(
+          text: text.substring(lastEnd),
+          style: AppTypography.bodyLarge.copyWith(height: 1.8),
+        ),
+      );
     }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-      child: RichText(
-        text: TextSpan(children: spans),
-      ),
+      child: RichText(text: TextSpan(children: spans)),
     );
   }
 
   void _showWordDefinition(BuildContext context, String word) {
-    final wordDefs = _extractDefinitions(widget.content);
-    final entry = wordDefs[word];
-    final translation = entry?.split(' - ').first ?? word;
-    final defText = entry?.split(' - ').last ?? '';
-    showModalBottomSheet(
+    final cacheKey = word.toLowerCase();
+    final cached = _vocabularyCache[cacheKey];
+
+    if (cached != null) {
+      // CACHE HIT — instant, zero latency
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => WordDefinitionSheet(
+          word: cached.word,
+          translation: cached.translation,
+          definition: cached.definition,
+          partOfSpeech: cached.partOfSpeech,
+          examples: cached.examples,
+          synonyms: cached.synonyms,
+          accentColor: widget.accentColor,
+          articleId: widget.articleId,
+          level: widget.level,
+        ),
+      );
+      return;
+    }
+
+    // CACHE MISS — shimmer + async fallback
+    unawaited(_showWordSheetWithLoading(context, word));
+  }
+
+  Future<void> _showWordSheetWithLoading(
+    BuildContext context,
+    String word,
+  ) async {
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => WordDefinitionSheet(
+      builder: (_) => _LoadingWordSheet(
         word: word,
-        translation: translation,
-        definition: defText,
-        accentColor: AppColors.accentBlue,
         articleId: widget.articleId,
+        accentColor: widget.accentColor,
+        level: widget.level,
       ),
     );
   }
+}
 
-  Map<String, String> _extractDefinitions(String content) {
-    const builtIn = {
-      'sustainable': 'مستدام - Able to be maintained over time',
-      'sustainably': 'بشكل مستدام - In a sustainable manner',
-      'significant': 'مهم / كبير - Important or noticeable',
-      'breakthrough': 'اختراق - A sudden important discovery',
-      'comprehensive': 'شامل - Including everything needed',
-      'widespread': 'واسع الانتشار - Existing over a large area',
-      'despite': 'على الرغم من - Without being affected by',
-      'implement': 'ينفذ / يطبق - Put into effect',
-      'consequently': 'وبالتالي - As a result',
-      'emerging': 'ناشئ - Newly developed or coming to attention',
-      'secured': 'حصل على - Obtained with effort',
-      'remarkable': 'رائع - Worthy of attention',
-      'exceptional': 'استثنائي - Unusually good',
-      'outstanding': 'ممتاز - Exceptionally good',
-      'resilience': 'مرونة - Ability to recover quickly',
-      'impressive': 'مثير للإعجاب - Evoking admiration',
-      'inspired': 'ألهم - Motivated someone',
-      'transforming': 'يحول - Making a marked change',
-      'unimaginable': 'لا يمكن تصوره - Impossible to imagine',
-      'intelligent': 'ذكي - Having intelligence',
-      'accessible': 'متاح - Easy to approach or use',
-      'effective': 'فعال - Successful in producing results',
-      'embracing': 'يتبنى - Willingly accepting',
-      'engaging': 'جذاب - Attracting attention',
-      'potential': 'إمكانات - Latent qualities',
-      'revolutionize': 'يحدث ثورة - Change fundamentally',
-      'enormous': 'هائل - Very large in size',
-      'unveiled': 'كشف النقاب - Removed a cover from',
-      'groundbreaking': 'رائد - Innovative, pioneering',
-      'incorporates': 'يدمج - Includes as a part',
-      'sophisticated': 'متطور - Complex, advanced',
-      'enhance': 'يعزز - Intensify or improve',
-      'praised': 'أشاد - Expressed approval',
-      'influence': 'يؤثر - Have an effect on',
-      'reached': 'توصل إلى - Arrived at',
-      'dramatically': 'بشكل كبير - By a large margin',
-      'ambitious': 'طموح - Having a strong desire for success',
-      'commits': 'يلتزم - Pledges to do something',
-      'substantial': 'كبير - Of considerable importance',
-      'crucial': 'حاسم - Decisive, critical',
-      'welcomed': 'رحب - Greeted with pleasure',
-      'emphasize': 'يؤكد - Stress the importance of',
-      'immediate': 'فوري - Occurring at once',
-      'implementation': 'تنفيذ - The process of putting into effect',
-      'unprecedented': 'غير مسبوق - Never done before',
-      'officially': 'رسمياً - In an official capacity',
-      'showcases': 'يعرض - Displays prominently',
-      'highlighting': 'يسلط الضوء - Draws attention to',
-      'contemporary': 'معاصر - Modern, current',
-      'includes': 'يتضمن - Contains as part of',
-      'continues': 'يستمر - Keeps happening',
-      'vital': 'حيوي - Absolutely necessary',
-      'celebrating': 'يحتفل - Marks a special occasion',
-      'developed': 'طور - Created over time',
-      'promising': 'واعد - Showing potential for success',
-      'innovative': 'مبتكر - Featuring new methods',
-      'combines': 'يجمع - Joins together',
-      'restore': 'يستعيد - Brings back to original state',
-      'experiencing': 'يعاني / يختبر - Going through',
-      'optimistic': 'متفائل - Hopeful about the future',
-      'surged': 'ارتفع بشكل حاد - Increased suddenly',
-      'increasingly': 'بشكل متزايد - More and more',
-      'attribute': 'يعزو - Regards as caused by',
-      'strong': 'قوي - Powerful',
-      'favourable': 'موات - Advantageous',
-      'momentum': 'زخم - Force gained by movement',
-      'continue': 'يستمر - Persists',
-    };
-    return builtIn;
+class _LoadingWordSheet extends StatefulWidget {
+  final String word;
+  final String articleId;
+  final Color accentColor;
+  final String level;
+
+  const _LoadingWordSheet({
+    required this.word,
+    required this.articleId,
+    required this.accentColor,
+    required this.level,
+  });
+
+  @override
+  State<_LoadingWordSheet> createState() => _LoadingWordSheetState();
+}
+
+class _LoadingWordSheetState extends State<_LoadingWordSheet>
+    with SingleTickerProviderStateMixin {
+  WordDefinition? _def;
+  bool _isLoading = true;
+  bool _hasError = false;
+  late AnimationController _shimmerCtrl;
+  late Animation<double> _shimmerAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmerCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+    _shimmerAnim = Tween<double>(begin: 0.3, end: 0.7).animate(_shimmerCtrl);
+    _fetch();
+  }
+
+  Future<void> _fetch() async {
+    try {
+      final defs = await sl<NewsRepository>().getWordDefinitions(
+        widget.articleId,
+        widget.word,
+      );
+      if (!mounted) return;
+      if (defs.isNotEmpty) {
+        setState(() {
+          _def = defs.first;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _shimmerCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return _buildShimmer();
+    }
+    if (_hasError || _def == null) {
+      return WordDefinitionSheet(
+        word: widget.word,
+        translation: widget.word,
+        definition: '',
+        accentColor: widget.accentColor,
+        articleId: widget.articleId,
+      );
+    }
+    final d = _def!;
+    return WordDefinitionSheet(
+      word: d.word,
+      translation: d.translation,
+      definition: d.definition,
+      partOfSpeech: d.partOfSpeech,
+      examples: d.examples,
+      synonyms: d.synonyms,
+      accentColor: widget.accentColor,
+      articleId: widget.articleId,
+      level: widget.level,
+    );
+  }
+
+  Widget _buildShimmer() {
+    return AnimatedBuilder(
+      animation: _shimmerAnim,
+      builder: (context, child) {
+        final opacity = _shimmerAnim.value;
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(AppSpacing.radiusXxl),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: AppSpacing.md),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.outline.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.xxl),
+                child: Column(
+                  children: [
+                    Opacity(
+                      opacity: opacity,
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    Opacity(
+                      opacity: opacity,
+                      child: Container(
+                        height: 18,
+                        width: 200,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    Opacity(
+                      opacity: opacity,
+                      child: Container(
+                        height: 14,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Opacity(
+                      opacity: opacity,
+                      child: Container(
+                        height: 14,
+                        width: 160,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Opacity(
+                      opacity: opacity,
+                      child: Container(
+                        height: 14,
+                        width: 240,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
 class _BottomActions extends StatelessWidget {
   final Color accentColor;
   final String articleId;
-  const _BottomActions({required this.accentColor, required this.articleId});
+  final Quiz? quiz;
+  const _BottomActions({
+    required this.accentColor,
+    required this.articleId,
+    this.quiz,
+  });
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xl, AppSpacing.md, AppSpacing.xl, AppSpacing.md,
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.xl,
+        AppSpacing.md,
+        AppSpacing.xl,
+        AppSpacing.md,
       ),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -558,7 +877,7 @@ class _BottomActions extends StatelessWidget {
         children: [
           Expanded(
             child: FilledButton.icon(
-              onPressed: () => context.push('/quiz/$articleId'),
+              onPressed: () => context.push('/quiz/$articleId', extra: quiz),
               icon: const Text('📝', style: TextStyle(fontSize: 18)),
               label: Text(
                 t.articleQuizButton,
@@ -610,5 +929,3 @@ class _BottomActions extends StatelessWidget {
     );
   }
 }
-
-

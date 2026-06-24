@@ -20,7 +20,9 @@ class SubscriptionPage extends StatelessWidget {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                  ),
                   child: Row(
                     children: [
                       AppBackButton(),
@@ -40,7 +42,9 @@ class SubscriptionPage extends StatelessWidget {
                 _BenefitsSection(),
                 const SizedBox(height: AppSpacing.xxl),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                  ),
                   child: Text(
                     t.subscriptionChoose,
                     style: AppTypography.titleLarge.copyWith(
@@ -52,7 +56,9 @@ class SubscriptionPage extends StatelessWidget {
                 _PricingSection(),
                 const SizedBox(height: AppSpacing.xxl),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xxl,
+                  ),
                   child: Text(
                     t.subscriptionAutoRenew,
                     style: AppTypography.bodySmall.copyWith(
@@ -78,7 +84,11 @@ class _BenefitsSection extends StatelessWidget {
     final benefits = [
       _Benefit('🚀', t.subscriptionNoAds, t.subscriptionNoAdsDesc),
       _Benefit('📚', t.subscriptionAllLessons, t.subscriptionAllLessonsDesc),
-      _Benefit('🔊', t.subscriptionAdvancedAudio, t.subscriptionAdvancedAudioDesc),
+      _Benefit(
+        '🔊',
+        t.subscriptionAdvancedAudio,
+        t.subscriptionAdvancedAudioDesc,
+      ),
       _Benefit('📥', t.subscriptionDownload, t.subscriptionDownloadDesc),
       _Benefit('🏆', t.subscriptionChallenges, t.subscriptionChallengesDesc),
     ];
@@ -94,7 +104,9 @@ class _BenefitsSection extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-          border: Border.all(color: AppColors.accentYellow.withValues(alpha: 0.3)),
+          border: Border.all(
+            color: AppColors.accentYellow.withValues(alpha: 0.3),
+          ),
           boxShadow: AppColors.shadowMd,
         ),
         child: Column(
@@ -114,44 +126,52 @@ class _BenefitsSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            ...benefits.map((b) => Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.md),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 36, height: 36,
-                    decoration: BoxDecoration(
-                      color: AppColors.accentYellowContainer,
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    ),
-                    child: Center(
-                      child: Text(b.emoji, style: const TextStyle(fontSize: 18)),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          b.title,
-                          style: AppTypography.titleSmall.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+            ...benefits.map(
+              (b) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppColors.accentYellowContainer,
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusSm,
                         ),
-                        Text(
-                          b.description,
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          b.emoji,
+                          style: const TextStyle(fontSize: 18),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            b.title,
+                            style: AppTypography.titleSmall.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            b.description,
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
         ),
       ),
@@ -181,7 +201,9 @@ class _PricingSection extends StatelessWidget {
             emoji: '📆',
             isBest: false,
             isCurrent: true,
-            onTap: () {},
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Subscription coming soon')),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           _PricingCard(
@@ -191,7 +213,9 @@ class _PricingSection extends StatelessWidget {
             emoji: '🌟',
             isBest: true,
             isCurrent: false,
-            onTap: () {},
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Subscription coming soon')),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           _PricingCard(
@@ -201,7 +225,9 @@ class _PricingSection extends StatelessWidget {
             emoji: '💎',
             isBest: false,
             isCurrent: false,
-            onTap: () {},
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Subscription coming soon')),
+            ),
           ),
         ],
       ),
@@ -271,13 +297,16 @@ class _PricingCard extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md, vertical: AppSpacing.xxs,
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.xxs,
                     ),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFFFFC800), Color(0xFFFF9600)],
                       ),
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusFull,
+                      ),
                     ),
                     child: Text(
                       t.subscriptionBestValue,
@@ -290,15 +319,21 @@ class _PricingCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      width: 48, height: 48,
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
                         color: isBest
                             ? AppColors.accentYellowContainer
                             : AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMd,
+                        ),
                       ),
                       child: Center(
-                        child: Text(emoji, style: const TextStyle(fontSize: 24)),
+                        child: Text(
+                          emoji,
+                          style: const TextStyle(fontSize: 24),
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
@@ -318,11 +353,14 @@ class _PricingCard extends StatelessWidget {
                                 const SizedBox(width: AppSpacing.sm),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.sm, vertical: 2,
+                                    horizontal: AppSpacing.sm,
+                                    vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
                                     color: AppColors.primaryContainer,
-                                    borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                                    borderRadius: BorderRadius.circular(
+                                      AppSpacing.radiusFull,
+                                    ),
                                   ),
                                   child: Text(
                                     t.subscriptionCurrent,
@@ -343,7 +381,9 @@ class _PricingCard extends StatelessWidget {
                                 price,
                                 style: AppTypography.headlineMedium.copyWith(
                                   fontWeight: FontWeight.w900,
-                                  color: isBest ? AppColors.accentOrange : AppColors.textPrimary,
+                                  color: isBest
+                                      ? AppColors.accentOrange
+                                      : AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(width: AppSpacing.xs),
@@ -360,12 +400,19 @@ class _PricingCard extends StatelessWidget {
                     ),
                     if (isBest)
                       Container(
-                        width: 44, height: 44,
+                        width: 44,
+                        height: 44,
                         decoration: BoxDecoration(
                           color: AppColors.accentYellow,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 22),
+                        child: Icon(
+                          Directionality.of(context) == TextDirection.rtl
+                              ? Icons.arrow_back_rounded
+                              : Icons.arrow_forward_rounded,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                       ),
                   ],
                 ),
@@ -376,11 +423,17 @@ class _PricingCard extends StatelessWidget {
                     child: FilledButton(
                       onPressed: onTap,
                       style: FilledButton.styleFrom(
-                        backgroundColor: isBest ? AppColors.accentYellow : AppColors.primary,
+                        backgroundColor: isBest
+                            ? AppColors.accentYellow
+                            : AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
+                        ),
                       ),
                       child: Text(
                         t.subscriptionSubscribe,

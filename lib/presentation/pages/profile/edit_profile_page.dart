@@ -9,6 +9,16 @@ import 'package:newslingo/data/datasources/remote/auth_remote_datasource.dart';
 import 'package:newslingo/presentation/widgets/app_text_field.dart';
 import 'package:newslingo/presentation/widgets/app_back_button.dart';
 
+final List<({String code, String Function(AppLocalizations) label})>
+    _levelOptions = [
+  (code: 'A1', label: (t) => t.editProfileLevelA1),
+  (code: 'A2', label: (t) => t.editProfileLevelA2),
+  (code: 'B1', label: (t) => t.editProfileLevelB1),
+  (code: 'B2', label: (t) => t.editProfileLevelB2),
+  (code: 'C1', label: (t) => t.editProfileLevelC1),
+  (code: 'C2', label: (t) => t.editProfileLevelC2),
+];
+
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
 
@@ -25,6 +35,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String _selectedLevel = '';
   final Set<String> _selectedInterests = <String>{};
   bool _isLoading = true;
+  bool _hasLoadError = false;
 
   @override
   void initState() {
@@ -40,30 +51,38 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _nameController.text = profile['name'] as String? ?? '';
         _emailController.text = profile['email'] as String? ?? '';
         _bioController.text = profile['bio'] as String? ?? '';
-        _selectedLevel = profile['level'] as String? ?? '';
+        _selectedLevel = _normalizeLevel(profile['level'] as String? ?? '');
         if (profile['interests'] != null) {
           final interests = profile['interests'] as List<dynamic>;
           _selectedInterests.addAll(interests.cast<String>());
         }
       }
-    } catch (_) {}
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _hasLoadError = true);
+    }
     if (!mounted) return;
     setState(() => _isLoading = false);
   }
 
-  List<String> _buildLevels(AppLocalizations t) => [
-    t.editProfileLevelA1,
-    t.editProfileLevelA2,
-    t.editProfileLevelB1,
-    t.editProfileLevelB2,
-    t.editProfileLevelC1,
-    t.editProfileLevelC2,
-  ];
+  String _normalizeLevel(String level) {
+    if (level.contains(' - ')) {
+      final code = level.split(' - ').first.trim();
+      if (_levelOptions.any((o) => o.code == code)) return code;
+    }
+    if (_levelOptions.any((o) => o.code == level)) return level;
+    return '';
+  }
 
   List<String> _buildInterests(AppLocalizations t) => [
-    t.editProfileInterestNews, t.editProfileInterestTech, t.editProfileInterestSports,
-    t.editProfileInterestScience, t.editProfileInterestBusiness, t.editProfileInterestEntertainment,
-    t.editProfileInterestHealth, t.editProfileInterestWorld,
+    t.editProfileInterestNews,
+    t.editProfileInterestTech,
+    t.editProfileInterestSports,
+    t.editProfileInterestScience,
+    t.editProfileInterestBusiness,
+    t.editProfileInterestEntertainment,
+    t.editProfileInterestHealth,
+    t.editProfileInterestWorld,
   ];
 
   @override
@@ -85,6 +104,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       );
     }
+    if (_hasLoadError) {
+      return Scaffold(
+        appBar: AppBar(title: Text(t.editProfileTitle)),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('😕', style: TextStyle(fontSize: 64)),
+              const SizedBox(height: AppSpacing.lg),
+              Text(t.errorGeneric),
+              const SizedBox(height: AppSpacing.xl),
+              FilledButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                    _hasLoadError = false;
+                  });
+                  _loadProfile();
+                },
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                label: Text(t.homeRetry),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: Container(
         color: AppColors.background,
@@ -95,7 +141,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xs,
+                    ),
                     child: Row(
                       children: [
                         AppBackButton(),
@@ -106,8 +154,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                    const Spacer(),
-                    SizedBox(width: 48),
+                        const Spacer(),
+                        SizedBox(width: 48),
                       ],
                     ),
                   ),
@@ -115,7 +163,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   _AvatarSection(),
                   const SizedBox(height: AppSpacing.xxl),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xxl,
+                    ),
                     child: Column(
                       children: [
                         AppTextField(
@@ -123,43 +173,48 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           label: t.getNameLabel,
                           hint: t.getNameHint,
                           prefixIcon: Icons.person_outline_rounded,
-                          isRtl: Directionality.of(context) == TextDirection.rtl,
+                          isRtl:
+                              Directionality.of(context) == TextDirection.rtl,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                            return t.getNameRequired;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      AppTextField(
-                        controller: _emailController,
-                        label: t.emailLabel,
+                              return t.getNameRequired;
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        AppTextField(
+                          controller: _emailController,
+                          label: t.emailLabel,
                           hint: 'example@email.com',
                           prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
+                          isRtl: Directionality.of(context) == TextDirection.rtl,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                            return t.emailRequired;
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
+                              return t.emailRequired;
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-                  child: _LevelDropdown(
-                    value: _selectedLevel,
-                    levels: _buildLevels(t),
+                  const SizedBox(height: AppSpacing.xl),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xxl,
+                    ),
+                    child:                     _LevelDropdown(
+                      value: _selectedLevel,
                       onChanged: (v) => setState(() => _selectedLevel = v!),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xxl,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -173,7 +228,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         Container(
                           decoration: BoxDecoration(
                             color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusMd,
+                            ),
                           ),
                           child: TextFormField(
                             controller: _bioController,
@@ -187,7 +244,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               hintText: t.editProfileBioHint,
                               hintTextDirection: Directionality.of(context),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.all(AppSpacing.lg),
+                              contentPadding: const EdgeInsets.all(
+                                AppSpacing.lg,
+                              ),
                             ),
                           ),
                         ),
@@ -196,7 +255,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xxl,
+                    ),
                     child: _InterestsSection(
                       interests: _buildInterests(t),
                       selected: _selectedInterests,
@@ -213,7 +274,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                   const SizedBox(height: AppSpacing.xl4),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xxl,
+                    ),
                     child: Column(
                       children: [
                         SizedBox(
@@ -221,10 +284,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           height: 56,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 16,
                                   offset: const Offset(0, 6),
                                 ),
@@ -235,12 +302,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                                  borderRadius: BorderRadius.circular(
+                                    AppSpacing.radiusMd,
+                                  ),
                                 ),
                               ),
                               child: Text(
                                 t.editProfileSave,
-                                style: AppTypography.titleMedium.copyWith(color: Colors.white),
+                                style: AppTypography.titleMedium.copyWith(
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -254,7 +325,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             style: TextButton.styleFrom(
                               foregroundColor: AppColors.textTertiary,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.radiusMd,
+                                ),
                               ),
                             ),
                             child: Text(
@@ -293,9 +366,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       context.pop(true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${t.editProfileSaveError} $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('${t.editProfileSaveError} $e')));
     }
   }
 }
@@ -321,8 +394,10 @@ class _AvatarSection extends StatelessWidget {
             Positioned(
               bottom: 0,
               right: -4,
-              child: GestureDetector(
-                onTap: () {},
+              child:               GestureDetector(
+                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Image picker coming soon')),
+                ),
                 child: Container(
                   width: 36,
                   height: 36,
@@ -331,7 +406,11 @@ class _AvatarSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
                   ),
-                  child: const Icon(Icons.camera_alt_rounded, size: 18, color: Colors.white),
+                  child: const Icon(
+                    Icons.camera_alt_rounded,
+                    size: 18,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -344,10 +423,12 @@ class _AvatarSection extends StatelessWidget {
 
 class _LevelDropdown extends StatelessWidget {
   final String value;
-  final List<String> levels;
   final ValueChanged<String?> onChanged;
 
-  const _LevelDropdown({required this.value, required this.levels, required this.onChanged});
+  const _LevelDropdown({
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -369,16 +450,24 @@ class _LevelDropdown extends StatelessWidget {
           child: DropdownButtonFormField<String>(
             key: ValueKey(value),
             initialValue: value.isEmpty ? null : value,
-            items: levels.map((level) {
-              return DropdownMenuItem(value: level, child: Text(level));
+            items: _levelOptions.map((opt) {
+              return DropdownMenuItem<String>(
+                value: opt.code,
+                child: Text(opt.label(t)),
+              );
             }).toList(),
             onChanged: onChanged,
             decoration: const InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
             ),
-            style: AppTypography.bodyLarge.copyWith(color: AppColors.textPrimary),
-            icon: const Icon(Icons.expand_more_rounded, color: AppColors.textSecondary),
+            style: AppTypography.bodyLarge.copyWith(
+              color: AppColors.textPrimary,
+            ),
+            icon: const Icon(
+              Icons.expand_more_rounded,
+              color: AppColors.textSecondary,
+            ),
             dropdownColor: AppColors.surface,
             borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           ),
@@ -393,7 +482,11 @@ class _InterestsSection extends StatelessWidget {
   final Set<String> selected;
   final ValueChanged<String> onToggle;
 
-  const _InterestsSection({required this.interests, required this.selected, required this.onToggle});
+  const _InterestsSection({
+    required this.interests,
+    required this.selected,
+    required this.onToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -420,7 +513,9 @@ class _InterestsSection extends StatelessWidget {
                   vertical: AppSpacing.sm,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primaryContainer : AppColors.surfaceVariant,
+                  color: isSelected
+                      ? AppColors.primaryContainer
+                      : AppColors.surfaceVariant,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                   border: Border.all(
                     color: isSelected
@@ -431,7 +526,9 @@ class _InterestsSection extends StatelessWidget {
                 child: Text(
                   interest,
                   style: AppTypography.labelMedium.copyWith(
-                    color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   ),
                 ),

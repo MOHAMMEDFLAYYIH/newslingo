@@ -22,14 +22,54 @@ class _InterestSelectionPageState extends State<InterestSelectionPage>
   late AnimationController _animController;
 
   List<_InterestData> _buildInterests(AppLocalizations t) => [
-    _InterestData('general', t.interestGeneral, Icons.public_rounded, AppColors.primary),
-    _InterestData('sports', t.interestSports, Icons.sports_soccer_rounded, AppColors.levelA1),
-    _InterestData('technology', t.interestTechnology, Icons.computer_rounded, AppColors.tertiary),
-    _InterestData('business', t.interestBusiness, Icons.trending_up_rounded, AppColors.accentYellow),
-    _InterestData('science', t.interestScience, Icons.science_rounded, AppColors.accentBlue),
-    _InterestData('entertainment', t.interestEntertainment, Icons.movie_rounded, AppColors.accentPink),
-    _InterestData('health', t.interestHealth, Icons.favorite_rounded, AppColors.secondary),
-    _InterestData('world', t.interestWorld, Icons.language_rounded, AppColors.levelB1),
+    _InterestData(
+      'general',
+      t.interestGeneral,
+      Icons.public_rounded,
+      AppColors.primary,
+    ),
+    _InterestData(
+      'sports',
+      t.interestSports,
+      Icons.sports_soccer_rounded,
+      AppColors.levelA1,
+    ),
+    _InterestData(
+      'technology',
+      t.interestTechnology,
+      Icons.computer_rounded,
+      AppColors.tertiary,
+    ),
+    _InterestData(
+      'business',
+      t.interestBusiness,
+      Icons.trending_up_rounded,
+      AppColors.accentYellow,
+    ),
+    _InterestData(
+      'science',
+      t.interestScience,
+      Icons.science_rounded,
+      AppColors.accentBlue,
+    ),
+    _InterestData(
+      'entertainment',
+      t.interestEntertainment,
+      Icons.movie_rounded,
+      AppColors.accentPink,
+    ),
+    _InterestData(
+      'health',
+      t.interestHealth,
+      Icons.favorite_rounded,
+      AppColors.secondary,
+    ),
+    _InterestData(
+      'world',
+      t.interestWorld,
+      Icons.language_rounded,
+      AppColors.levelB1,
+    ),
   ];
 
   @override
@@ -61,24 +101,17 @@ class _InterestSelectionPageState extends State<InterestSelectionPage>
         ),
         child: SafeArea(
           child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xs,
-              ),
-              child: AppBackButton(),
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                child: AppBackButton(),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xxl,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      t.interestTitle,
-                      style: AppTypography.displayMedium,
-                    ),
+                    Text(t.interestTitle, style: AppTypography.displayMedium),
                     const SizedBox(height: AppSpacing.md),
                     Text(
                       t.interestSubtitle,
@@ -99,104 +132,105 @@ class _InterestSelectionPageState extends State<InterestSelectionPage>
                   child: GridView.builder(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 1.1,
-                      crossAxisSpacing: AppSpacing.md,
-                      mainAxisSpacing: AppSpacing.md,
-                    ),
+                          crossAxisCount: 2,
+                          childAspectRatio: 1.1,
+                          crossAxisSpacing: AppSpacing.md,
+                          mainAxisSpacing: AppSpacing.md,
+                        ),
                     itemCount: _buildInterests(t).length,
                     itemBuilder: (context, index) {
                       final interest = _buildInterests(t)[index];
-                      final isSelected =
-                          _selectedInterests.contains(interest.key);
+                      final isSelected = _selectedInterests.contains(
+                        interest.key,
+                      );
 
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
                         curve: Curves.easeInOutCubic,
                         child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      _selectedInterests.remove(interest.key);
-                                    } else {
-                                      _selectedInterests.add(interest.key);
-                                    }
-                                  });
-                                },
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                if (isSelected) {
+                                  _selectedInterests.remove(interest.key);
+                                } else {
+                                  _selectedInterests.add(interest.key);
+                                }
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusLg,
+                            ),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeInOutCubic,
+                              decoration: BoxDecoration(
+                                gradient: isSelected
+                                    ? LinearGradient(
+                                        colors: [
+                                          interest.color,
+                                          interest.color.withValues(
+                                            alpha: 0.85,
+                                          ),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : null,
+                                color: isSelected ? null : AppColors.surface,
                                 borderRadius: BorderRadius.circular(
                                   AppSpacing.radiusLg,
                                 ),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.easeInOutCubic,
-                                  decoration: BoxDecoration(
-                                    gradient: isSelected
-                                        ? LinearGradient(
-                                            colors: [
-                                              interest.color,
-                                              interest.color
-                                                  .withValues(alpha: 0.85),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          )
-                                        : null,
-                                    color: isSelected
-                                        ? null
-                                        : AppColors.surface,
-                                    borderRadius: BorderRadius.circular(
-                                      AppSpacing.radiusLg,
-                                    ),
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? interest.color
-                                          : AppColors.outlineVariant,
-                                      width: isSelected ? 0 : 1,
-                                    ),
-                                    boxShadow: isSelected
-                                        ? [
-                                            BoxShadow(
-                                              color: interest.color
-                                                  .withValues(alpha: 0.3),
-                                              blurRadius: 16,
-                                              offset: const Offset(0, 6),
-                                            ),
-                                          ]
-                                        : AppColors.shadowSm,
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        interest.icon,
-                                        size: 40,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : interest.color,
-                                      ),
-                                      const SizedBox(height: AppSpacing.sm),
-                                      Text(
-                                        interest.label,
-                                        style: AppTypography.titleSmall.copyWith(
-                                          color: isSelected
-                                              ? Colors.white
-                                              : AppColors.textPrimary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  ),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? interest.color
+                                      : AppColors.outlineVariant,
+                                  width: isSelected ? 0 : 1,
                                 ),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: interest.color.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                          blurRadius: 16,
+                                          offset: const Offset(0, 6),
+                                        ),
+                                      ]
+                                    : AppColors.shadowSm,
                               ),
-                            );
-                      },
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    interest.icon,
+                                    size: 40,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : interest.color,
+                                  ),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Text(
+                                    interest.label,
+                                    style: AppTypography.titleSmall.copyWith(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.xxl,
                   AppSpacing.xs,
                   AppSpacing.xxl,
@@ -208,7 +242,10 @@ class _InterestSelectionPageState extends State<InterestSelectionPage>
                       duration: const Duration(milliseconds: 250),
                       child: Text(
                         _selectedInterests.isNotEmpty
-                            ? t.interestSelected.replaceAll('{n}', '${_selectedInterests.length}')
+                            ? t.interestSelected.replaceAll(
+                                '{n}',
+                                '${_selectedInterests.length}',
+                              )
                             : t.interestMin,
                         style: AppTypography.bodySmall.copyWith(
                           color: _selectedInterests.isNotEmpty
@@ -229,8 +266,9 @@ class _InterestSelectionPageState extends State<InterestSelectionPage>
                           boxShadow: _selectedInterests.isNotEmpty
                               ? [
                                   BoxShadow(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.3),
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.3,
+                                    ),
                                     blurRadius: 16,
                                     offset: const Offset(0, 6),
                                   ),
@@ -240,9 +278,10 @@ class _InterestSelectionPageState extends State<InterestSelectionPage>
                         child: FilledButton(
                           onPressed: _selectedInterests.isNotEmpty
                               ? () async {
-                                  await sl<UserLocalDataSource>().saveOnboardingInterests(
-                                    _selectedInterests.toList(),
-                                  );
+                                  await sl<UserLocalDataSource>()
+                                      .saveOnboardingInterests(
+                                        _selectedInterests.toList(),
+                                      );
                                   if (context.mounted) {
                                     context.go('/onboarding/signup');
                                   }
@@ -252,8 +291,8 @@ class _InterestSelectionPageState extends State<InterestSelectionPage>
                             backgroundColor: _selectedInterests.isNotEmpty
                                 ? AppColors.primary
                                 : AppColors.outline.withValues(alpha: 0.5),
-                            disabledBackgroundColor:
-                                AppColors.outline.withValues(alpha: 0.3),
+                            disabledBackgroundColor: AppColors.outline
+                                .withValues(alpha: 0.3),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                 AppSpacing.radiusMd,
@@ -273,11 +312,13 @@ class _InterestSelectionPageState extends State<InterestSelectionPage>
                               ),
                               if (_selectedInterests.isNotEmpty) ...[
                                 const SizedBox(width: AppSpacing.sm),
-                                const Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
+                                  Icon(
+                                    Directionality.of(context) == TextDirection.rtl
+                                        ? Icons.arrow_back_ios_rounded
+                                        : Icons.arrow_forward_ios_rounded,
+                                    size: 18,
+                                    color: Colors.white,
+                                  ),
                               ],
                             ],
                           ),

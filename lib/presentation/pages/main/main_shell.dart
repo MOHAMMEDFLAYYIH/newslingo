@@ -11,10 +11,7 @@ import 'package:newslingo/presentation/widgets/bento/adaptive_scaffold.dart';
 class MainShell extends StatelessWidget {
   final StatefulNavigationShell child;
 
-  const MainShell({
-    super.key,
-    required this.child,
-  });
+  const MainShell({super.key, required this.child});
 
   static const _navIcons = [
     Icons.home_outlined,
@@ -54,10 +51,7 @@ class MainShell extends StatelessWidget {
             selectedIndex: child.currentIndex,
             onItemSelected: _onTap,
           ),
-          Container(
-            width: 1,
-            color: AppColors.outline.withValues(alpha: 0.3),
-          ),
+          Container(width: 1, color: AppColors.outline.withValues(alpha: 0.3)),
           Expanded(child: child),
         ],
       ),
@@ -87,12 +81,15 @@ class MainShell extends StatelessWidget {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(3, (i) => _NavItem(
-                icon: _navIcons[i],
-                label: _navItems(context)[i].label,
-                isSelected: child.currentIndex == i,
-                onTap: () => _onTap(i),
-              )),
+              children: List.generate(
+                3,
+                (i) => _NavItem(
+                  icon: _navIcons[i],
+                  label: _navItems(context)[i].label,
+                  isSelected: child.currentIndex == i,
+                  onTap: () => _onTap(i),
+                ),
+              ),
             ),
           ),
         ),

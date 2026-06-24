@@ -11,9 +11,9 @@ class AppBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     return IconButton(
-      icon: Transform.flip(
-        flipX: isRtl,
-        child: Icon(Icons.arrow_back_ios_rounded, size: iconSize),
+      icon: Icon(
+        isRtl ? Icons.arrow_forward_ios_rounded : Icons.arrow_back_ios_rounded,
+        size: iconSize,
       ),
       onPressed: onPressed ?? () => context.pop(),
     );

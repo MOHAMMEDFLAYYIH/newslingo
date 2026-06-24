@@ -27,30 +27,32 @@ class DeepLService {
     if (key == null || key.isEmpty || text.isEmpty) return text;
     if (targetLang == 'EN') return text;
 
-    final uri = Uri.parse('https://api-free.deepl.com/v2/translate');
-    final response = await http.post(
-      uri,
-      headers: {
-        'Authorization': 'DeepL-Auth-Key $key',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'text': text,
-        'target_lang': targetLang,
-        'source_lang': 'EN',
-      },
-    );
+    try {
+      final uri = Uri.parse('https://api-free.deepl.com/v2/translate');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'DeepL-Auth-Key $key',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {'text': text, 'target_lang': targetLang, 'source_lang': 'EN'},
+      );
 
-    if (response.statusCode != 200) return text;
+      if (response.statusCode != 200) return text;
 
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final translations = data['translations'] as List;
-    if (translations.isEmpty) return text;
-    return (translations[0] as Map<String, dynamic>)['text'] as String;
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final translations = data['translations'] as List;
+      if (translations.isEmpty) return text;
+      return (translations[0] as Map<String, dynamic>)['text'] as String;
+    } catch (_) {
+      return text;
+    }
   }
 
-  Future<List<String>> translateBatch(List<String> texts,
-      {String targetLang = 'AR'}) async {
+  Future<List<String>> translateBatch(
+    List<String> texts, {
+    String targetLang = 'AR',
+  }) async {
     if (texts.isEmpty) return texts;
     if (targetLang == 'EN') return texts;
     final key = _apiKey;
@@ -63,21 +65,25 @@ class DeepLService {
     }
     bodyBuffer.write('target_lang=$targetLang&source_lang=EN');
 
-    final response = await http.post(
-      uri,
-      headers: {
-        'Authorization': 'DeepL-Auth-Key $key',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: bodyBuffer.toString(),
-    );
+    try {
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'DeepL-Auth-Key $key',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: bodyBuffer.toString(),
+      );
 
-    if (response.statusCode != 200) return texts;
+      if (response.statusCode != 200) return texts;
 
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final translations = data['translations'] as List;
-    return translations
-        .map((t) => (t as Map<String, dynamic>)['text'] as String)
-        .toList();
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final translations = data['translations'] as List;
+      return translations
+          .map((t) => (t as Map<String, dynamic>)['text'] as String)
+          .toList();
+    } catch (_) {
+      return texts;
+    }
   }
 }

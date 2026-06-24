@@ -48,17 +48,14 @@ class AdaptiveScaffold extends StatelessWidget {
   }
 
   Widget _buildTabletDesktopLayout(BuildContext context, ScreenType type) {
-    final railWidth = sideRailWidth ?? (type == ScreenType.tablet ? 220.w : 260.w);
+    final railWidth =
+        sideRailWidth ?? (type == ScreenType.tablet ? 220.w : 260.w);
 
     return Scaffold(
       appBar: _buildAppBar(context),
       body: Row(
         children: [
-          if (sideRail != null)
-            SizedBox(
-              width: railWidth,
-              child: sideRail,
-            ),
+          if (sideRail != null) SizedBox(width: railWidth, child: sideRail),
           Expanded(child: body),
           if (sideRail != null)
             Container(
@@ -81,7 +78,10 @@ class AdaptiveScaffold extends StatelessWidget {
       scrolledUnderElevation: 0,
       leading: leading,
       title: effectiveTitle != null
-          ? Text(effectiveTitle, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold))
+          ? Text(
+              effectiveTitle,
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+            )
           : null,
       centerTitle: !context.isDesktop,
       actions: actions,
@@ -115,20 +115,32 @@ class SideRail extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 32.w, height: 32.w,
+                    width: 32.w,
+                    height: 32.w,
                     decoration: const BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
-                    child: const Center(child: Text('NL', style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14,
-                    ))),
+                    child: const Center(
+                      child: Text(
+                        'NL',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
                   ),
                   SizedBox(width: 10.w),
-                  Text('NewsLingo', style: TextStyle(
-                    fontSize: 16.sp, fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  )),
+                  Text(
+                    'NewsLingo',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -144,10 +156,14 @@ class SideRail extends StatelessWidget {
                 return Padding(
                   padding: EdgeInsets.only(bottom: 2.h),
                   child: Material(
-                    color: isSelected ? AppColors.primaryContainer : Colors.transparent,
+                    color: isSelected
+                        ? AppColors.primaryContainer
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMd.r),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd.r),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusMd.r,
+                      ),
                       onTap: () => onItemSelected(index),
                       child: Padding(
                         padding: EdgeInsets.symmetric(
@@ -159,11 +175,18 @@ class SideRail extends StatelessWidget {
                             Text(item.emoji, style: TextStyle(fontSize: 18.sp)),
                             SizedBox(width: AppSpacing.md.w),
                             Expanded(
-                              child: Text(item.label, style: TextStyle(
-                                fontSize: isDesktop ? 14.sp : 13.sp,
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                                color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                              )),
+                              child: Text(
+                                item.label,
+                                style: TextStyle(
+                                  fontSize: isDesktop ? 14.sp : 13.sp,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : AppColors.textPrimary,
+                                ),
+                              ),
                             ),
                           ],
                         ),

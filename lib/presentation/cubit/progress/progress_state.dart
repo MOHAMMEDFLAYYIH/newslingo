@@ -12,13 +12,15 @@ class ProgressState extends Equatable {
     this.status = ProgressStatus.initial,
     UserProgress? progress,
     this.errorMessage,
-  }) : progress = progress ?? UserProgress(
-          streak: 0,
-          articlesRead: 0,
-          wordsLearned: 0,
-          quizzesPassed: 0,
-          lastActiveDate: DateTime(2000),
-        );
+  }) : progress =
+           progress ??
+           UserProgress(
+             streak: 0,
+             articlesRead: 0,
+             wordsLearned: 0,
+             quizzesPassed: 0,
+             lastActiveDate: DateTime(2000),
+           );
 
   ProgressState copyWith({
     ProgressStatus? status,

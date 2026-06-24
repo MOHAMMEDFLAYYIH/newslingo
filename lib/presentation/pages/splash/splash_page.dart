@@ -91,28 +91,24 @@ class _SplashPageState extends State<SplashPage>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF58CC02),
-              Color(0xFF46A302),
-              Color(0xFF3A8A02),
-            ],
+            colors: [Color(0xFF58CC02), Color(0xFF46A302), Color(0xFF3A8A02)],
           ),
         ),
         child: Stack(
-            children: [
-              ...List.generate(6, (i) => _buildFloatingCircle(i)),
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedBuilder(
-                      animation: _scale,
-                      builder: (context, _) {
-                        return Transform.scale(
-                          scale: _scale.value,
-                          child: Container(
-                            width: 120,
-                            height: 120,
+          children: [
+            ...List.generate(6, (i) => _buildFloatingCircle(i)),
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedBuilder(
+                    animation: _scale,
+                    builder: (context, _) {
+                      return Transform.scale(
+                        scale: _scale.value,
+                        child: Container(
+                          width: 120,
+                          height: 120,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(32),
@@ -124,9 +120,7 @@ class _SplashPageState extends State<SplashPage>
                               ),
                             ],
                           ),
-                          child: CustomPaint(
-                            painter: _BookPainter(),
-                          ),
+                          child: CustomPaint(painter: _BookPainter()),
                         ),
                       );
                     },
@@ -192,8 +186,9 @@ class _SplashPageState extends State<SplashPage>
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
-                                  valueColor:
-                                      AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -294,11 +289,7 @@ class _BookPainter extends CustomPainter {
     final dotPaint = Paint()
       ..color = AppColors.accentYellow
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(
-      Offset(size.width * 0.6, size.height * 0.7),
-      4,
-      dotPaint,
-    );
+    canvas.drawCircle(Offset(size.width * 0.6, size.height * 0.7), 4, dotPaint);
 
     final dotPaint2 = Paint()
       ..color = AppColors.accentBlue

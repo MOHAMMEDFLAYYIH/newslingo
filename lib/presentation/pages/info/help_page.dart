@@ -63,15 +63,15 @@ class _HelpPageState extends State<HelpPage> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    ..._buildFaqs(t).map(
-                      (faq) => _FaqTile(faq: faq),
-                    ),
+                    ..._buildFaqs(t).map((faq) => _FaqTile(faq: faq)),
                     const SizedBox(height: AppSpacing.xxl),
                     SizedBox(
                       width: double.infinity,
                       height: 56,
                       child: OutlinedButton.icon(
-                        onPressed: () {},
+                        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Contact us coming soon')),
+                        ),
                         icon: const Text('📧', style: TextStyle(fontSize: 20)),
                         label: Text(
                           t.helpContact,
@@ -127,16 +127,15 @@ class _FaqTile extends StatelessWidget {
       child: Theme(
         data: Theme.of(context).copyWith(
           dividerColor: Colors.transparent,
-          colorScheme: ColorScheme.light(
-            primary: AppColors.primary,
-          ),
+          colorScheme: ColorScheme.light(primary: AppColors.primary),
         ),
         child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-          ),
-          childrenPadding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg,
+          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          childrenPadding: const EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.lg,
           ),
           shape: const Border(),
           collapsedShape: const Border(),

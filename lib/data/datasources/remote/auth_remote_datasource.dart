@@ -16,16 +16,13 @@ class AuthRemoteDataSource {
       data: {'name': name},
     );
     final user = response.user;
-    if (user == null) throw Exception('فشل إنشاء الحساب');
+    if (user == null) throw Exception('Account creation failed');
     await _client.from('profiles').upsert({
       'id': user.id,
       'name': name,
       'email': email,
     });
-    return {
-      'user': user,
-      'session': response.session,
-    };
+    return {'user': user, 'session': response.session};
   }
 
   Future<Map<String, dynamic>> signIn({
@@ -37,11 +34,8 @@ class AuthRemoteDataSource {
       password: password,
     );
     final user = response.user;
-    if (user == null) throw Exception('فشل تسجيل الدخول');
-    return {
-      'user': user,
-      'session': response.session,
-    };
+    if (user == null) throw Exception('Sign in failed');
+    return {'user': user, 'session': response.session};
   }
 
   Future<void> signOut() async {
@@ -77,7 +71,7 @@ class AuthRemoteDataSource {
 
   Future<void> updateProfile(Map<String, dynamic> profile) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception('المستخدم غير مسجل');
+    if (user == null) throw Exception('User not signed in');
     await _client.from('profiles').update(profile).eq('id', user.id);
   }
 
@@ -94,10 +88,11 @@ class AuthRemoteDataSource {
 
   Future<void> updateProgress(Map<String, dynamic> progress) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception('المستخدم غير مسجل');
-    await _client
-        .from('user_progress')
-        .upsert({'user_id': user.id, ...progress});
+    if (user == null) throw Exception('User not signed in');
+    await _client.from('user_progress').upsert({
+      'user_id': user.id,
+      ...progress,
+    });
   }
 
   Future<Map<String, dynamic>?> getSettings() async {
@@ -113,19 +108,17 @@ class AuthRemoteDataSource {
 
   Future<void> updateSettings(Map<String, dynamic> settings) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception('المستخدم غير مسجل');
-    await _client
-        .from('user_settings')
-        .upsert({'user_id': user.id, ...settings});
+    if (user == null) throw Exception('User not signed in');
+    await _client.from('user_settings').upsert({
+      'user_id': user.id,
+      ...settings,
+    });
   }
 
   Future<void> saveWord(Map<String, dynamic> word) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception('المستخدم غير مسجل');
-    await _client.from('saved_words').upsert({
-      'user_id': user.id,
-      ...word,
-    });
+    if (user == null) throw Exception('User not signed in');
+    await _client.from('saved_words').upsert({'user_id': user.id, ...word});
   }
 
   Future<List<Map<String, dynamic>>> getSavedWords() async {

@@ -36,7 +36,9 @@ class _StreakBody extends StatelessWidget {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                  ),
                   child: Row(
                     children: [
                       AppBackButton(),
@@ -62,7 +64,10 @@ class _StreakBody extends StatelessWidget {
                     }
                     final streak = state.progress.streak;
                     if (streak == 0) return _ZeroStreak();
-                    return _StreakContent(streak: streak, progress: state.progress);
+                    return _StreakContent(
+                      streak: streak,
+                      progress: state.progress,
+                    );
                   },
                 ),
               ],
@@ -79,7 +84,10 @@ class _ZeroStreak extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.xl7),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xxl,
+        vertical: AppSpacing.xl7,
+      ),
       child: Column(
         children: [
           const Text('😴', style: TextStyle(fontSize: 80)),
@@ -123,7 +131,9 @@ class _ZeroStreak extends StatelessWidget {
                 ),
                 child: Text(
                   t.streakReadNow,
-                  style: AppTypography.titleMedium.copyWith(color: Colors.white),
+                  style: AppTypography.titleMedium.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -191,7 +201,12 @@ class _StreakContent extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(t.streakBest, style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary)),
+                  Text(
+                    t.streakBest,
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
                   Text(
                     t.streakDaysCount(streak),
                     style: AppTypography.titleSmall.copyWith(
@@ -233,10 +248,15 @@ class _StreakContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsetsDirectional.only(end: AppSpacing.sm, bottom: AppSpacing.md),
+                padding: const EdgeInsetsDirectional.only(
+                  end: AppSpacing.sm,
+                  bottom: AppSpacing.md,
+                ),
                 child: Text(
                   t.streakLast30,
-                  style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.bold),
+                  style: AppTypography.titleSmall.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               _CalendarGrid(streak: streak),
@@ -251,16 +271,43 @@ class _StreakContent extends StatelessWidget {
             children: [
               Text(
                 t.streakUpcoming,
-                style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.bold),
+                style: AppTypography.titleSmall.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
               _MilestoneRow(
                 milestones: [
-                  _Milestone(days: 7, emoji: '🎯', label: t.streakMilestone(7), achieved: streak >= 7),
-                  _Milestone(days: 14, emoji: '🎯', label: t.streakMilestone(14), achieved: streak >= 14),
-                  _Milestone(days: 30, emoji: '🏆', label: t.streakMilestone(30), achieved: streak >= 30),
-                  _Milestone(days: 60, emoji: '👑', label: t.streakMilestone(60), achieved: streak >= 60),
-                  _Milestone(days: 100, emoji: '💎', label: t.streakMilestone(100), achieved: streak >= 100),
+                  _Milestone(
+                    days: 7,
+                    emoji: '🎯',
+                    label: t.streakMilestone(7),
+                    achieved: streak >= 7,
+                  ),
+                  _Milestone(
+                    days: 14,
+                    emoji: '🎯',
+                    label: t.streakMilestone(14),
+                    achieved: streak >= 14,
+                  ),
+                  _Milestone(
+                    days: 30,
+                    emoji: '🏆',
+                    label: t.streakMilestone(30),
+                    achieved: streak >= 30,
+                  ),
+                  _Milestone(
+                    days: 60,
+                    emoji: '👑',
+                    label: t.streakMilestone(60),
+                    achieved: streak >= 60,
+                  ),
+                  _Milestone(
+                    days: 100,
+                    emoji: '💎',
+                    label: t.streakMilestone(100),
+                    achieved: streak >= 100,
+                  ),
                 ],
               ),
             ],
@@ -277,7 +324,12 @@ class _Milestone {
   final String emoji;
   final String label;
   final bool achieved;
-  const _Milestone({required this.days, required this.emoji, required this.label, required this.achieved});
+  const _Milestone({
+    required this.days,
+    required this.emoji,
+    required this.label,
+    required this.achieved,
+  });
 }
 
 class _MilestoneRow extends StatelessWidget {
@@ -298,11 +350,17 @@ class _MilestoneRow extends StatelessWidget {
                   height: 52,
                   decoration: BoxDecoration(
                     gradient: m.achieved
-                        ? const LinearGradient(colors: [Color(0xFFFFC800), Color(0xFFFF9600)])
+                        ? const LinearGradient(
+                            colors: [Color(0xFFFFC800), Color(0xFFFF9600)],
+                          )
                         : null,
                     color: m.achieved ? null : AppColors.surfaceVariant,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    border: m.achieved ? null : Border.all(color: AppColors.outline.withValues(alpha: 0.3)),
+                    border: m.achieved
+                        ? null
+                        : Border.all(
+                            color: AppColors.outline.withValues(alpha: 0.3),
+                          ),
                   ),
                   child: Center(
                     child: Text(
@@ -318,7 +376,9 @@ class _MilestoneRow extends StatelessWidget {
                 Text(
                   m.label,
                   style: AppTypography.labelSmall.copyWith(
-                    color: m.achieved ? AppColors.accentOrange : AppColors.textTertiary,
+                    color: m.achieved
+                        ? AppColors.accentOrange
+                        : AppColors.textTertiary,
                     fontWeight: m.achieved ? FontWeight.bold : FontWeight.w500,
                   ),
                 ),
@@ -338,7 +398,10 @@ class _CalendarGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-    final days = List.generate(30, (i) => today.subtract(Duration(days: 29 - i)));
+    final days = List.generate(
+      30,
+      (i) => today.subtract(Duration(days: 29 - i)),
+    );
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -358,7 +421,8 @@ class _CalendarGrid extends StatelessWidget {
         itemCount: days.length,
         itemBuilder: (context, index) {
           final day = days[index];
-          final isToday = day.day == today.day &&
+          final isToday =
+              day.day == today.day &&
               day.month == today.month &&
               day.year == today.year;
           final isActive = index >= (30 - streak) && index < 30;
@@ -369,10 +433,10 @@ class _CalendarGrid extends StatelessWidget {
               shape: BoxShape.circle,
               gradient: isActive
                   ? (isToday
-                      ? const LinearGradient(
-                          colors: [AppColors.primary, AppColors.primaryLight],
-                        )
-                      : null)
+                        ? const LinearGradient(
+                            colors: [AppColors.primary, AppColors.primaryLight],
+                          )
+                        : null)
                   : null,
               color: isActive
                   ? (isToday ? null : AppColors.primaryContainer)

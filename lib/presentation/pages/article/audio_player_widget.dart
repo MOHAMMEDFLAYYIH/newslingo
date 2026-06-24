@@ -112,9 +112,8 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
-  double get _progress => _duration.inSeconds > 0
-      ? _position.inSeconds / _duration.inSeconds
-      : 0.0;
+  double get _progress =>
+      _duration.inSeconds > 0 ? _position.inSeconds / _duration.inSeconds : 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +123,9 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXxl)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.radiusXxl),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -138,20 +139,25 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
         children: [
           Container(
             margin: const EdgeInsets.only(top: AppSpacing.md),
-            width: 40, height: 4,
+            width: 40,
+            height: 4,
             decoration: BoxDecoration(
               color: AppColors.outline.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, 0,
+            padding: EdgeInsetsDirectional.fromSTEB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              0,
             ),
             child: Row(
               children: [
                 Container(
-                  width: 40, height: 40,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: AppColors.primaryContainer,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
@@ -186,14 +192,20 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                   GestureDetector(
                     onTap: widget.onClose,
                     child: Container(
-                      width: 36, height: 36,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
                         color: AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusFull,
+                        ),
                       ),
                       child: const Center(
-                        child: Icon(Icons.keyboard_arrow_down_rounded,
-                            size: 22, color: AppColors.textSecondary),
+                        child: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 22,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ),
@@ -206,13 +218,13 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
             const SizedBox(height: AppSpacing.xxl),
           ] else if (!_hasAudio) ...[
             const SizedBox(height: AppSpacing.xxl),
-            const Center(
-              child: Text('🔇', style: TextStyle(fontSize: 40)),
-            ),
+            const Center(child: Text('🔇', style: TextStyle(fontSize: 40))),
             const SizedBox(height: AppSpacing.sm),
             Center(
-              child: Text(t.articleNoAudio,
-                  style: const TextStyle(color: AppColors.textTertiary)),
+              child: Text(
+                t.articleNoAudio,
+                style: const TextStyle(color: AppColors.textTertiary),
+              ),
             ),
             const SizedBox(height: AppSpacing.xxl),
           ] else ...[
@@ -259,15 +271,21 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                     data: SliderThemeData(
                       trackHeight: 4,
                       activeTrackColor: AppColors.primary,
-                      inactiveTrackColor: AppColors.outline.withValues(alpha: 0.3),
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                      inactiveTrackColor: AppColors.outline.withValues(
+                        alpha: 0.3,
+                      ),
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 8,
+                      ),
                       thumbColor: AppColors.primary,
                       overlayColor: AppColors.primary.withValues(alpha: 0.12),
                     ),
                     child: Slider(
                       value: _progress.clamp(0.0, 1.0),
                       onChanged: (v) {
-                        final pos = Duration(milliseconds: (v * _duration.inMilliseconds).round());
+                        final pos = Duration(
+                          milliseconds: (v * _duration.inMilliseconds).round(),
+                        );
                         _player.seek(pos);
                       },
                     ),
@@ -301,12 +319,17 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                   onTap: _cycleSpeed,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md, vertical: AppSpacing.sm,
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                      border: Border.all(color: AppColors.outline.withValues(alpha: 0.3)),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusFull,
+                      ),
+                      border: Border.all(
+                        color: AppColors.outline.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Text(
                       '${_speeds[_speedIndex]}x',
@@ -323,28 +346,38 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                   child: AnimatedBuilder(
                     animation: _pulseAnimation,
                     builder: (context, _) {
-                      final scale = _player.playing ? 1.0 + _pulseAnimation.value * 0.06 : 1.0;
+                      final scale = _player.playing
+                          ? 1.0 + _pulseAnimation.value * 0.06
+                          : 1.0;
                       return Transform.scale(
                         scale: scale,
                         child: Container(
-                          width: 72, height: 72,
+                          width: 72,
+                          height: 72,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [AppColors.primary, AppColors.primaryDark],
+                              colors: [
+                                AppColors.primary,
+                                AppColors.primaryDark,
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.35),
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.35,
+                                ),
                                 blurRadius: 16,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: Icon(
-                            _player.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                            _player.playing
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
                             color: Colors.white,
                             size: 36,
                           ),
@@ -357,11 +390,16 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                 GestureDetector(
                   onTap: () => _player.seek(_duration),
                   child: Container(
-                    width: 44, height: 44,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                      border: Border.all(color: AppColors.outline.withValues(alpha: 0.3)),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusFull,
+                      ),
+                      border: Border.all(
+                        color: AppColors.outline.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: const Center(
                       child: Text('⏭️', style: TextStyle(fontSize: 20)),

@@ -38,12 +38,25 @@ class _SavedArticlesPageState extends State<SavedArticlesPage> {
 
   Future<void> _loadArticles() async {
     final t = AppLocalizations.of(context);
-    setState(() { _loading = true; _errorMessage = null; });
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
     try {
       final articles = await sl<NewsRepository>().getBookmarkedArticles();
-      if (mounted) setState(() { _articles = articles; _loading = false; });
+      if (mounted) {
+        setState(() {
+          _articles = articles;
+          _loading = false;
+        });
+      }
     } catch (e) {
-      if (mounted) setState(() { _loading = false; _errorMessage = t.savedArticlesError; });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _errorMessage = t.savedArticlesError;
+        });
+      }
     }
   }
 
@@ -77,18 +90,21 @@ class _SavedArticlesPageState extends State<SavedArticlesPage> {
                 child: _loading
                     ? const Center(child: CircularProgressIndicator())
                     : _errorMessage != null
-                        ? _ErrorView(
-                            message: _errorMessage!,
-                            onRetry: _loadArticles,
-                          )
-                        : _articles.isEmpty
-                            ? _EmptyState()
-                            : ListView(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.xl, vertical: AppSpacing.md,
-                                ),
-                                children: _articles.map((a) => _Card(article: a)).toList(),
-                              ),
+                    ? _ErrorView(
+                        message: _errorMessage!,
+                        onRetry: _loadArticles,
+                      )
+                    : _articles.isEmpty
+                    ? _EmptyState()
+                    : ListView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.xl,
+                          vertical: AppSpacing.md,
+                        ),
+                        children: _articles
+                            .map((a) => _Card(article: a))
+                            .toList(),
+                      ),
               ),
             ],
           ),
@@ -114,14 +130,17 @@ class _ErrorView extends StatelessWidget {
           children: [
             const Text('😕', style: TextStyle(fontSize: 64)),
             const SizedBox(height: AppSpacing.xl),
-            Text(message,
-                style: AppTypography.bodyLarge, textAlign: TextAlign.center),
+            Text(
+              message,
+              style: AppTypography.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: AppSpacing.xxl),
-              FilledButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded, size: 20),
-                label: Text(t.homeRetry),
-              ),
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded, size: 20),
+              label: Text(t.homeRetry),
+            ),
           ],
         ),
       ),
@@ -165,12 +184,18 @@ class _Card extends StatelessWidget {
 
   Color _levelColor(String level) {
     switch (level) {
-      case 'A1': return AppColors.levelA1;
-      case 'A2': return AppColors.levelA2;
-      case 'B1': return AppColors.levelB1;
-      case 'B2': return AppColors.levelB2;
-      case 'C1': return AppColors.levelC1;
-      default: return AppColors.levelB1;
+      case 'A1':
+        return AppColors.levelA1;
+      case 'A2':
+        return AppColors.levelA2;
+      case 'B1':
+        return AppColors.levelB1;
+      case 'B2':
+        return AppColors.levelB2;
+      case 'C1':
+        return AppColors.levelC1;
+      default:
+        return AppColors.levelB1;
     }
   }
 
@@ -214,11 +239,16 @@ class _Card extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm, vertical: AppSpacing.xxs,
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xxs,
                           ),
                           decoration: BoxDecoration(
-                            color: _levelColor(article.level).withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+                            color: _levelColor(
+                              article.level,
+                            ).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusXs,
+                            ),
                           ),
                           child: Text(
                             article.level,
@@ -230,7 +260,10 @@ class _Card extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          article.publishedAt.toIso8601String().substring(0, 10),
+                          article.publishedAt.toIso8601String().substring(
+                            0,
+                            10,
+                          ),
                           style: AppTypography.labelSmall.copyWith(
                             color: AppColors.textTertiary,
                           ),

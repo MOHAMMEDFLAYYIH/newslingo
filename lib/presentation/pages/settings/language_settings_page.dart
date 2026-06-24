@@ -16,7 +16,9 @@ class LanguageSettingsPage extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final currentCode = context.watch<LocaleCubit>().state.languageCode;
     final langCodes = ['ar', 'en', 'es', 'fr', 'pt', 'ru', 'hi', 'zh'];
-    final selectedIndex = langCodes.indexOf(currentCode).clamp(0, langCodes.length - 1);
+    final selectedIndex = langCodes
+        .indexOf(currentCode)
+        .clamp(0, langCodes.length - 1);
 
     final languages = [
       _LangData('🇸🇦', t.settingsArabic, 'Arabic'),

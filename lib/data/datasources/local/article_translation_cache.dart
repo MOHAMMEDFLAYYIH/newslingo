@@ -15,11 +15,11 @@ class ArticleTranslation {
   });
 
   Map<String, dynamic> toJson() => {
-        'title': title,
-        'description': description,
-        'content': content,
-        'cached_at': cachedAt.toIso8601String(),
-      };
+    'title': title,
+    'description': description,
+    'content': content,
+    'cached_at': cachedAt.toIso8601String(),
+  };
 
   factory ArticleTranslation.fromJson(Map<String, dynamic> json) =>
       ArticleTranslation(
@@ -34,8 +34,7 @@ class ArticleTranslationCache {
   static const String _box = 'article_translations';
   static const Duration _ttl = Duration(hours: 24);
 
-  String _key(String articleId, String locale) =>
-      '${articleId}_$locale';
+  String _key(String articleId, String locale) => '${articleId}_$locale';
 
   Future<void> save(
     String articleId,
@@ -46,15 +45,14 @@ class ArticleTranslationCache {
     await box.put(_key(articleId, locale), jsonEncode(translation.toJson()));
   }
 
-  Future<ArticleTranslation?> get(
-    String articleId,
-    String locale,
-  ) async {
+  Future<ArticleTranslation?> get(String articleId, String locale) async {
     final box = await Hive.openBox<String>(_box);
     final data = box.get(_key(articleId, locale));
     if (data == null) return null;
     try {
-      final t = ArticleTranslation.fromJson(jsonDecode(data) as Map<String, dynamic>);
+      final t = ArticleTranslation.fromJson(
+        jsonDecode(data) as Map<String, dynamic>,
+      );
       if (DateTime.now().difference(t.cachedAt) > _ttl) return null;
       return t;
     } catch (_) {
@@ -73,7 +71,8 @@ class ArticleTranslationCache {
       if (data == null) continue;
       try {
         final t = ArticleTranslation.fromJson(
-            jsonDecode(data) as Map<String, dynamic>);
+          jsonDecode(data) as Map<String, dynamic>,
+        );
         if (DateTime.now().difference(t.cachedAt) <= _ttl) {
           result[id] = t;
         }

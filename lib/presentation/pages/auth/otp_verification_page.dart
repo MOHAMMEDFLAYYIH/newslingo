@@ -38,7 +38,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    _scaleAnim = CurvedAnimation(parent: _animController, curve: Curves.elasticOut);
+    _scaleAnim = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.elasticOut,
+    );
   }
 
   @override
@@ -76,7 +79,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
 
   Future<void> _verifyCode(String code) async {
     if (_email == null || _isLoading) return;
-    setState(() { _isLoading = true; _errorMessage = null; });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
       await sl<SupabaseClient>().auth.verifyOTP(
         email: _email!,
@@ -93,7 +99,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
         _isLoading = false;
         _errorMessage = AppLocalizations.of(context).otpIncorrect;
       });
-      for (final c in _codeControllers) { c.clear(); }
+      for (final c in _codeControllers) {
+        c.clear();
+      }
       _focusNodes[0].requestFocus();
     }
   }
@@ -110,9 +118,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
             colors: AppColors.surfaceGradient,
           ),
         ),
-        child: SafeArea(
-          child: _isVerified ? _buildVerified(t) : _buildForm(t),
-        ),
+        child: SafeArea(child: _isVerified ? _buildVerified(t) : _buildForm(t)),
       ),
     );
   }
@@ -131,10 +137,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  t.otpTitle,
-                  style: AppTypography.displayMedium,
-                ),
+                Text(t.otpTitle, style: AppTypography.displayMedium),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   t.otpSubtitle,
@@ -159,7 +162,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                 ),
                 child: Text(
                   _errorMessage!,
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.error),
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.error,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -189,16 +194,29 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                         filled: true,
                         fillColor: AppColors.surface,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                          borderSide: BorderSide(color: AppColors.outline.withValues(alpha: 0.5)),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
+                          borderSide: BorderSide(
+                            color: AppColors.outline.withValues(alpha: 0.5),
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                          borderSide: BorderSide(color: AppColors.outline.withValues(alpha: 0.5)),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
+                          borderSide: BorderSide(
+                            color: AppColors.outline.withValues(alpha: 0.5),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
+                          borderSide: const BorderSide(
+                            color: AppColors.primary,
+                            width: 2,
+                          ),
                         ),
                       ),
                       onChanged: (value) => _onDigitChanged(i, value),
@@ -258,10 +276,14 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                   ],
                 ),
                 child: FilledButton(
-                  onPressed: _isLoading ? null : () {
-                    final code = _codeControllers.map((c) => c.text).join();
-                    if (code.length == 6) _verifyCode(code);
-                  },
+                  onPressed: _isLoading
+                      ? null
+                      : () {
+                          final code = _codeControllers
+                              .map((c) => c.text)
+                              .join();
+                          if (code.length == 6) _verifyCode(code);
+                        },
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
@@ -270,12 +292,18 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                   ),
                   child: _isLoading
                       ? const SizedBox(
-                          width: 24, height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : Text(
                           t.otpConfirm,
-                          style: AppTypography.titleMedium.copyWith(color: Colors.white),
+                          style: AppTypography.titleMedium.copyWith(
+                            color: Colors.white,
+                          ),
                         ),
                 ),
               ),
@@ -296,7 +324,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 120, height: 120,
+                width: 120,
+                height: 120,
                 decoration: BoxDecoration(
                   color: AppColors.primaryContainer,
                   shape: BoxShape.circle,
@@ -341,12 +370,16 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMd,
+                        ),
                       ),
                     ),
                     child: Text(
                       t.backToLogin,
-                      style: AppTypography.titleMedium.copyWith(color: Colors.white),
+                      style: AppTypography.titleMedium.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
