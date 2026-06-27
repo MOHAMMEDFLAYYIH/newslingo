@@ -8,6 +8,7 @@ import 'package:newslingo/core/theme/app_spacing.dart';
 import 'package:newslingo/core/theme/app_typography.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:newslingo/presentation/widgets/app_back_button.dart';
+import 'package:newslingo/presentation/widgets/app_text_field.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
@@ -28,6 +29,13 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
   String? _email;
+
+  // Password reset state
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _passwordFormKey = GlobalKey<FormState>();
+  bool _isUpdatingPassword = false;
+  bool _passwordUpdatedSuccess = false;
 
   @override
   void initState() {
@@ -52,6 +60,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
     for (final f in _focusNodes) {
       f.dispose();
     }
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _timer?.cancel();
     _animController.dispose();
     super.dispose();
@@ -315,6 +325,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
   }
 
   Widget _buildVerified(AppLocalizations t) {
+    if (!_passwordUpdatedSuccess) {
+      return _buildPasswordResetForm(t);
+    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
@@ -366,7 +379,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                     ],
                   ),
                   child: FilledButton(
-                    onPressed: () => context.go('/login'),
+                    onPressed: () => context.go('/home'),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
@@ -376,7 +389,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                       ),
                     ),
                     child: Text(
-                      t.backToLogin,
+                      t.levelContinue,
                       style: AppTypography.titleMedium.copyWith(
                         color: Colors.white,
                       ),
@@ -389,5 +402,170 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
         ),
       ),
     );
+  }
+
+  Widget _buildPasswordResetForm(AppLocalizations t) {
+    return SingleChildScrollView(
+      child: Form(
+        key: _passwordFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+              child: AppBackButton(),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t.passwordLabel, style: AppTypography.displayMedium),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    t.otpSuccessDetail,
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: AppColors.textSecondary,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl5),
+            if (_errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  ),
+                  child: Text(
+                    _errorMessage!,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.error,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            const SizedBox(height: AppSpacing.md),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+              child: Column(
+                children: [
+                  AppTextField(
+                    controller: _passwordController,
+                    label: t.passwordLabel,
+                    hint: t.passwordHint,
+                    prefixIcon: Icons.lock_outline_rounded,
+                    obscureText: true,
+                    isRtl: Directionality.of(context) == TextDirection.rtl,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return t.passwordRequired;
+                      }
+                      if (value.length < 6) {
+                        return t.passwordLengthError;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  AppTextField(
+                    controller: _confirmPasswordController,
+                    label: t.confirmPasswordLabel,
+                    hint: t.confirmPasswordHint,
+                    prefixIcon: Icons.lock_outline_rounded,
+                    obscureText: true,
+                    isRtl: Directionality.of(context) == TextDirection.rtl,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return t.confirmPasswordRequired;
+                      }
+                      if (value != _passwordController.text) {
+                        return t.passwordsMismatch;
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xxxl),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: FilledButton(
+                    onPressed: _isUpdatingPassword ? null : _updatePassword,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                      ),
+                    ),
+                    child: _isUpdatingPassword
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            t.otpConfirm,
+                            style: AppTypography.titleMedium.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _updatePassword() async {
+    if (!_passwordFormKey.currentState!.validate()) return;
+    setState(() {
+      _isUpdatingPassword = true;
+      _errorMessage = null;
+    });
+    try {
+      await sl<SupabaseClient>().auth.updateUser(
+        UserAttributes(password: _passwordController.text.trim()),
+      );
+      setState(() {
+        _passwordUpdatedSuccess = true;
+        _isUpdatingPassword = false;
+      });
+      _animController.reset();
+      _animController.forward();
+    } catch (e) {
+      setState(() {
+        _isUpdatingPassword = false;
+        _errorMessage = e.toString();
+      });
+    }
   }
 }
